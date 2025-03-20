@@ -1,4 +1,3 @@
-
 import { ChartData, ChartItemType, ChartType, Position, Size } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -98,6 +97,60 @@ export function createNewChartItem(
     title: getDefaultTitle(type),
     data: chartData,
     options: getDefaultOptions(type),
+  };
+}
+
+export function createGenderComparisonChart(position: Position): ChartItemType {
+  return {
+    id: uuidv4(),
+    type: "bar",
+    position,
+    size: DEFAULT_CHART_SIZE,
+    title: "Gender Comparison Chart",
+    data: {
+      labels: ["Mathematics", "Science", "Language", "History", "Sports"],
+      datasets: [
+        {
+          label: "Girls",
+          data: [78, 82, 85, 76, 70],
+          backgroundColor: "#8B5CF6", // Purple for girls
+        },
+        {
+          label: "Boys",
+          data: [72, 70, 65, 68, 80],
+          backgroundColor: "#4F46E5", // Blue for boys
+        }
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Score'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Subjects'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Performance Comparison by Gender'
+        }
+      }
+    }
   };
 }
 

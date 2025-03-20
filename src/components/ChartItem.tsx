@@ -1,4 +1,3 @@
-
 import { useRef, useState, MouseEvent, useEffect } from "react";
 import { ChartItemType, Position, Size } from "@/types";
 import { useDashboard } from "@/context/DashboardContext";
@@ -120,13 +119,11 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         let newX = e.clientX - canvasRect.left - dragOffset.x;
         let newY = e.clientY - canvasRect.top - dragOffset.y;
 
-        // Apply grid snapping if enabled
         if (state.snapToGrid) {
           newX = snapToGrid(newX, state.gridSize);
           newY = snapToGrid(newY, state.gridSize);
         }
 
-        // Prevent moving outside canvas
         newX = Math.max(0, Math.min(newX, canvasRect.width - item.size.width));
         newY = Math.max(0, Math.min(newY, canvasRect.height - item.size.height));
 
@@ -143,7 +140,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         const deltaX = e.clientX - initialMousePosition.x;
         const deltaY = e.clientY - initialMousePosition.y;
 
-        // Handle different resize directions
         if (resizeDirection.includes("e")) {
           newWidth = initialSize.width + deltaX;
         }
@@ -159,7 +155,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
           newY = initialPosition.y + deltaY;
         }
 
-        // Apply grid snapping if enabled
         if (state.snapToGrid) {
           newWidth = snapToGrid(newWidth, state.gridSize);
           newHeight = snapToGrid(newHeight, state.gridSize);
@@ -167,7 +162,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
           newY = snapToGrid(newY, state.gridSize);
         }
 
-        // Enforce minimum size
         newWidth = Math.max(100, newWidth);
         newHeight = Math.max(100, newHeight);
 
@@ -239,16 +233,29 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       );
     }
 
-    // Convert data for recharts if needed
-    const chartData = item.data.datasets[0].data.map((value, index) => {
-      if (typeof value === "object" && "x" in value && "y" in value) {
-        return value;
-      }
-      return {
-        name: item.data.labels[index] || `Item ${index + 1}`,
-        value: value,
-      };
-    });
+    const hasMultipleDatasets = item.data.datasets.length > 1;
+    
+    let chartData;
+    
+    if (hasMultipleDatasets) {
+      chartData = item.data.labels.map((label, index) => {
+        const dataPoint: any = { name: label };
+        item.data.datasets.forEach(dataset => {
+          dataPoint[dataset.label] = dataset.data[index];
+        });
+        return dataPoint;
+      });
+    } else {
+      chartData = item.data.datasets[0].data.map((value, index) => {
+        if (typeof value === "object" && "x" in value && "y" in value) {
+          return value;
+        }
+        return {
+          name: item.data.labels[index] || `Item ${index + 1}`,
+          value: value,
+        };
+      });
+    }
     
     const color = item.data.datasets[0].backgroundColor as string;
     const colors = Array.isArray(item.data.datasets[0].backgroundColor) 
@@ -265,7 +272,21 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" fill={color || "#4F46E5"} />
+              {hasMultipleDatasets ? (
+                item.data.datasets.map((dataset, index) => (
+                  <Bar 
+                    key={index}
+                    dataKey={dataset.label} 
+                    fill={
+                      Array.isArray(dataset.backgroundColor) 
+                        ? dataset.backgroundColor[0] 
+                        : (dataset.backgroundColor as string || "#4F46E5")
+                    } 
+                  />
+                ))
+              ) : (
+                <Bar dataKey="value" fill={color || "#4F46E5"} />
+              )}
             </BarChart>
           </ResponsiveContainer>
         );
@@ -400,7 +421,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         </div>
       )}
       
-      {/* Chart title */}
       {item.type !== "text" && (
         <div className="chart-title px-4 pt-3 pb-1 border-b">
           {editingTitle ? (
@@ -424,12 +444,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         </div>
       )}
       
-      {/* Chart content */}
       <div className="chart-content p-2" style={{ height: "calc(100% - 40px)" }}>
         {renderChartContent()}
       </div>
       
-      {/* Resize handles */}
       {isSelected && !isPreviewMode && (
         <>
           <div

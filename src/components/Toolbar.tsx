@@ -1,7 +1,12 @@
-
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartType } from "@/types";
-import { createNewChartItem, exportToJSON, exportToPNG, exportToPDF } from "@/utils/chartUtils";
+import { 
+  createNewChartItem, 
+  exportToJSON, 
+  exportToPNG, 
+  exportToPDF,
+  createGenderComparisonChart 
+} from "@/utils/chartUtils";
 import { toast } from "sonner";
 import { 
   BarChart, 
@@ -20,7 +25,8 @@ import {
   Settings,
   Share,
   Image,
-  FileOutput
+  FileOutput,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -41,15 +47,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
@@ -79,6 +76,23 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
 
     dispatch({ type: "ADD_ITEM", payload: newItem });
     toast.success(`Added new ${type} chart`);
+  };
+
+  const handleAddComparisonChart = () => {
+    const canvasElement = document.getElementById("dashboard-canvas");
+    if (!canvasElement) return;
+
+    const canvasRect = canvasElement.getBoundingClientRect();
+    const centerX = canvasRect.width / 2 - 200;
+    const centerY = canvasRect.height / 2 - 150;
+
+    const newItem = createGenderComparisonChart({
+      x: Math.max(0, centerX),
+      y: Math.max(0, centerY),
+    });
+
+    dispatch({ type: "ADD_ITEM", payload: newItem });
+    toast.success("Added gender comparison chart");
   };
 
   const handleSave = () => {
@@ -232,6 +246,11 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
             <DropdownMenuItem onClick={() => handleAddItem("text")}>
               <Type className="mr-2 h-4 w-4" />
               <span>Text Label</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleAddComparisonChart}>
+              <Users className="mr-2 h-4 w-4" />
+              <span>Gender Comparison Chart</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
