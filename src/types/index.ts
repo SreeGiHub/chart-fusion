@@ -24,7 +24,7 @@ export type ChartData = {
   labels: string[];
   datasets: {
     label: string;
-    data: number[];
+    data: Array<number | {x: number, y: number}>;
     backgroundColor?: string | string[];
     borderColor?: string | string[];
     borderWidth?: number;

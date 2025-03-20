@@ -2,6 +2,7 @@ import { useRef, useState, MouseEvent, useEffect } from "react";
 import { ChartItemType, Position, Size } from "@/types";
 import { useDashboard } from "@/context/DashboardContext";
 import { snapToGrid } from "@/utils/chartUtils";
+import { DEFAULT_COLORS } from "@/utils/chartUtils";
 import {
   BarChart,
   LineChart,
@@ -241,13 +242,15 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       chartData = item.data.labels.map((label, index) => {
         const dataPoint: any = { name: label };
         item.data.datasets.forEach(dataset => {
-          dataPoint[dataset.label] = dataset.data[index];
+          if (dataset.data && index < dataset.data.length) {
+            dataPoint[dataset.label] = dataset.data[index];
+          }
         });
         return dataPoint;
       });
     } else {
       chartData = item.data.datasets[0].data.map((value, index) => {
-        if (typeof value === "object" && "x" in value && "y" in value) {
+        if (typeof value === "object" && value !== null && "x" in value && "y" in value) {
           return value;
         }
         return {
@@ -300,13 +303,34 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
-                stroke={item.data.datasets[0].borderColor || "#4F46E5"} 
-                strokeWidth={2}
-                activeDot={{ r: 8 }} 
-              />
+              {hasMultipleDatasets ? (
+                item.data.datasets.map((dataset, index) => (
+                  <Line 
+                    key={index}
+                    type="monotone" 
+                    dataKey={dataset.label} 
+                    stroke={
+                      typeof dataset.borderColor === 'string' 
+                        ? dataset.borderColor 
+                        : DEFAULT_COLORS[index % DEFAULT_COLORS.length]
+                    }
+                    strokeWidth={2}
+                    activeDot={{ r: 8 }} 
+                  />
+                ))
+              ) : (
+                <Line 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={
+                    typeof item.data.datasets[0].borderColor === 'string' 
+                      ? item.data.datasets[0].borderColor 
+                      : "#4F46E5"
+                  }
+                  strokeWidth={2}
+                  activeDot={{ r: 8 }} 
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         );
@@ -343,12 +367,36 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Area 
-                type="monotone" 
-                dataKey="value" 
-                stroke={item.data.datasets[0].borderColor || "#4F46E5"} 
-                fill={item.data.datasets[0].backgroundColor || "#4F46E533"} 
-              />
+              {hasMultipleDatasets ? (
+                item.data.datasets.map((dataset, index) => (
+                  <Area 
+                    key={index}
+                    type="monotone" 
+                    dataKey={dataset.label} 
+                    stroke={
+                      typeof dataset.borderColor === 'string' 
+                        ? dataset.borderColor 
+                        : DEFAULT_COLORS[index % DEFAULT_COLORS.length]
+                    }
+                    fill={
+                      typeof dataset.backgroundColor === 'string' 
+                        ? dataset.backgroundColor 
+                        : `${DEFAULT_COLORS[index % DEFAULT_COLORS.length]}33`
+                    }
+                  />
+                ))
+              ) : (
+                <Area 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={
+                    typeof item.data.datasets[0].borderColor === 'string' 
+                      ? item.data.datasets[0].borderColor 
+                      : "#4F46E5"
+                  }
+                  fill={item.data.datasets[0].backgroundColor || "#4F46E533"} 
+                />
+              )}
             </AreaChart>
           </ResponsiveContainer>
         );

@@ -26,7 +26,9 @@ import {
   Share,
   Image,
   FileOutput,
-  Users
+  Users,
+  MessageSquareText,
+  Wand2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -51,6 +53,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useRef, useState } from "react";
+import TextToChartDialog from "./TextToChartDialog";
 
 interface ToolbarProps {
   canvasRef: React.RefObject<HTMLDivElement>;
@@ -59,6 +62,7 @@ interface ToolbarProps {
 const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
   const { state, dispatch } = useDashboard();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isTextToChartOpen, setIsTextToChartOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddItem = (type: ChartType) => {
@@ -252,8 +256,28 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
               <Users className="mr-2 h-4 w-4" />
               <span>Gender Comparison Chart</span>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setIsTextToChartOpen(true)}>
+              <MessageSquareText className="mr-2 h-4 w-4" />
+              <span>Text to Chart</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => setIsTextToChartOpen(true)}
+              >
+                <Wand2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Text to Chart</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <TooltipProvider>
           <Tooltip>
@@ -416,6 +440,11 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <TextToChartDialog 
+          open={isTextToChartOpen} 
+          onOpenChange={setIsTextToChartOpen} 
+        />
       </div>
     </div>
   );
