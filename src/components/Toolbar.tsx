@@ -1,0 +1,405 @@
+
+import { useDashboard } from "@/context/DashboardContext";
+import { ChartType } from "@/types";
+import { createNewChartItem, exportToJSON, exportToPNG, exportToPDF } from "@/utils/chartUtils";
+import { toast } from "sonner";
+import { 
+  BarChart, 
+  LineChart, 
+  PieChart, 
+  Activity, 
+  Type, 
+  Save, 
+  Download, 
+  Upload, 
+  Undo, 
+  Redo, 
+  Eye, 
+  EyeOff, 
+  Grid, 
+  Settings,
+  Share,
+  Image,
+  FileOutput
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { useRef, useState } from "react";
+
+interface ToolbarProps {
+  canvasRef: React.RefObject<HTMLDivElement>;
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
+  const { state, dispatch } = useDashboard();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAddItem = (type: ChartType) => {
+    const canvasElement = document.getElementById("dashboard-canvas");
+    if (!canvasElement) return;
+
+    const canvasRect = canvasElement.getBoundingClientRect();
+    const centerX = canvasRect.width / 2 - 200;
+    const centerY = canvasRect.height / 2 - 150;
+
+    const newItem = createNewChartItem(type, {
+      x: Math.max(0, centerX),
+      y: Math.max(0, centerY),
+    });
+
+    dispatch({ type: "ADD_ITEM", payload: newItem });
+    toast.success(`Added new ${type} chart`);
+  };
+
+  const handleSave = () => {
+    try {
+      const data = exportToJSON(state);
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${state.title || "dashboard"}.json`;
+      link.click();
+
+      toast.success("Dashboard saved successfully");
+    } catch (error) {
+      console.error("Failed to save dashboard:", error);
+      toast.error("Failed to save dashboard");
+    }
+  };
+
+  const handleExportPNG = () => {
+    try {
+      exportToPNG(canvasRef);
+      toast.success("Exported as PNG");
+    } catch (error) {
+      console.error("Failed to export as PNG:", error);
+      toast.error("Failed to export as PNG");
+    }
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      await exportToPDF(canvasRef);
+      toast.success("Exported as PDF");
+    } catch (error) {
+      console.error("Failed to export as PDF:", error);
+      toast.error("Failed to export as PDF");
+    }
+  };
+
+  const handleImport = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const data = JSON.parse(content);
+        
+        if (!data.title || !Array.isArray(data.items)) {
+          throw new Error("Invalid dashboard file format");
+        }
+
+        dispatch({
+          type: "IMPORT_DASHBOARD",
+          payload: {
+            ...state,
+            title: data.title,
+            items: data.items,
+          },
+        });
+
+        toast.success("Dashboard imported successfully");
+      } catch (error) {
+        console.error("Failed to import dashboard:", error);
+        toast.error("Failed to import dashboard: Invalid file format");
+      }
+    };
+
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleUndo = () => {
+    if (state.editHistory.past.length === 0) {
+      toast.info("Nothing to undo");
+      return;
+    }
+    dispatch({ type: "UNDO" });
+  };
+
+  const handleRedo = () => {
+    if (state.editHistory.future.length === 0) {
+      toast.info("Nothing to redo");
+      return;
+    }
+    dispatch({ type: "REDO" });
+  };
+
+  const handleTogglePreview = () => {
+    dispatch({ type: "TOGGLE_PREVIEW_MODE" });
+  };
+
+  const handleToggleGrid = () => {
+    dispatch({ type: "TOGGLE_GRID" });
+  };
+
+  const handleToggleSnapToGrid = () => {
+    dispatch({ type: "TOGGLE_SNAP_TO_GRID" });
+  };
+
+  const handleGridSizeChange = (value: number[]) => {
+    dispatch({ type: "SET_GRID_SIZE", payload: value[0] });
+  };
+
+  const canvasUrl = `${window.location.origin}${window.location.pathname}?preview=true`;
+
+  const handleShareLink = () => {
+    navigator.clipboard.writeText(canvasUrl);
+    toast.success("Link copied to clipboard");
+  };
+
+  return (
+    <div className="toolbar flex items-center justify-between p-2 border-b bg-background">
+      <div className="left-section flex items-center gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="default">
+              <span className="hidden sm:inline-block mr-2">Add Item</span>
+              <span className="sm:hidden">+</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuLabel>Chart Types</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleAddItem("bar")}>
+              <BarChart className="mr-2 h-4 w-4" />
+              <span>Bar Chart</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleAddItem("line")}>
+              <LineChart className="mr-2 h-4 w-4" />
+              <span>Line Chart</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleAddItem("pie")}>
+              <PieChart className="mr-2 h-4 w-4" />
+              <span>Pie Chart</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleAddItem("area")}>
+              <Activity className="mr-2 h-4 w-4" />
+              <span>Area Chart</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleAddItem("donut")}>
+              <PieChart className="mr-2 h-4 w-4" />
+              <span>Donut Chart</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleAddItem("text")}>
+              <Type className="mr-2 h-4 w-4" />
+              <span>Text Label</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={handleUndo} disabled={state.editHistory.past.length === 0}>
+                <Undo className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Undo</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={handleRedo} disabled={state.editHistory.future.length === 0}>
+                <Redo className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Redo</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={handleToggleGrid}>
+                <Grid className={`h-4 w-4 ${state.isGridVisible ? "text-primary" : ""}`} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Toggle Grid</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      <div className="middle-section">
+        <input
+          type="text"
+          value={state.title}
+          onChange={(e) => dispatch({ type: "SET_TITLE", payload: e.target.value })}
+          className="text-xl font-semibold bg-transparent border-none focus:outline-none focus:ring-0 text-center w-96"
+          placeholder="Untitled Dashboard"
+        />
+      </div>
+
+      <div className="right-section flex items-center gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={handleTogglePreview}>
+                {state.previewMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{state.previewMode ? "Exit Preview" : "Preview"}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <Save className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Save & Export</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSave}>
+              <Save className="mr-2 h-4 w-4" />
+              <span>Save as JSON</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportPNG}>
+              <Image className="mr-2 h-4 w-4" />
+              <span>Export as PNG</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportPDF}>
+              <FileOutput className="mr-2 h-4 w-4" />
+              <span>Export as PDF</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept=".json"
+          className="hidden"
+        />
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={handleImport}>
+                <Upload className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Import Dashboard</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={handleShareLink}>
+                <Share className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Share Link</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="icon">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Dashboard Settings</DialogTitle>
+              <DialogDescription>
+                Configure the dashboard appearance and behavior
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-grid">Show Grid</Label>
+                <Switch
+                  id="show-grid"
+                  checked={state.isGridVisible}
+                  onCheckedChange={() => dispatch({ type: "TOGGLE_GRID" })}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label htmlFor="snap-grid">Snap to Grid</Label>
+                <Switch
+                  id="snap-grid"
+                  checked={state.snapToGrid}
+                  onCheckedChange={() => dispatch({ type: "TOGGLE_SNAP_TO_GRID" })}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="grid-size">Grid Size: {state.gridSize}px</Label>
+                <Slider
+                  id="grid-size"
+                  defaultValue={[state.gridSize]}
+                  min={10}
+                  max={50}
+                  step={5}
+                  onValueChange={handleGridSizeChange}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setIsSettingsOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+};
+
+export default Toolbar;
