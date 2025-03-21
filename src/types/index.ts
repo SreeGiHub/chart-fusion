@@ -37,13 +37,15 @@ export type ComplexDataPoint = {
   x: number;
   y: number;
   r?: number;
+  z?: number; // Adding z for bubble chart
 };
 export type BoxPlotDataPoint = {
   x: number;
   y: number[];
 };
 
-export type ChartDataPoint = SimpleDataPoint | ComplexDataPoint;
+// Union type for all possible data point types
+export type ChartDataPoint = SimpleDataPoint | ComplexDataPoint | BoxPlotDataPoint;
 
 export type ChartData = {
   labels: string[];

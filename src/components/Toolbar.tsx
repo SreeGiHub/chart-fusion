@@ -1,4 +1,3 @@
-
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartType } from "@/types";
 import { 
@@ -33,7 +32,7 @@ import {
   ScatterChart,
   Gauge,
   Map,
-  TreemapChart,
+  LayoutGrid,
   BoxSelect,
   CircleDot,
   ZapOff,
@@ -312,7 +311,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                 <span>Funnel Chart</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAddItem("treemap")}>
-                <TreemapChart className="mr-2 h-4 w-4" />
+                <LayoutGrid className="mr-2 h-4 w-4" />
                 <span>Treemap</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAddItem("boxplot")}>

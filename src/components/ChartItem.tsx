@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
-import { ChartItemType, ChartType, ComplexDataPoint } from "@/types";
-import { Rnd } from "react-rnd";
+import { ChartItemType, ChartType, ComplexDataPoint, BoxPlotDataPoint } from "@/types";
+import { Rnd, RndResizeCallback, RndDragCallback } from "react-rnd";
 import { snapToGrid } from "@/utils/chartUtils";
 import {
   BarChart,
@@ -134,7 +134,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     dispatch({ type: "ADD_ITEM", payload: newItem });
   };
 
-  const handleDrag = (e: any, d: any) => {
+  const handleDrag: RndDragCallback = (e, d) => {
     setIsDragging(true);
     let { x, y } = d;
     
@@ -156,7 +156,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     setIsDragging(false);
   };
 
-  const handleResize = (e: any, direction: any, ref: any, delta: any, position: any) => {
+  const handleResize: RndResizeCallback = (e, direction, ref, delta, position) => {
     setIsResizing(true);
     
     let { width, height } = ref.style;
