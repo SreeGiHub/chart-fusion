@@ -1,5 +1,4 @@
-
-import { ChartData, ChartItemType, ChartType, Position, Size } from "../types";
+import { ChartData, ChartDataPoint, ChartItemType, ChartType, Position, Size } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
 const DEFAULT_CHART_SIZE: Size = {
@@ -51,7 +50,7 @@ const DEFAULT_DATASETS = {
       { x: 50, y: 60 },
       { x: 70, y: 80 },
       { x: 90, y: 100 },
-    ],
+    ] as ChartDataPoint[],
     backgroundColor: DEFAULT_COLORS[0],
   },
   donut: {
@@ -68,7 +67,7 @@ const DEFAULT_DATASETS = {
       { x: 50, y: 60, r: 20 },
       { x: 70, y: 80, r: 15 },
       { x: 90, y: 100, r: 25 },
-    ],
+    ] as ChartDataPoint[],
     backgroundColor: DEFAULT_COLORS[0],
   },
   gauge: {
@@ -114,10 +113,10 @@ const DEFAULT_DATASETS = {
   boxplot: {
     label: "Dataset 1",
     data: [
-      { x: 1, y: [10, 20, 50, 70, 90] },
-      { x: 2, y: [15, 25, 45, 65, 85] },
-      { x: 3, y: [20, 30, 50, 70, 95] },
-    ],
+      { x: 1, y: 50 },
+      { x: 2, y: 45 },
+      { x: 3, y: 50 },
+    ] as ChartDataPoint[],
     backgroundColor: DEFAULT_COLORS[0],
   },
   sankey: {
@@ -233,14 +232,12 @@ export function createGenderComparisonChart(position: Position): ChartItemType {
   };
 }
 
-// New function to handle text-to-chart conversion
 export function createTextToChartItem(chartType: string, description: string): ChartItemType {
   const position: Position = {
     x: 100,
     y: 100,
   };
 
-  // Pre-defined chart templates based on the identification
   switch (chartType) {
     case "gender comparison":
       return {
@@ -441,7 +438,6 @@ export function createTextToChartItem(chartType: string, description: string): C
       };
     
     default:
-      // Generic bar chart
       return {
         id: uuidv4(),
         type: "bar",
@@ -698,7 +694,6 @@ export function getRandomData(length: number): number[] {
   return Array.from({ length }, () => Math.floor(Math.random() * 100));
 }
 
-// Fix TypeScript error with scatter data type
 export function generateExampleData(type: ChartType): ChartData {
   switch (type) {
     case "bar":
@@ -728,7 +723,6 @@ export function generateExampleData(type: ChartType): ChartData {
         ],
       };
     case "scatter":
-      // Fix the scatter data format
       return {
         labels: ["Group A", "Group B", "Group C"],
         datasets: [
@@ -738,7 +732,7 @@ export function generateExampleData(type: ChartType): ChartData {
               { x: 10, y: 20 },
               { x: 30, y: 40 },
               { x: 50, y: 60 },
-            ],
+            ] as ChartDataPoint[],
             backgroundColor: DEFAULT_COLORS[0],
           },
         ],

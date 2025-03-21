@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
-import { ChartItemType, ChartType } from "@/types";
+import { ChartItemType, ChartType, ComplexDataPoint } from "@/types";
 import { Rnd } from "react-rnd";
 import { snapToGrid } from "@/utils/chartUtils";
 import {
@@ -30,7 +29,7 @@ import {
   RadialBarChart,
   RadialBar
 } from "recharts";
-import { X, GripVertical, Copy, Trash, Move } from "lucide-react";
+import { X, GripVertical, Copy, Trash2, Move } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TextareaAutosize from "react-textarea-autosize";
 import { cn } from "@/lib/utils";
@@ -52,7 +51,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
   const [height, setHeight] = useState(item.size.height);
 
   useEffect(() => {
-    // Reset the flags when selection changes
     if (!isSelected) {
       setIsEditing(false);
     }
@@ -65,9 +63,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
   useEffect(() => {
     if (item.type === "text" && contentRef.current) {
       const contentHeight = contentRef.current.scrollHeight;
-      // Only update if the height needs to increase
       if (contentHeight > height) {
-        setHeight(contentHeight + 40); // Add some padding
+        setHeight(contentHeight + 40);
         dispatch({
           type: "UPDATE_ITEM",
           payload: {
@@ -84,7 +81,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     }
   }, [item, dispatch, height]);
 
-  // Select the item
   const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isSelected && !previewMode) {
@@ -92,14 +88,12 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     }
   };
 
-  // Double click to edit title
   const handleDoubleClick = (e: React.MouseEvent) => {
     if (!previewMode) {
       setIsEditing(true);
     }
   };
 
-  // Save the new title when blurring or pressing Enter
   const handleTitleSubmit = () => {
     setIsEditing(false);
     if (title !== item.title) {
@@ -113,7 +107,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     }
   };
 
-  // Handle Enter key for text areas
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -121,13 +114,11 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     }
   };
 
-  // Remove the item
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     dispatch({ type: "REMOVE_ITEM", payload: item.id });
   };
 
-  // Duplicate the item
   const handleDuplicate = (e: React.MouseEvent) => {
     e.stopPropagation();
     
@@ -143,7 +134,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     dispatch({ type: "ADD_ITEM", payload: newItem });
   };
 
-  // Update position during drag
   const handleDrag = (e: any, d: any) => {
     setIsDragging(true);
     let { x, y } = d;
@@ -162,12 +152,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     });
   };
 
-  // Update position when drag ends
   const handleDragStop = () => {
     setIsDragging(false);
   };
 
-  // Update size during resize
   const handleResize = (e: any, direction: any, ref: any, delta: any, position: any) => {
     setIsResizing(true);
     
@@ -201,12 +189,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     });
   };
 
-  // Update size when resize ends
   const handleResizeStop = () => {
     setIsResizing(false);
   };
 
-  // Convert dataset for recharts
   const formattedData = () => {
     if (item.type === "pie" || item.type === "donut" || item.type === "semi-circle") {
       return item.data.labels.map((label, index) => ({
@@ -220,8 +206,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       
       item.data.datasets.forEach((dataset, datasetIndex) => {
         if (item.type === "scatter" || item.type === "bubble") {
-          const point = dataset.data[index] as { x: number; y: number; r?: number };
-          if (point) {
+          const point = dataset.data[index] as ComplexDataPoint;
+          if (point && typeof point === 'object') {
             dataPoint[dataset.label || `dataset-${datasetIndex}`] = point.y;
             dataPoint.x = point.x;
             if (item.type === "bubble" && 'r' in point) {
@@ -395,7 +381,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   data={processedData.map((item) => ({ 
                     x: item.x, 
                     y: item[dataset.label || `dataset-${index}`],
-                    z: item.z || 100 // Use z for bubble size or default to 100
+                    z: item.z || 100
                   }))}
                   fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor || "#4f46e5"}
                 />
@@ -517,7 +503,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               data={processedData.map((d, i) => ({ 
                 ...d, 
                 value: d.value,
-                // Reverse the order so the largest is on top
                 order: processedData.length - i 
               }))} 
               layout="vertical"
@@ -533,7 +518,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   const bgColors = item.data.datasets[0].backgroundColor;
                   const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : bgColors || "#4f46e5";
                   
-                  // Create a trapezoid shape
                   const percent = (processedData.length - index) / processedData.length;
                   const sidePadding = 5 + (20 * (1 - percent));
                   
@@ -591,9 +575,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     }
   };
 
-  // Calculate the background color for the item header
   const getHeaderColor = () => {
-    let color = "#4f46e5"; // Default color
+    let color = "#4f46e5";
     
     if (item.data.datasets && item.data.datasets[0]) {
       const bgColor = item.data.datasets[0].backgroundColor;
@@ -607,12 +590,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       }
     }
     
-    // Ensure color is a valid string
     if (typeof color !== 'string') {
       color = "#4f46e5";
     }
     
-    // Create a light version for the header
     try {
       const lightColor = chroma(color).alpha(0.1).css();
       return lightColor;
@@ -685,7 +666,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               )}
               
               <Button variant="ghost" size="icon" className="h-5 w-5" onClick={handleRemove}>
-                <X className="h-3 w-3" />
+                <Trash2 className="h-3 w-3" />
               </Button>
             </div>
           )}

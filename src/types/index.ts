@@ -31,11 +31,25 @@ export type ChartType =
   | "radar"
   | "boxplot";
 
+// Defining more specific data point types
+export type SimpleDataPoint = number;
+export type ComplexDataPoint = {
+  x: number;
+  y: number;
+  r?: number;
+};
+export type BoxPlotDataPoint = {
+  x: number;
+  y: number[];
+};
+
+export type ChartDataPoint = SimpleDataPoint | ComplexDataPoint;
+
 export type ChartData = {
   labels: string[];
   datasets: {
     label: string;
-    data: Array<number | {x: number, y: number, r?: number}>;
+    data: ChartDataPoint[];
     backgroundColor?: string | string[];
     borderColor?: string | string[];
     borderWidth?: number;

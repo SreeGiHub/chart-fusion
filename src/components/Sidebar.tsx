@@ -1,6 +1,5 @@
-
 import { useDashboard } from "@/context/DashboardContext";
-import { ChartItemType, ChartType } from "@/types";
+import { ChartItemType, ChartType, ComplexDataPoint } from "@/types";
 import { DEFAULT_COLORS } from "@/utils/chartUtils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -110,7 +109,16 @@ const Sidebar: React.FC = () => {
   const updateDataValue = (datasetIndex: number, valueIndex: number, value: string) => {
     const newDatasets = [...selectedItem.data.datasets];
     const newData = [...newDatasets[datasetIndex].data];
-    newData[valueIndex] = Number(value);
+    
+    if (typeof newData[valueIndex] === 'object' && newData[valueIndex] !== null) {
+      const complexPoint = newData[valueIndex] as ComplexDataPoint;
+      newData[valueIndex] = { 
+        ...complexPoint,
+        y: Number(value)
+      };
+    } else {
+      newData[valueIndex] = Number(value);
+    }
 
     newDatasets[datasetIndex] = {
       ...newDatasets[datasetIndex],
@@ -139,7 +147,6 @@ const Sidebar: React.FC = () => {
       newColors = [...newDatasets[datasetIndex].backgroundColor as string[]];
       newColors[colorIndex] = value;
     } else {
-      // If it's a single color
       newColors = DEFAULT_COLORS.map((_, i) => 
         i === colorIndex ? value : DEFAULT_COLORS[i]
       );
@@ -195,7 +202,6 @@ const Sidebar: React.FC = () => {
       <div className="space-y-4">
         <h3 className="text-sm font-medium">Colors</h3>
         {selectedItem.type === "pie" || selectedItem.type === "donut" ? (
-          // For pie/donut charts, show color for each label
           <div className="grid grid-cols-2 gap-2">
             {selectedItem.data.labels.map((label, index) => (
               <div key={index} className="space-y-1">
@@ -221,7 +227,6 @@ const Sidebar: React.FC = () => {
             ))}
           </div>
         ) : (
-          // For other charts, show one color picker
           <div className="space-y-1">
             <Label htmlFor="color" className="text-xs">
               Primary Color
@@ -509,7 +514,17 @@ const Sidebar: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="data" className="space-y-4">
-          {selectedItem.type !== "text" && (
+          {selectedItem.type === "text" ? (
+            <div className="space-y-2">
+              <Label htmlFor="text-content">Text Content</Label>
+              <textarea
+                id="text-content"
+                value={selectedItem.data.datasets[0]?.label || ""}
+                onChange={(e) => updateDatasetLabel(0, e.target.value)}
+                className="w-full min-h-[100px] border rounded-md p-2"
+              />
+            </div>
+          ) : (
             <>
               <div className="space-y-2">
                 <Label htmlFor="dataset-label">Dataset Label</Label>
@@ -528,10 +543,7 @@ const Sidebar: React.FC = () => {
                   {selectedItem.data.labels.map((label, index) => (
                     <div key={index} className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label
-                          htmlFor={`label-${index}`}
-                          className="text-xs"
-                        >
+                        <Label htmlFor={`label-${index}`} className="text-xs">
                           Label {index + 1}
                         </Label>
                         <Input
@@ -542,16 +554,17 @@ const Sidebar: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <Label
-                          htmlFor={`value-${index}`}
-                          className="text-xs"
-                        >
+                        <Label htmlFor={`value-${index}`} className="text-xs">
                           Value {index + 1}
                         </Label>
                         <Input
                           id={`value-${index}`}
                           type="number"
-                          value={selectedItem.data.datasets[0].data[index] || 0}
+                          value={
+                            typeof selectedItem.data.datasets[0].data[index] === 'object'
+                              ? (selectedItem.data.datasets[0].data[index] as ComplexDataPoint).y
+                              : selectedItem.data.datasets[0].data[index] || 0
+                          }
                           onChange={(e) => updateDataValue(0, index, e.target.value)}
                           size={1}
                         />
