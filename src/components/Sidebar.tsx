@@ -1,3 +1,4 @@
+
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartItemType, ChartType, ComplexDataPoint } from "@/types";
 import { DEFAULT_COLORS } from "@/utils/chartUtils";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, LineChart, PieChart, Activity, Type, Trash2 } from "lucide-react";
+import { BarChart, LineChart, PieChart, Activity, Type, Trash2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Sidebar: React.FC = () => {
   const { state, dispatch } = useDashboard();
@@ -171,6 +173,132 @@ const Sidebar: React.FC = () => {
     });
   };
 
+  // Add a new empty label
+  const addNewLabel = () => {
+    const newLabels = [...selectedItem.data.labels, `Label ${selectedItem.data.labels.length + 1}`];
+    
+    // Add a value for each dataset
+    const newDatasets = selectedItem.data.datasets.map(dataset => {
+      const newData = [...dataset.data];
+      newData.push(typeof newData[0] === 'object' ? { x: newData.length, y: 0 } : 0);
+      
+      return {
+        ...dataset,
+        data: newData
+      };
+    });
+    
+    dispatch({
+      type: "UPDATE_ITEM",
+      payload: {
+        id: selectedItem.id,
+        updates: {
+          data: {
+            labels: newLabels,
+            datasets: newDatasets,
+          },
+        },
+      },
+    });
+    
+    toast.success("New label added");
+  };
+
+  // Delete a label and its associated data point
+  const deleteLabel = (index: number) => {
+    if (selectedItem.data.labels.length <= 1) {
+      toast.error("Cannot delete the last label");
+      return;
+    }
+    
+    const newLabels = selectedItem.data.labels.filter((_, i) => i !== index);
+    
+    const newDatasets = selectedItem.data.datasets.map(dataset => {
+      const newData = dataset.data.filter((_, i) => i !== index);
+      return {
+        ...dataset,
+        data: newData
+      };
+    });
+    
+    dispatch({
+      type: "UPDATE_ITEM",
+      payload: {
+        id: selectedItem.id,
+        updates: {
+          data: {
+            labels: newLabels,
+            datasets: newDatasets,
+          },
+        },
+      },
+    });
+    
+    toast.success("Label deleted");
+  };
+
+  // Add a new dataset
+  const addNewDataset = () => {
+    const newDatasets = [...selectedItem.data.datasets];
+    const datasetIndex = newDatasets.length;
+    
+    // Create data with same length as labels
+    const data = selectedItem.data.labels.map((_, i) => {
+      if (selectedItem.type === "scatter" || selectedItem.type === "bubble") {
+        return { x: i, y: 0 };
+      }
+      return 0;
+    });
+    
+    newDatasets.push({
+      label: `Dataset ${datasetIndex + 1}`,
+      data,
+      backgroundColor: DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length],
+      borderColor: DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length],
+      borderWidth: 2,
+    });
+    
+    dispatch({
+      type: "UPDATE_ITEM",
+      payload: {
+        id: selectedItem.id,
+        updates: {
+          data: {
+            ...selectedItem.data,
+            datasets: newDatasets,
+          },
+        },
+      },
+    });
+    
+    toast.success("New dataset added");
+  };
+
+  // Delete a dataset
+  const deleteDataset = (index: number) => {
+    if (selectedItem.data.datasets.length <= 1) {
+      toast.error("Cannot delete the last dataset");
+      return;
+    }
+    
+    const newDatasets = selectedItem.data.datasets.filter((_, i) => i !== index);
+    
+    dispatch({
+      type: "UPDATE_ITEM",
+      payload: {
+        id: selectedItem.id,
+        updates: {
+          data: {
+            ...selectedItem.data,
+            datasets: newDatasets,
+          },
+        },
+      },
+    });
+    
+    toast.success("Dataset deleted");
+  };
+
   const renderChartTypeIcon = (type: ChartType) => {
     switch (type) {
       case "bar":
@@ -194,56 +322,64 @@ const Sidebar: React.FC = () => {
       return null;
     }
 
-    const colors = Array.isArray(selectedItem.data.datasets[0].backgroundColor)
-      ? (selectedItem.data.datasets[0].backgroundColor as string[])
-      : [selectedItem.data.datasets[0].backgroundColor || DEFAULT_COLORS[0]];
-
+    if (selectedItem.type === "pie" || selectedItem.type === "donut") {
+      // For pie/donut charts, we handle colors per slice (label)
+      return (
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium">Colors</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {selectedItem.data.labels.map((label, index) => {
+              const colors = Array.isArray(selectedItem.data.datasets[0].backgroundColor)
+                ? (selectedItem.data.datasets[0].backgroundColor as string[])
+                : [selectedItem.data.datasets[0].backgroundColor || DEFAULT_COLORS[0]];
+                
+              return (
+                <div key={index} className="space-y-1">
+                  <Label htmlFor={`color-${index}`} className="text-xs">
+                    {label}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="color"
+                      id={`color-${index}`}
+                      value={colors[index] || DEFAULT_COLORS[index % DEFAULT_COLORS.length]}
+                      onChange={(e) => updateBackgroundColor(0, index, e.target.value)}
+                      className="w-10 h-6 p-0"
+                    />
+                    <Input
+                      type="text"
+                      value={colors[index] || DEFAULT_COLORS[index % DEFAULT_COLORS.length]}
+                      onChange={(e) => updateBackgroundColor(0, index, e.target.value)}
+                      className="h-6 text-xs"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    } 
+    
+    // For other chart types, we handle colors per dataset
     return (
       <div className="space-y-4">
-        <h3 className="text-sm font-medium">Colors</h3>
-        {selectedItem.type === "pie" || selectedItem.type === "donut" ? (
-          <div className="grid grid-cols-2 gap-2">
-            {selectedItem.data.labels.map((label, index) => (
-              <div key={index} className="space-y-1">
-                <Label htmlFor={`color-${index}`} className="text-xs">
-                  {label}
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="color"
-                    id={`color-${index}`}
-                    value={colors[index] || DEFAULT_COLORS[index % DEFAULT_COLORS.length]}
-                    onChange={(e) => updateBackgroundColor(0, index, e.target.value)}
-                    className="w-10 h-6 p-0"
-                  />
-                  <Input
-                    type="text"
-                    value={colors[index] || DEFAULT_COLORS[index % DEFAULT_COLORS.length]}
-                    onChange={(e) => updateBackgroundColor(0, index, e.target.value)}
-                    className="h-6 text-xs"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-1">
-            <Label htmlFor="color" className="text-xs">
-              Primary Color
-            </Label>
+        <h3 className="text-sm font-medium">Dataset Colors</h3>
+        {selectedItem.data.datasets.map((dataset, datasetIndex) => (
+          <div key={datasetIndex} className="space-y-1 border p-2 rounded-md">
+            <Label className="text-xs font-medium">{dataset.label}</Label>
             <div className="flex items-center gap-2">
               <Input
                 type="color"
-                id="color"
                 value={
-                  Array.isArray(selectedItem.data.datasets[0].backgroundColor)
-                    ? selectedItem.data.datasets[0].backgroundColor[0]
-                    : (selectedItem.data.datasets[0].backgroundColor as string) || DEFAULT_COLORS[0]
+                  Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[0]
+                    : (dataset.backgroundColor as string) || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]
                 }
                 onChange={(e) => {
                   const newDatasets = [...selectedItem.data.datasets];
-                  newDatasets[0] = {
-                    ...newDatasets[0],
+                  newDatasets[datasetIndex] = {
+                    ...newDatasets[datasetIndex],
                     backgroundColor: e.target.value,
                     borderColor: e.target.value,
                   };
@@ -266,14 +402,14 @@ const Sidebar: React.FC = () => {
               <Input
                 type="text"
                 value={
-                  Array.isArray(selectedItem.data.datasets[0].backgroundColor)
-                    ? selectedItem.data.datasets[0].backgroundColor[0]
-                    : (selectedItem.data.datasets[0].backgroundColor as string) || DEFAULT_COLORS[0]
+                  Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[0]
+                    : (dataset.backgroundColor as string) || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]
                 }
                 onChange={(e) => {
                   const newDatasets = [...selectedItem.data.datasets];
-                  newDatasets[0] = {
-                    ...newDatasets[0],
+                  newDatasets[datasetIndex] = {
+                    ...newDatasets[datasetIndex],
                     backgroundColor: e.target.value,
                     borderColor: e.target.value,
                   };
@@ -291,11 +427,11 @@ const Sidebar: React.FC = () => {
                     },
                   });
                 }}
-                className="h-6 text-xs"
+                className="h-6 text-xs flex-1"
               />
             </div>
           </div>
-        )}
+        ))}
       </div>
     );
   };
@@ -303,7 +439,7 @@ const Sidebar: React.FC = () => {
   return (
     <div className="sidebar fixed right-0 top-0 h-screen w-80 bg-white border-l shadow-lg p-4 overflow-y-auto animate-slide-in z-10">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Edit {selectedItem.type} Chart</h2>
+        <h2 className="text-lg font-semibold">Edit {selectedItem.type.charAt(0).toUpperCase() + selectedItem.type.slice(1)}</h2>
         <Button
           variant="ghost"
           size="sm"
@@ -525,60 +661,265 @@ const Sidebar: React.FC = () => {
               />
             </div>
           ) : (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="dataset-label">Dataset Label</Label>
-                <Input
-                  id="dataset-label"
-                  value={selectedItem.data.datasets[0]?.label || ""}
-                  onChange={(e) => updateDatasetLabel(0, e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Labels & Values</Label>
-                </div>
-                <div className="border rounded-md p-3 space-y-3">
-                  {selectedItem.data.labels.map((label, index) => (
-                    <div key={index} className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label htmlFor={`label-${index}`} className="text-xs">
-                          Label {index + 1}
-                        </Label>
-                        <Input
-                          id={`label-${index}`}
-                          value={label}
-                          onChange={(e) => updateLabelText(index, e.target.value)}
-                          size={1}
-                        />
+            <ScrollArea className="h-[calc(100vh-250px)] pr-3">
+              <div className="space-y-6">
+                {/* Datasets Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Datasets</Label>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={addNewDataset}
+                      className="h-7"
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Add Dataset
+                    </Button>
+                  </div>
+                  
+                  {selectedItem.data.datasets.map((dataset, datasetIndex) => (
+                    <div key={datasetIndex} className="border rounded-md p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor={`dataset-${datasetIndex}`}>Dataset {datasetIndex + 1}</Label>
+                        {selectedItem.data.datasets.length > 1 && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => deleteDataset(datasetIndex)}
+                            className="h-7 text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                       </div>
-                      <div>
-                        <Label htmlFor={`value-${index}`} className="text-xs">
-                          Value {index + 1}
-                        </Label>
+                      
+                      <Input
+                        id={`dataset-${datasetIndex}`}
+                        value={dataset.label || ""}
+                        onChange={(e) => updateDatasetLabel(datasetIndex, e.target.value)}
+                        placeholder="Dataset name"
+                      />
+                      
+                      <div className="flex items-center gap-2">
                         <Input
-                          id={`value-${index}`}
-                          type="number"
+                          type="color"
                           value={
-                            typeof selectedItem.data.datasets[0].data[index] === 'object'
-                              ? (selectedItem.data.datasets[0].data[index] as ComplexDataPoint).y
-                              : selectedItem.data.datasets[0].data[index] || 0
+                            Array.isArray(dataset.backgroundColor)
+                              ? dataset.backgroundColor[0]
+                              : (dataset.backgroundColor as string) || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]
                           }
-                          onChange={(e) => updateDataValue(0, index, e.target.value)}
-                          size={1}
+                          onChange={(e) => {
+                            const newDatasets = [...selectedItem.data.datasets];
+                            newDatasets[datasetIndex] = {
+                              ...newDatasets[datasetIndex],
+                              backgroundColor: e.target.value,
+                              borderColor: e.target.value,
+                            };
+
+                            dispatch({
+                              type: "UPDATE_ITEM",
+                              payload: {
+                                id: selectedItem.id,
+                                updates: {
+                                  data: {
+                                    ...selectedItem.data,
+                                    datasets: newDatasets,
+                                  },
+                                },
+                              },
+                            });
+                          }}
+                          className="w-10 h-6 p-0"
+                        />
+                        <Input
+                          type="text"
+                          value={
+                            Array.isArray(dataset.backgroundColor)
+                              ? dataset.backgroundColor[0]
+                              : (dataset.backgroundColor as string) || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]
+                          }
+                          onChange={(e) => {
+                            const newDatasets = [...selectedItem.data.datasets];
+                            newDatasets[datasetIndex] = {
+                              ...newDatasets[datasetIndex],
+                              backgroundColor: e.target.value,
+                              borderColor: e.target.value,
+                            };
+
+                            dispatch({
+                              type: "UPDATE_ITEM",
+                              payload: {
+                                id: selectedItem.id,
+                                updates: {
+                                  data: {
+                                    ...selectedItem.data,
+                                    datasets: newDatasets,
+                                  },
+                                },
+                              },
+                            });
+                          }}
+                          className="h-6 text-xs flex-1"
+                          placeholder="Color code"
                         />
                       </div>
                     </div>
                   ))}
                 </div>
+                
+                {/* Labels and Values Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Labels & Values</Label>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={addNewLabel}
+                      className="h-7"
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Add Label
+                    </Button>
+                  </div>
+                  
+                  <div className="border rounded-md p-3 space-y-3">
+                    {selectedItem.data.labels.map((label, labelIndex) => (
+                      <div key={labelIndex} className="border-b pb-3 last:border-b-0 last:pb-0">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label htmlFor={`label-${labelIndex}`} className="text-sm">
+                            Label {labelIndex + 1}
+                          </Label>
+                          {selectedItem.data.labels.length > 1 && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => deleteLabel(labelIndex)}
+                              className="h-7 text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+                        
+                        <Input
+                          id={`label-${labelIndex}`}
+                          value={label}
+                          onChange={(e) => updateLabelText(labelIndex, e.target.value)}
+                          className="mb-2"
+                          placeholder="Label name"
+                        />
+                        
+                        {selectedItem.data.datasets.map((dataset, datasetIndex) => (
+                          <div key={`${datasetIndex}-${labelIndex}`} className="grid grid-cols-2 gap-2 mt-2">
+                            <Label htmlFor={`value-${datasetIndex}-${labelIndex}`} className="text-xs">
+                              {dataset.label || `Dataset ${datasetIndex + 1}`} Value
+                            </Label>
+                            <Input
+                              id={`value-${datasetIndex}-${labelIndex}`}
+                              type="number"
+                              value={
+                                typeof dataset.data[labelIndex] === 'object'
+                                  ? (dataset.data[labelIndex] as ComplexDataPoint).y
+                                  : dataset.data[labelIndex] || 0
+                              }
+                              onChange={(e) => updateDataValue(datasetIndex, labelIndex, e.target.value)}
+                              size={1}
+                              className="h-7"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </>
+            </ScrollArea>
           )}
         </TabsContent>
 
         <TabsContent value="style" className="space-y-4">
           {renderColorPickers()}
+          
+          {/* Additional style options */}
+          {selectedItem.type !== "text" && selectedItem.type !== "pie" && selectedItem.type !== "donut" && (
+            <div className="space-y-4 mt-4">
+              <h3 className="text-sm font-medium">Chart Options</h3>
+              
+              {/* Border width option */}
+              <div className="space-y-2">
+                <Label htmlFor="border-width" className="text-xs">
+                  Border Width
+                </Label>
+                <Input
+                  id="border-width"
+                  type="number"
+                  min="0"
+                  max="10"
+                  value={selectedItem.data.datasets[0].borderWidth || 1}
+                  onChange={(e) => {
+                    const newDatasets = [...selectedItem.data.datasets];
+                    newDatasets.forEach((dataset, index) => {
+                      newDatasets[index] = {
+                        ...dataset,
+                        borderWidth: Number(e.target.value),
+                      };
+                    });
+
+                    dispatch({
+                      type: "UPDATE_ITEM",
+                      payload: {
+                        id: selectedItem.id,
+                        updates: {
+                          data: {
+                            ...selectedItem.data,
+                            datasets: newDatasets,
+                          },
+                        },
+                      },
+                    });
+                  }}
+                />
+              </div>
+              
+              {/* Fill option for area and line charts */}
+              {(selectedItem.type === "area" || selectedItem.type === "line") && (
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="fill-area"
+                    checked={selectedItem.data.datasets[0].fill}
+                    onChange={(e) => {
+                      const newDatasets = [...selectedItem.data.datasets];
+                      newDatasets.forEach((dataset, index) => {
+                        newDatasets[index] = {
+                          ...dataset,
+                          fill: e.target.checked,
+                        };
+                      });
+
+                      dispatch({
+                        type: "UPDATE_ITEM",
+                        payload: {
+                          id: selectedItem.id,
+                          updates: {
+                            data: {
+                              ...selectedItem.data,
+                              datasets: newDatasets,
+                            },
+                          },
+                        },
+                      });
+                    }}
+                    className="h-4 w-4"
+                  />
+                  <Label htmlFor="fill-area" className="text-sm">
+                    Fill Area
+                  </Label>
+                </div>
+              )}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

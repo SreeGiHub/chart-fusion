@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
-import { ChartItemType, ChartType, ComplexDataPoint, BoxPlotDataPoint } from "@/types";
+import { ChartItemType, ChartType, ComplexDataPoint, BoxPlotDataPoint, ChartDataPoint } from "@/types";
 import { Rnd, RndResizeCallback, RndDragCallback } from "react-rnd";
 import { snapToGrid } from "@/utils/chartUtils";
 import {
@@ -152,18 +152,16 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     });
   };
 
-  const handleDragStop = () => {
+  const handleDragStop: RndDragCallback = () => {
     setIsDragging(false);
   };
 
   const handleResize: RndResizeCallback = (e, direction, ref, delta, position) => {
     setIsResizing(true);
     
-    let { width, height } = ref.style;
+    let width = parseInt(ref.style.width);
+    let height = parseInt(ref.style.height);
     let { x, y } = position;
-    
-    width = parseInt(width);
-    height = parseInt(height);
     
     if (shouldSnapToGrid) {
       width = snapToGrid(width, gridSize);
@@ -189,7 +187,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     });
   };
 
-  const handleResizeStop = () => {
+  const handleResizeStop: RndResizeCallback = () => {
     setIsResizing(false);
   };
 
