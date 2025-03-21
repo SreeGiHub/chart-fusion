@@ -1,8 +1,9 @@
-import { useRef, useState, MouseEvent, useEffect } from "react";
-import { ChartItemType, Position, Size } from "@/types";
+
+import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
+import { ChartItemType, ChartType } from "@/types";
+import { Rnd } from "react-rnd";
 import { snapToGrid } from "@/utils/chartUtils";
-import { DEFAULT_COLORS } from "@/utils/chartUtils";
 import {
   BarChart,
   LineChart,
@@ -10,18 +11,30 @@ import {
   ScatterChart,
   AreaChart,
   ResponsiveContainer,
+  Cell,
+  Legend,
   Bar,
   Line,
   Pie,
   Scatter,
   Area,
+  Tooltip as RechartsTooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Cell,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Treemap,
+  RadialBarChart,
+  RadialBar
 } from "recharts";
+import { X, GripVertical, Copy, Trash, Move } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import TextareaAutosize from "react-textarea-autosize";
+import { cn } from "@/lib/utils";
+import chroma from "chroma-js";
 
 interface ChartItemProps {
   item: ChartItemType;
@@ -29,494 +42,660 @@ interface ChartItemProps {
 
 const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
   const { state, dispatch } = useDashboard();
-  const itemRef = useRef<HTMLDivElement>(null);
+  const { isGridVisible, gridSize, snapToGrid: shouldSnapToGrid, previewMode } = state;
+  const isSelected = state.selectedItemId === item.id;
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(item.title);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  const [resizeDirection, setResizeDirection] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
-  const [initialSize, setInitialSize] = useState<Size>({ width: 0, height: 0 });
-  const [initialPosition, setInitialPosition] = useState<Position>({ x: 0, y: 0 });
-  const [initialMousePosition, setInitialMousePosition] = useState<Position>({ x: 0, y: 0 });
-  const [editingTitle, setEditingTitle] = useState(false);
-  
-  const isSelected = state.selectedItemId === item.id;
-  const isPreviewMode = state.previewMode;
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(item.size.height);
 
-  const handleChartClick = (e: MouseEvent) => {
-    if (isPreviewMode) return;
+  useEffect(() => {
+    // Reset the flags when selection changes
+    if (!isSelected) {
+      setIsEditing(false);
+    }
+  }, [isSelected]);
+
+  useEffect(() => {
+    setTitle(item.title);
+  }, [item.title]);
+
+  useEffect(() => {
+    if (item.type === "text" && contentRef.current) {
+      const contentHeight = contentRef.current.scrollHeight;
+      // Only update if the height needs to increase
+      if (contentHeight > height) {
+        setHeight(contentHeight + 40); // Add some padding
+        dispatch({
+          type: "UPDATE_ITEM",
+          payload: {
+            id: item.id,
+            updates: {
+              size: {
+                width: item.size.width,
+                height: contentHeight + 40,
+              },
+            },
+          },
+        });
+      }
+    }
+  }, [item, dispatch, height]);
+
+  // Select the item
+  const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation();
-    dispatch({ type: "SELECT_ITEM", payload: item.id });
+    if (!isSelected && !previewMode) {
+      dispatch({ type: "SELECT_ITEM", payload: item.id });
+    }
   };
 
-  const handleDoubleClick = (e: MouseEvent) => {
-    if (isPreviewMode || item.type !== "text") return;
-    e.stopPropagation();
-    setEditingTitle(true);
+  // Double click to edit title
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    if (!previewMode) {
+      setIsEditing(true);
+    }
   };
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Save the new title when blurring or pressing Enter
+  const handleTitleSubmit = () => {
+    setIsEditing(false);
+    if (title !== item.title) {
+      dispatch({
+        type: "UPDATE_ITEM",
+        payload: {
+          id: item.id,
+          updates: { title },
+        },
+      });
+    }
+  };
+
+  // Handle Enter key for text areas
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleTitleSubmit();
+    }
+  };
+
+  // Remove the item
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch({ type: "REMOVE_ITEM", payload: item.id });
+  };
+
+  // Duplicate the item
+  const handleDuplicate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const newItem = {
+      ...item,
+      id: `${item.id}-copy-${Date.now()}`,
+      position: {
+        x: item.position.x + 20,
+        y: item.position.y + 20,
+      },
+    };
+    
+    dispatch({ type: "ADD_ITEM", payload: newItem });
+  };
+
+  // Update position during drag
+  const handleDrag = (e: any, d: any) => {
+    setIsDragging(true);
+    let { x, y } = d;
+    
+    if (shouldSnapToGrid) {
+      x = snapToGrid(x, gridSize);
+      y = snapToGrid(y, gridSize);
+    }
+    
     dispatch({
-      type: "UPDATE_ITEM",
+      type: "MOVE_ITEM",
       payload: {
         id: item.id,
-        updates: { title: e.target.value },
+        position: { x, y },
       },
     });
   };
 
-  const handleTitleBlur = () => {
-    setEditingTitle(false);
+  // Update position when drag ends
+  const handleDragStop = () => {
+    setIsDragging(false);
   };
 
-  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      setEditingTitle(false);
+  // Update size during resize
+  const handleResize = (e: any, direction: any, ref: any, delta: any, position: any) => {
+    setIsResizing(true);
+    
+    let { width, height } = ref.style;
+    let { x, y } = position;
+    
+    width = parseInt(width);
+    height = parseInt(height);
+    
+    if (shouldSnapToGrid) {
+      width = snapToGrid(width, gridSize);
+      height = snapToGrid(height, gridSize);
+      x = snapToGrid(x, gridSize);
+      y = snapToGrid(y, gridSize);
     }
+    
+    dispatch({
+      type: "RESIZE_ITEM",
+      payload: {
+        id: item.id,
+        size: { width, height },
+      },
+    });
+    
+    dispatch({
+      type: "MOVE_ITEM",
+      payload: {
+        id: item.id,
+        position: { x, y },
+      },
+    });
   };
 
-  const startDrag = (e: MouseEvent) => {
-    if (isPreviewMode) return;
-    
-    e.stopPropagation();
-    e.preventDefault();
-    
-    if (itemRef.current) {
-      const rect = itemRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-      setIsDragging(true);
-    }
+  // Update size when resize ends
+  const handleResizeStop = () => {
+    setIsResizing(false);
   };
 
-  const startResize = (e: MouseEvent, direction: string) => {
-    if (isPreviewMode) return;
-    
-    e.stopPropagation();
-    e.preventDefault();
-    
-    if (itemRef.current) {
-      setIsResizing(true);
-      setResizeDirection(direction);
-      setInitialSize(item.size);
-      setInitialPosition(item.position);
-      setInitialMousePosition({
-        x: e.clientX,
-        y: e.clientY,
-      });
+  // Convert dataset for recharts
+  const formattedData = () => {
+    if (item.type === "pie" || item.type === "donut" || item.type === "semi-circle") {
+      return item.data.labels.map((label, index) => ({
+        name: label,
+        value: item.data.datasets[0].data[index],
+      }));
     }
-  };
-
-  useEffect(() => {
-    if (!isDragging && !isResizing) return;
-
-    const handleMouseMove = (e: globalThis.MouseEvent) => {
-      if (isDragging) {
-        const canvasElement = document.getElementById("dashboard-canvas");
-        if (!canvasElement) return;
-
-        const canvasRect = canvasElement.getBoundingClientRect();
-        let newX = e.clientX - canvasRect.left - dragOffset.x;
-        let newY = e.clientY - canvasRect.top - dragOffset.y;
-
-        if (state.snapToGrid) {
-          newX = snapToGrid(newX, state.gridSize);
-          newY = snapToGrid(newY, state.gridSize);
-        }
-
-        newX = Math.max(0, Math.min(newX, canvasRect.width - item.size.width));
-        newY = Math.max(0, Math.min(newY, canvasRect.height - item.size.height));
-
-        dispatch({
-          type: "MOVE_ITEM",
-          payload: { id: item.id, position: { x: newX, y: newY } },
-        });
-      } else if (isResizing && resizeDirection) {
-        let newWidth = initialSize.width;
-        let newHeight = initialSize.height;
-        let newX = initialPosition.x;
-        let newY = initialPosition.y;
-
-        const deltaX = e.clientX - initialMousePosition.x;
-        const deltaY = e.clientY - initialMousePosition.y;
-
-        if (resizeDirection.includes("e")) {
-          newWidth = initialSize.width + deltaX;
-        }
-        if (resizeDirection.includes("w")) {
-          newWidth = initialSize.width - deltaX;
-          newX = initialPosition.x + deltaX;
-        }
-        if (resizeDirection.includes("s")) {
-          newHeight = initialSize.height + deltaY;
-        }
-        if (resizeDirection.includes("n")) {
-          newHeight = initialSize.height - deltaY;
-          newY = initialPosition.y + deltaY;
-        }
-
-        if (state.snapToGrid) {
-          newWidth = snapToGrid(newWidth, state.gridSize);
-          newHeight = snapToGrid(newHeight, state.gridSize);
-          newX = snapToGrid(newX, state.gridSize);
-          newY = snapToGrid(newY, state.gridSize);
-        }
-
-        newWidth = Math.max(100, newWidth);
-        newHeight = Math.max(100, newHeight);
-
-        dispatch({
-          type: "RESIZE_ITEM",
-          payload: { id: item.id, size: { width: newWidth, height: newHeight } },
-        });
-
-        if (newX !== initialPosition.x || newY !== initialPosition.y) {
-          dispatch({
-            type: "MOVE_ITEM",
-            payload: { id: item.id, position: { x: newX, y: newY } },
-          });
-        }
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      setIsResizing(false);
-      setResizeDirection(null);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [
-    isDragging, 
-    isResizing, 
-    dragOffset, 
-    item.id, 
-    item.size, 
-    resizeDirection, 
-    initialSize, 
-    initialPosition, 
-    initialMousePosition, 
-    dispatch, 
-    state.gridSize, 
-    state.snapToGrid
-  ]);
-
-  const renderChartContent = () => {
-    if (item.type === "text") {
-      return (
-        <div className="flex items-center justify-center h-full w-full p-4">
-          {editingTitle ? (
-            <input
-              type="text"
-              value={item.title}
-              onChange={handleTitleChange}
-              onBlur={handleTitleBlur}
-              onKeyDown={handleTitleKeyDown}
-              className="w-full text-center text-xl font-medium bg-transparent inline-editable"
-              autoFocus
-            />
-          ) : (
-            <h2 
-              className="text-xl font-medium text-center w-full"
-              onDoubleClick={handleDoubleClick}
-            >
-              {item.title}
-            </h2>
-          )}
-        </div>
-      );
-    }
-
-    const hasMultipleDatasets = item.data.datasets.length > 1;
     
-    let chartData;
-    
-    if (hasMultipleDatasets) {
-      chartData = item.data.labels.map((label, index) => {
-        const dataPoint: any = { name: label };
-        item.data.datasets.forEach(dataset => {
-          if (dataset.data && index < dataset.data.length) {
-            dataPoint[dataset.label] = dataset.data[index];
+    return item.data.labels.map((label, index) => {
+      const dataPoint: any = { name: label };
+      
+      item.data.datasets.forEach((dataset, datasetIndex) => {
+        if (item.type === "scatter" || item.type === "bubble") {
+          const point = dataset.data[index] as { x: number; y: number; r?: number };
+          if (point) {
+            dataPoint[dataset.label || `dataset-${datasetIndex}`] = point.y;
+            dataPoint.x = point.x;
+            if (item.type === "bubble" && 'r' in point) {
+              dataPoint.z = point.r;
+            }
           }
-        });
-        return dataPoint;
-      });
-    } else {
-      chartData = item.data.datasets[0].data.map((value, index) => {
-        if (typeof value === "object" && value !== null && "x" in value && "y" in value) {
-          return value;
+        } else {
+          dataPoint[dataset.label || `dataset-${datasetIndex}`] = dataset.data[index];
         }
-        return {
-          name: item.data.labels[index] || `Item ${index + 1}`,
-          value: value,
-        };
       });
-    }
-    
-    const color = item.data.datasets[0].backgroundColor as string;
-    const colors = Array.isArray(item.data.datasets[0].backgroundColor) 
-      ? item.data.datasets[0].backgroundColor 
-      : [item.data.datasets[0].backgroundColor || "#4F46E5"];
+      
+      return dataPoint;
+    });
+  };
 
+  const processedData = formattedData();
+
+  const renderChart = () => {
     switch (item.type) {
       case "bar":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-              <CartesianGrid strokeDasharray="3 3" />
+            <BarChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip />
+              <RechartsTooltip />
               <Legend />
-              {hasMultipleDatasets ? (
-                item.data.datasets.map((dataset, index) => (
-                  <Bar 
-                    key={index}
-                    dataKey={dataset.label} 
-                    fill={
-                      Array.isArray(dataset.backgroundColor) 
-                        ? dataset.backgroundColor[0] 
-                        : (dataset.backgroundColor as string || "#4F46E5")
-                    } 
-                  />
-                ))
-              ) : (
-                <Bar dataKey="value" fill={color || "#4F46E5"} />
-              )}
+              {item.data.datasets.map((dataset, index) => (
+                <Bar
+                  key={index}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  fill={Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[0]
+                    : dataset.backgroundColor || "#4f46e5"}
+                />
+              ))}
             </BarChart>
           </ResponsiveContainer>
         );
-      
+        
       case "line":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-              <CartesianGrid strokeDasharray="3 3" />
+            <LineChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip />
+              <RechartsTooltip />
               <Legend />
-              {hasMultipleDatasets ? (
-                item.data.datasets.map((dataset, index) => (
-                  <Line 
-                    key={index}
-                    type="monotone" 
-                    dataKey={dataset.label} 
-                    stroke={
-                      typeof dataset.borderColor === 'string' 
-                        ? dataset.borderColor 
-                        : DEFAULT_COLORS[index % DEFAULT_COLORS.length]
-                    }
-                    strokeWidth={2}
-                    activeDot={{ r: 8 }} 
-                  />
-                ))
-              ) : (
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke={
-                    typeof item.data.datasets[0].borderColor === 'string' 
-                      ? item.data.datasets[0].borderColor 
-                      : "#4F46E5"
-                  }
-                  strokeWidth={2}
-                  activeDot={{ r: 8 }} 
+              {item.data.datasets.map((dataset, index) => (
+                <Line
+                  key={index}
+                  type="monotone"
+                  dataKey={dataset.label || `dataset-${index}`}
+                  stroke={dataset.borderColor as string || "#4f46e5"}
+                  fill={dataset.backgroundColor as string || "#4f46e533"}
+                  strokeWidth={dataset.borderWidth || 2}
                 />
-              )}
+              ))}
             </LineChart>
           </ResponsiveContainer>
         );
-      
-      case "pie":
-        return (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                label
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        );
-      
+        
       case "area":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-              <CartesianGrid strokeDasharray="3 3" />
+            <AreaChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip />
+              <RechartsTooltip />
               <Legend />
-              {hasMultipleDatasets ? (
-                item.data.datasets.map((dataset, index) => (
-                  <Area 
-                    key={index}
-                    type="monotone" 
-                    dataKey={dataset.label} 
-                    stroke={
-                      typeof dataset.borderColor === 'string' 
-                        ? dataset.borderColor 
-                        : DEFAULT_COLORS[index % DEFAULT_COLORS.length]
-                    }
-                    fill={
-                      typeof dataset.backgroundColor === 'string' 
-                        ? dataset.backgroundColor 
-                        : `${DEFAULT_COLORS[index % DEFAULT_COLORS.length]}33`
-                    }
-                  />
-                ))
-              ) : (
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke={
-                    typeof item.data.datasets[0].borderColor === 'string' 
-                      ? item.data.datasets[0].borderColor 
-                      : "#4F46E5"
-                  }
-                  fill={item.data.datasets[0].backgroundColor || "#4F46E533"} 
+              {item.data.datasets.map((dataset, index) => (
+                <Area
+                  key={index}
+                  type="monotone"
+                  dataKey={dataset.label || `dataset-${index}`}
+                  stroke={typeof dataset.borderColor === 'string' ? dataset.borderColor : "#4f46e5"}
+                  fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : "#4f46e533"}
+                  strokeWidth={dataset.borderWidth || 2}
                 />
-              )}
+              ))}
             </AreaChart>
           </ResponsiveContainer>
         );
-      
+        
+      case "pie":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <RechartsTooltip />
+              <Legend />
+              <Pie
+                data={processedData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={0}
+                outerRadius="80%"
+                paddingAngle={0}
+                fill="#4f46e5"
+              >
+                {processedData.map((entry, index) => {
+                  const bgColors = item.data.datasets[0].backgroundColor;
+                  const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : bgColors;
+                  return <Cell key={index} fill={color || `#${Math.floor(Math.random() * 16777215).toString(16)}`} />;
+                })}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        );
+        
+      case "donut":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <RechartsTooltip />
+              <Legend />
+              <Pie
+                data={processedData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius="60%"
+                outerRadius="80%"
+                paddingAngle={2}
+                fill="#4f46e5"
+              >
+                {processedData.map((entry, index) => {
+                  const bgColors = item.data.datasets[0].backgroundColor;
+                  const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : bgColors;
+                  return <Cell key={index} fill={color || `#${Math.floor(Math.random() * 16777215).toString(16)}`} />;
+                })}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        );
+        
       case "scatter":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-              <CartesianGrid />
+            <ScatterChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <XAxis type="number" dataKey="x" name="x" />
               <YAxis type="number" dataKey="y" name="y" />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+              <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
               <Legend />
-              <Scatter 
-                name={item.data.datasets[0].label || "Scatter"} 
-                data={item.data.datasets[0].data} 
-                fill={color || "#4F46E5"} 
-              />
+              {item.data.datasets.map((dataset, index) => (
+                <Scatter
+                  key={index}
+                  name={dataset.label || `dataset-${index}`}
+                  data={processedData.map((item) => ({ x: item.x, y: item[dataset.label || `dataset-${index}`] }))}
+                  fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor || "#4f46e5"}
+                />
+              ))}
             </ScatterChart>
           </ResponsiveContainer>
         );
       
-      case "donut":
+      case "bubble":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                label
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
+            <ScatterChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <XAxis type="number" dataKey="x" name="x" />
+              <YAxis type="number" dataKey="y" name="y" />
+              <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
               <Legend />
+              {item.data.datasets.map((dataset, index) => (
+                <Scatter
+                  key={index}
+                  name={dataset.label || `dataset-${index}`}
+                  data={processedData.map((item) => ({ 
+                    x: item.x, 
+                    y: item[dataset.label || `dataset-${index}`],
+                    z: item.z || 100 // Use z for bubble size or default to 100
+                  }))}
+                  fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor || "#4f46e5"}
+                />
+              ))}
+            </ScatterChart>
+          </ResponsiveContainer>
+        );
+        
+      case "gauge":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <Pie
+                data={[
+                  { name: 'Value', value: item.data.datasets[0].data[0] },
+                  { name: 'Remaining', value: 100 - (item.data.datasets[0].data[0] as number) }
+                ]}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="80%"
+                startAngle={180}
+                endAngle={0}
+                innerRadius="60%"
+                outerRadius="80%"
+                paddingAngle={0}
+                fill="#4f46e5"
+              >
+                <Cell fill={Array.isArray(item.data.datasets[0].backgroundColor) 
+                  ? item.data.datasets[0].backgroundColor[0] 
+                  : typeof item.data.datasets[0].backgroundColor === 'string'
+                  ? item.data.datasets[0].backgroundColor
+                  : "#4f46e5"} />
+                <Cell fill="#e5e7eb" />
+              </Pie>
+              <text x="50%" y="85%" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                {item.data.datasets[0].data[0]}%
+              </text>
             </PieChart>
           </ResponsiveContainer>
         );
+        
+      case "semi-circle":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <RechartsTooltip />
+              <Legend />
+              <Pie
+                data={processedData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="80%"
+                startAngle={180}
+                endAngle={0}
+                innerRadius="60%"
+                outerRadius="80%"
+                paddingAngle={0}
+                fill="#4f46e5"
+              >
+                {processedData.map((entry, index) => {
+                  const bgColors = item.data.datasets[0].backgroundColor;
+                  const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : bgColors;
+                  return <Cell key={index} fill={color || `#${Math.floor(Math.random() * 16777215).toString(16)}`} />;
+                })}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        );
+        
+      case "radar":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={processedData}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="name" />
+              <PolarRadiusAxis />
+              {item.data.datasets.map((dataset, index) => (
+                <Radar
+                  key={index}
+                  name={dataset.label || `dataset-${index}`}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  stroke={typeof dataset.borderColor === 'string' ? dataset.borderColor : "#4f46e5"}
+                  fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : "#4f46e533"}
+                  fillOpacity={0.6}
+                />
+              ))}
+              <Legend />
+              <RechartsTooltip />
+            </RadarChart>
+          </ResponsiveContainer>
+        );
       
+      case "treemap":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <Treemap
+              data={processedData}
+              dataKey="value"
+              nameKey="name"
+              aspectRatio={4/3}
+              stroke="#fff"
+              fill="#4f46e5"
+            >
+              {processedData.map((entry, index) => {
+                const bgColors = item.data.datasets[0].backgroundColor;
+                const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : bgColors;
+                return <Cell key={index} fill={color || `#${Math.floor(Math.random() * 16777215).toString(16)}`} />;
+              })}
+            </Treemap>
+          </ResponsiveContainer>
+        );
+        
+      case "funnel":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart 
+              data={processedData.map((d, i) => ({ 
+                ...d, 
+                value: d.value,
+                // Reverse the order so the largest is on top
+                order: processedData.length - i 
+              }))} 
+              layout="vertical"
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
+              <YAxis dataKey="name" type="category" />
+              <XAxis type="number" hide />
+              <RechartsTooltip />
+              <Bar 
+                dataKey="value"
+                shape={(props) => {
+                  const { x, y, width, height, index } = props;
+                  const bgColors = item.data.datasets[0].backgroundColor;
+                  const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : bgColors || "#4f46e5";
+                  
+                  // Create a trapezoid shape
+                  const percent = (processedData.length - index) / processedData.length;
+                  const sidePadding = 5 + (20 * (1 - percent));
+                  
+                  return (
+                    <path 
+                      d={`M ${x + sidePadding},${y} 
+                         L ${x + width - sidePadding},${y} 
+                         L ${x + width - sidePadding + 10},${y + height} 
+                         L ${x + sidePadding - 10},${y + height} Z`} 
+                      fill={color}
+                    />
+                  );
+                }}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      
+      case "text":
+        return (
+          <div 
+            ref={contentRef}
+            className="w-full h-full flex items-center justify-center p-4 text-center"
+          >
+            <TextareaAutosize
+              className="w-full h-full text-lg bg-transparent border-none resize-none focus:outline-none focus:ring-0 text-center"
+              placeholder="Enter your text here..."
+              value={item.data.datasets[0].label || ""}
+              onChange={(e) => {
+                dispatch({
+                  type: "UPDATE_ITEM",
+                  payload: {
+                    id: item.id,
+                    updates: {
+                      data: {
+                        ...item.data,
+                        datasets: [
+                          {
+                            ...item.data.datasets[0],
+                            label: e.target.value,
+                          },
+                        ],
+                      },
+                    },
+                  },
+                });
+              }}
+              disabled={previewMode}
+            />
+          </div>
+        );
+        
       default:
-        return <div>Unsupported chart type</div>;
+        return <div className="flex items-center justify-center h-full">Unsupported chart type</div>;
     }
   };
 
-  return (
-    <div
-      ref={itemRef}
-      className={`chart-item absolute ${isSelected ? "selected" : ""}`}
-      style={{
-        left: item.position.x,
-        top: item.position.y,
-        width: item.size.width,
-        height: item.size.height,
-        cursor: isDragging ? "grabbing" : isSelected ? "grab" : "default",
-        zIndex: isSelected ? 100 : 1,
-      }}
-      onClick={handleChartClick}
-      onMouseDown={isSelected && !isPreviewMode ? startDrag : undefined}
-    >
-      {!isPreviewMode && (
-        <div className="chart-tooltip">
-          {item.title}
-        </div>
-      )}
+  // Calculate the background color for the item header
+  const getHeaderColor = () => {
+    let color = "#4f46e5"; // Default color
+    
+    if (item.data.datasets && item.data.datasets[0]) {
+      const bgColor = item.data.datasets[0].backgroundColor;
       
-      {item.type !== "text" && (
-        <div className="chart-title px-4 pt-3 pb-1 border-b">
-          {editingTitle ? (
-            <input
-              type="text"
-              value={item.title}
-              onChange={handleTitleChange}
-              onBlur={handleTitleBlur}
-              onKeyDown={handleTitleKeyDown}
-              className="w-full text-sm font-medium bg-transparent inline-editable"
-              autoFocus
-            />
-          ) : (
-            <h3 
-              className="text-sm font-medium"
-              onDoubleClick={() => !isPreviewMode && setEditingTitle(true)}
-            >
-              {item.title}
-            </h3>
+      if (bgColor) {
+        if (Array.isArray(bgColor)) {
+          color = bgColor[0];
+        } else {
+          color = bgColor;
+        }
+      }
+    }
+    
+    // Ensure color is a valid string
+    if (typeof color !== 'string') {
+      color = "#4f46e5";
+    }
+    
+    // Create a light version for the header
+    try {
+      const lightColor = chroma(color).alpha(0.1).css();
+      return lightColor;
+    } catch (error) {
+      return "rgba(79, 70, 229, 0.1)";
+    }
+  };
+
+  const headerBgColor = getHeaderColor();
+
+  return (
+    <Rnd
+      size={{ width: item.size.width, height: item.size.height }}
+      position={{ x: item.position.x, y: item.position.y }}
+      onDragStart={handleSelect}
+      onDrag={handleDrag}
+      onDragStop={handleDragStop}
+      onResizeStart={handleSelect}
+      onResize={handleResize}
+      onResizeStop={handleResizeStop}
+      className={cn(
+        "chart-item rounded-md bg-background border",
+        isDragging && "opacity-70",
+        isSelected && !previewMode && "ring-2 ring-primary",
+        previewMode && "pointer-events-none"
+      )}
+      dragHandleClassName="drag-handle"
+      enableResizing={!previewMode}
+      disableDragging={previewMode}
+      minWidth={100}
+      minHeight={100}
+      bounds="parent"
+    >
+      <div
+        className="flex flex-col h-full cursor-move"
+        onClick={handleSelect}
+      >
+        <div
+          className="drag-handle px-3 py-2 flex items-center justify-between rounded-t-md"
+          style={{ backgroundColor: headerBgColor }}
+          onDoubleClick={handleDoubleClick}
+        >
+          <div className="flex-1 flex items-center">
+            <GripVertical className="h-4 w-4 text-muted-foreground mr-2" />
+            {isEditing ? (
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onBlur={handleTitleSubmit}
+                onKeyDown={handleKeyDown}
+                className="w-full bg-transparent border px-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                autoFocus
+              />
+            ) : (
+              <h3 className="text-sm font-medium truncate">{title}</h3>
+            )}
+          </div>
+          
+          {!previewMode && (
+            <div className="flex items-center space-x-1">
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={handleDuplicate}>
+                <Copy className="h-3 w-3" />
+              </Button>
+              
+              {item.type !== "text" && (
+                <Button variant="ghost" size="icon" className="h-5 w-5">
+                  <Move className="h-3 w-3" />
+                </Button>
+              )}
+              
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={handleRemove}>
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
           )}
         </div>
-      )}
-      
-      <div className="chart-content p-2" style={{ height: "calc(100% - 40px)" }}>
-        {renderChartContent()}
+        
+        <div className="flex-1 overflow-hidden p-2">
+          {renderChart()}
+        </div>
       </div>
-      
-      {isSelected && !isPreviewMode && (
-        <>
-          <div
-            className="resize-handle nw"
-            onMouseDown={(e) => startResize(e, "nw")}
-          />
-          <div
-            className="resize-handle ne"
-            onMouseDown={(e) => startResize(e, "ne")}
-          />
-          <div
-            className="resize-handle se"
-            onMouseDown={(e) => startResize(e, "se")}
-          />
-          <div
-            className="resize-handle sw"
-            onMouseDown={(e) => startResize(e, "sw")}
-          />
-        </>
-      )}
-    </div>
+    </Rnd>
   );
 };
 

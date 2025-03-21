@@ -1,3 +1,4 @@
+
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartType } from "@/types";
 import { 
@@ -28,7 +29,15 @@ import {
   FileOutput,
   Users,
   MessageSquareText,
-  Wand2
+  Wand2,
+  ScatterChart,
+  Gauge,
+  Map,
+  TreemapChart,
+  BoxSelect,
+  CircleDot,
+  ZapOff,
+  CircleOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -39,6 +48,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -226,36 +240,99 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Chart Types</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleAddItem("bar")}>
-              <BarChart className="mr-2 h-4 w-4" />
-              <span>Bar Chart</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleAddItem("line")}>
-              <LineChart className="mr-2 h-4 w-4" />
-              <span>Line Chart</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleAddItem("pie")}>
-              <PieChart className="mr-2 h-4 w-4" />
-              <span>Pie Chart</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleAddItem("area")}>
-              <Activity className="mr-2 h-4 w-4" />
-              <span>Area Chart</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleAddItem("donut")}>
-              <PieChart className="mr-2 h-4 w-4" />
-              <span>Donut Chart</span>
-            </DropdownMenuItem>
+            
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => handleAddItem("bar")}>
+                <BarChart className="mr-2 h-4 w-4" />
+                <span>Bar Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("line")}>
+                <LineChart className="mr-2 h-4 w-4" />
+                <span>Line Chart</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Area Charts</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => handleAddItem("area")}>
+                <Activity className="mr-2 h-4 w-4" />
+                <span>Area Chart</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Pie & Donut</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => handleAddItem("pie")}>
+                <PieChart className="mr-2 h-4 w-4" />
+                <span>Pie Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("donut")}>
+                <PieChart className="mr-2 h-4 w-4" />
+                <span>Donut Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("semi-circle")}>
+                <CircleOff className="mr-2 h-4 w-4" />
+                <span>Semi Circle Chart</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Scatter & Bubble</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => handleAddItem("scatter")}>
+                <ScatterChart className="mr-2 h-4 w-4" />
+                <span>Scatter Plot</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("bubble")}>
+                <CircleDot className="mr-2 h-4 w-4" />
+                <span>Bubble Chart</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Gauges</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => handleAddItem("gauge")}>
+                <Gauge className="mr-2 h-4 w-4" />
+                <span>Gauge Chart</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Special Charts</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => handleAddItem("radar")}>
+                <ZapOff className="mr-2 h-4 w-4" />
+                <span>Radar Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("funnel")}>
+                <Activity className="mr-2 h-4 w-4" />
+                <span>Funnel Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("treemap")}>
+                <TreemapChart className="mr-2 h-4 w-4" />
+                <span>Treemap</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("boxplot")}>
+                <BoxSelect className="mr-2 h-4 w-4" />
+                <span>Box Plot</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleAddItem("text")}>
               <Type className="mr-2 h-4 w-4" />
               <span>Text Label</span>
             </DropdownMenuItem>
+            
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleAddComparisonChart}>
               <Users className="mr-2 h-4 w-4" />
               <span>Gender Comparison Chart</span>
             </DropdownMenuItem>
+            
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setIsTextToChartOpen(true)}>
               <MessageSquareText className="mr-2 h-4 w-4" />

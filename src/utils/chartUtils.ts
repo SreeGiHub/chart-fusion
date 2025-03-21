@@ -1,3 +1,4 @@
+
 import { ChartData, ChartItemType, ChartType, Position, Size } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -59,6 +60,72 @@ const DEFAULT_DATASETS = {
     backgroundColor: DEFAULT_COLORS,
     borderWidth: 1,
   },
+  bubble: {
+    label: "Dataset 1",
+    data: [
+      { x: 10, y: 20, r: 15 },
+      { x: 30, y: 40, r: 10 },
+      { x: 50, y: 60, r: 20 },
+      { x: 70, y: 80, r: 15 },
+      { x: 90, y: 100, r: 25 },
+    ],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  gauge: {
+    label: "Dataset 1",
+    data: [75],
+    backgroundColor: [
+      DEFAULT_COLORS[0],
+      `${DEFAULT_COLORS[0]}33`,
+    ],
+    borderWidth: 0,
+  },
+  radar: {
+    label: "Dataset 1",
+    data: [65, 59, 90, 81, 56, 55, 40],
+    backgroundColor: `${DEFAULT_COLORS[0]}33`,
+    borderColor: DEFAULT_COLORS[0],
+    borderWidth: 2,
+    fill: true,
+  },
+  heatmap: {
+    label: "Dataset 1",
+    data: [15, 29, 40, 51, 66, 75, 20, 35, 45, 55, 65, 75, 30, 45, 55, 65],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  treemap: {
+    label: "Dataset 1",
+    data: [300, 200, 150, 100, 50],
+    backgroundColor: DEFAULT_COLORS,
+    borderWidth: 1,
+  },
+  "semi-circle": {
+    label: "Dataset 1",
+    data: [300, 200],
+    backgroundColor: [DEFAULT_COLORS[0], DEFAULT_COLORS[1]],
+    borderWidth: 1,
+  },
+  funnel: {
+    label: "Dataset 1",
+    data: [100, 80, 60, 40, 20],
+    backgroundColor: DEFAULT_COLORS,
+    borderWidth: 0,
+  },
+  boxplot: {
+    label: "Dataset 1",
+    data: [
+      { x: 1, y: [10, 20, 50, 70, 90] },
+      { x: 2, y: [15, 25, 45, 65, 85] },
+      { x: 3, y: [20, 30, 50, 70, 95] },
+    ],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  sankey: {
+    label: "Dataset 1",
+    data: [50, 40, 30, 20, 10],
+    backgroundColor: DEFAULT_COLORS,
+    borderWidth: 0,
+  },
 };
 
 const DEFAULT_LABELS = {
@@ -68,6 +135,15 @@ const DEFAULT_LABELS = {
   area: ["January", "February", "March", "April", "May", "June", "July"],
   scatter: ["A", "B", "C", "D", "E"],
   donut: ["Red", "Blue", "Yellow", "Green", "Purple"],
+  bubble: ["A", "B", "C", "D", "E"],
+  gauge: ["Progress"],
+  radar: ["Strength", "Agility", "Intelligence", "Charisma", "Stamina", "Speed", "Luck"],
+  heatmap: ["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C1", "C2", "C3", "C4", "D1", "D2", "D3", "D4"],
+  treemap: ["Category 1", "Category 2", "Category 3", "Category 4", "Category 5"],
+  "semi-circle": ["Complete", "Incomplete"],
+  funnel: ["Prospects", "Leads", "Opportunities", "Proposals", "Customers"],
+  boxplot: ["Group 1", "Group 2", "Group 3"],
+  sankey: ["Source 1", "Source 2", "Source 3", "Source 4", "Source 5"],
 };
 
 export function createNewChartItem(
@@ -76,7 +152,10 @@ export function createNewChartItem(
 ): ChartItemType {
   let chartData: ChartData = {
     labels: DEFAULT_LABELS[type as keyof typeof DEFAULT_LABELS] || [],
-    datasets: [DEFAULT_DATASETS[type as keyof typeof DEFAULT_DATASETS] || {}],
+    datasets: [DEFAULT_DATASETS[type as keyof typeof DEFAULT_DATASETS] || {
+      label: "",
+      data: [],
+    }],
   };
 
   if (type === "text") {
@@ -400,6 +479,24 @@ export function getDefaultTitle(type: ChartType): string {
       return "Donut Chart";
     case "text":
       return "Text Label";
+    case "bubble":
+      return "Bubble Chart";
+    case "gauge":
+      return "Gauge Chart";
+    case "radar":
+      return "Radar Chart";
+    case "heatmap":
+      return "Heatmap";
+    case "treemap":
+      return "Treemap";
+    case "semi-circle":
+      return "Semi Circle Chart";
+    case "funnel":
+      return "Funnel Chart";
+    case "boxplot":
+      return "Box Plot";
+    case "sankey":
+      return "Sankey Diagram";
     default:
       return "New Chart";
   }
@@ -457,6 +554,77 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
       return {
         ...common,
         cutout: "70%",
+      };
+    case "bubble":
+      return {
+        ...common,
+        scales: {
+          x: {
+            type: "linear",
+            position: "bottom",
+          },
+          y: {
+            type: "linear",
+            position: "left",
+          },
+        },
+      };
+    case "gauge":
+      return {
+        ...common,
+        circumference: 180,
+        rotation: -90,
+        cutout: "70%",
+        plugins: {
+          ...common.plugins,
+          tooltip: {
+            enabled: false,
+          },
+        },
+      };
+    case "radar":
+      return {
+        ...common,
+      };
+    case "heatmap":
+      return {
+        ...common,
+        scales: {
+          x: {
+            type: "category",
+          },
+          y: {
+            type: "category", 
+          },
+        },
+      };
+    case "treemap":
+      return {
+        ...common,
+      };
+    case "semi-circle":
+      return {
+        ...common,
+        circumference: 180,
+        rotation: -90,
+      };
+    case "funnel":
+      return {
+        ...common,
+        indexAxis: 'y',
+      };
+    case "boxplot":
+      return {
+        ...common,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      };
+    case "sankey":
+      return {
+        ...common,
       };
     case "text":
       return {
