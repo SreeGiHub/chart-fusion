@@ -203,21 +203,23 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     return item.data.labels.map((label, index) => {
       const dataPoint: any = { name: label };
       
-      item.data.datasets.forEach((dataset, datasetIndex) => {
-        if (item.type === "scatter" || item.type === "bubble") {
-          const point = dataset.data[index] as ComplexDataPoint;
-          if (point && typeof point === 'object') {
-            dataPoint[dataset.label || `dataset-${datasetIndex}`] = point.y;
-            dataPoint.x = point.x;
-            if (item.type === "bubble" && 'r' in point) {
-              dataPoint.z = point.r;
+      item.data.datasets
+        .filter(dataset => !dataset.hidden) // Only include visible datasets
+        .forEach((dataset, datasetIndex) => {
+          if (item.type === "scatter" || item.type === "bubble") {
+            const point = dataset.data[index] as ComplexDataPoint;
+            if (point && typeof point === 'object') {
+              dataPoint[dataset.label || `dataset-${datasetIndex}`] = point.y;
+              dataPoint.x = point.x;
+              if (item.type === "bubble" && 'r' in point) {
+                dataPoint.z = point.r;
+              }
             }
+          } else {
+            const dp = dataset.data[index];
+            dataPoint[dataset.label || `dataset-${datasetIndex}`] = dp;
           }
-        } else {
-          const dp = dataset.data[index];
-          dataPoint[dataset.label || `dataset-${datasetIndex}`] = dp;
-        }
-      });
+        });
       
       return dataPoint;
     });
@@ -262,7 +264,9 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
               <Legend wrapperStyle={{ paddingTop: "10px" }} />
-              {item.data.datasets.map((dataset, index) => (
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
                 <Bar
                   key={index}
                   dataKey={dataset.label || `dataset-${index}`}
@@ -734,7 +738,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         );
       
       case "table":
-        const columns = item.data.tableColumns || [];
+        const columns = item.data.tableColumns?.filter(col => col.visible !== false) || [];
         const rows = item.data.tableRows || [];
         
         return (

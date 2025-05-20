@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, LineChart, PieChart, Activity, Type, Trash2, Plus, X } from "lucide-react";
+import { BarChart, LineChart, PieChart, Activity, Type, Trash2, Plus, X, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -36,6 +36,7 @@ const Sidebar: React.FC = () => {
     (item) => item.id === state.selectedItemId
   );
   const [activeTab, setActiveTab] = useState("general");
+  const [hiddenDatasets, setHiddenDatasets] = useState<number[]>([]);
 
   if (!selectedItem || state.previewMode) {
     return null;
@@ -297,6 +298,39 @@ const Sidebar: React.FC = () => {
     });
     
     toast.success("Dataset deleted");
+  };
+
+  const toggleDatasetVisibility = (datasetIndex: number) => {
+    setHiddenDatasets(prev => {
+      if (prev.includes(datasetIndex)) {
+        return prev.filter(i => i !== datasetIndex);
+      } else {
+        return [...prev, datasetIndex];
+      }
+    });
+    
+    const newDatasets = [...selectedItem.data.datasets];
+    newDatasets[datasetIndex] = {
+      ...newDatasets[datasetIndex],
+      hidden: !newDatasets[datasetIndex].hidden
+    };
+    
+    dispatch({
+      type: "UPDATE_ITEM",
+      payload: {
+        id: selectedItem.id,
+        updates: {
+          data: {
+            ...selectedItem.data,
+            datasets: newDatasets,
+          },
+        },
+      },
+    });
+    
+    toast.success(newDatasets[datasetIndex].hidden ? 
+      `Dataset "${newDatasets[datasetIndex].label || `Dataset ${datasetIndex + 1}`}" hidden` : 
+      `Dataset "${newDatasets[datasetIndex].label || `Dataset ${datasetIndex + 1}`}" shown`);
   };
 
   const renderChartTypeIcon = (type: ChartType) => {
@@ -682,16 +716,30 @@ const Sidebar: React.FC = () => {
                     <div key={datasetIndex} className="border rounded-md p-3 space-y-2">
                       <div className="flex items-center justify-between">
                         <Label htmlFor={`dataset-${datasetIndex}`}>Dataset {datasetIndex + 1}</Label>
-                        {selectedItem.data.datasets.length > 1 && (
+                        <div className="flex items-center gap-1">
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            onClick={() => deleteDataset(datasetIndex)}
-                            className="h-7 text-red-500 hover:text-red-700"
+                            onClick={() => toggleDatasetVisibility(datasetIndex)}
+                            className="h-7"
+                            title={dataset.hidden ? "Show dataset" : "Hide dataset"}
                           >
-                            <X className="h-3.5 w-3.5" />
+                            {dataset.hidden ? 
+                              <EyeOff className="h-3.5 w-3.5 text-muted-foreground" /> : 
+                              <Eye className="h-3.5 w-3.5" />
+                            }
                           </Button>
-                        )}
+                          {selectedItem.data.datasets.length > 1 && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => deleteDataset(datasetIndex)}
+                              className="h-7 text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       
                       <Input

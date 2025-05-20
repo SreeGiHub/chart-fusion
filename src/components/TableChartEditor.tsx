@@ -20,6 +20,7 @@ import {
   DropdownMenuContent, 
   DropdownMenuItem 
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface TableChartEditorProps {
   columns: TableColumnConfig[];
@@ -35,12 +36,24 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
   onRowsChange 
 }) => {
   const [newColumnName, setNewColumnName] = useState("");
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(columns.map(col => col.id));
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(
+    columns.filter(col => col.visible !== false).map(col => col.id)
+  );
   
   const addColumn = () => {
-    if (!newColumnName.trim()) return;
+    if (!newColumnName.trim()) {
+      toast.error("Please enter a column name");
+      return;
+    }
     
     const columnId = newColumnName.toLowerCase().replace(/\s+/g, '_');
+    
+    // Check if column with this ID already exists
+    if (columns.some(col => col.id === columnId)) {
+      toast.error("A column with this name already exists");
+      return;
+    }
+    
     const newColumn: TableColumnConfig = {
       id: columnId,
       header: newColumnName,
@@ -61,6 +74,7 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
     onRowsChange(updatedRows);
     
     setNewColumnName("");
+    toast.success("Column added successfully");
   };
   
   const removeColumn = (columnId: string) => {
@@ -75,6 +89,8 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
       return newRow;
     });
     onRowsChange(updatedRows);
+    
+    toast.success("Column removed");
   };
   
   const updateColumnHeader = (columnId: string, newHeader: string) => {
@@ -98,12 +114,14 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
         column.id === columnId ? { ...column, visible: false } : column
       );
       onColumnsChange(updatedColumns);
+      toast.success("Column hidden");
     } else {
       setVisibleColumns([...visibleColumns, columnId]);
       const updatedColumns = columns.map(column => 
         column.id === columnId ? { ...column, visible: true } : column
       );
       onColumnsChange(updatedColumns);
+      toast.success("Column shown");
     }
   };
   
@@ -115,12 +133,14 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
     });
     
     onRowsChange([...rows, newRow]);
+    toast.success("Row added");
   };
   
   const removeRow = (index: number) => {
     const updatedRows = [...rows];
     updatedRows.splice(index, 1);
     onRowsChange(updatedRows);
+    toast.success("Row removed");
   };
   
   const updateCellValue = (rowIndex: number, columnId: string, value: string) => {
