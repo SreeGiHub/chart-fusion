@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Table } from "lucide-react";
 import TableChartEditor from "./TableChartEditor";
 
 interface EditTableChartPanelProps {
@@ -74,8 +75,13 @@ const EditTableChartPanel: React.FC<EditTableChartPanelProps> = ({ item }) => {
 
   return (
     <div className="space-y-4 p-4">
+      <div className="flex items-center gap-2">
+        <Table className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-semibold">Edit Table</h2>
+      </div>
+      
       <div className="space-y-2">
-        <Label htmlFor="chart-title">Chart Title</Label>
+        <Label htmlFor="chart-title">Table Title</Label>
         <Input
           id="chart-title"
           value={title}

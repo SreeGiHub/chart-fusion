@@ -3,7 +3,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TableColumnConfig, TableRowData } from "@/types";
-import { Plus, Trash2, GripVertical, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { 
+  Plus, 
+  Trash2, 
+  GripVertical, 
+  AlignLeft, 
+  AlignCenter, 
+  AlignRight, 
+  Eye,
+  EyeOff,
+  Table
+} from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuTrigger, 
@@ -25,6 +35,7 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
   onRowsChange 
 }) => {
   const [newColumnName, setNewColumnName] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(columns.map(col => col.id));
   
   const addColumn = () => {
     if (!newColumnName.trim()) return;
@@ -35,10 +46,12 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
       header: newColumnName,
       accessor: columnId,
       align: 'left',
+      visible: true
     };
     
     const updatedColumns = [...columns, newColumn];
     onColumnsChange(updatedColumns);
+    setVisibleColumns([...visibleColumns, columnId]);
     
     // Add this column to all existing rows with empty value
     const updatedRows = rows.map(row => ({
@@ -53,6 +66,7 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
   const removeColumn = (columnId: string) => {
     const updatedColumns = columns.filter(column => column.id !== columnId);
     onColumnsChange(updatedColumns);
+    setVisibleColumns(visibleColumns.filter(id => id !== columnId));
     
     // Remove this column from all rows
     const updatedRows = rows.map(row => {
@@ -75,6 +89,22 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
       column.id === columnId ? { ...column, align } : column
     );
     onColumnsChange(updatedColumns);
+  };
+  
+  const toggleColumnVisibility = (columnId: string) => {
+    if (visibleColumns.includes(columnId)) {
+      setVisibleColumns(visibleColumns.filter(id => id !== columnId));
+      const updatedColumns = columns.map(column => 
+        column.id === columnId ? { ...column, visible: false } : column
+      );
+      onColumnsChange(updatedColumns);
+    } else {
+      setVisibleColumns([...visibleColumns, columnId]);
+      const updatedColumns = columns.map(column => 
+        column.id === columnId ? { ...column, visible: true } : column
+      );
+      onColumnsChange(updatedColumns);
+    }
   };
   
   const addRow = () => {
@@ -110,6 +140,8 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
     }
   };
   
+  const isColumnVisible = (columnId: string) => visibleColumns.includes(columnId);
+  
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -127,6 +159,18 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
                 className="flex-1"
                 placeholder="Column header"
               />
+              <Button
+                variant="ghost" 
+                size="icon" 
+                onClick={() => toggleColumnVisibility(column.id)}
+                className="h-9 w-9"
+                title={isColumnVisible(column.id) ? "Hide column" : "Show column"}
+              >
+                {isColumnVisible(column.id) ? 
+                  <Eye className="h-4 w-4" /> : 
+                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                }
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-9 w-9">
@@ -179,7 +223,7 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
               <thead>
                 <tr className="bg-muted">
                   <th className="w-10"></th>
-                  {columns.map(column => (
+                  {columns.filter(column => isColumnVisible(column.id)).map(column => (
                     <th key={column.id} className="p-2 text-left text-xs font-semibold">
                       {column.header}
                     </th>
@@ -199,7 +243,7 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     </td>
-                    {columns.map(column => (
+                    {columns.filter(column => isColumnVisible(column.id)).map(column => (
                       <td key={column.id} className="p-2">
                         <Input
                           value={row[column.accessor] || ''}

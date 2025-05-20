@@ -55,20 +55,24 @@ export type TableColumnConfig = {
   accessor: string;
   width?: number;
   align?: 'left' | 'center' | 'right';
+  visible?: boolean;
 };
 
 export type TableRowData = Record<string, string | number>;
 
+export type ChartDataset = {
+  label: string;
+  data: ChartDataPoint[];
+  backgroundColor?: string | string[];
+  borderColor?: string | string[];
+  borderWidth?: number;
+  fill?: boolean;
+  visible?: boolean;
+};
+
 export type ChartData = {
   labels: string[];
-  datasets: {
-    label: string;
-    data: ChartDataPoint[];
-    backgroundColor?: string | string[];
-    borderColor?: string | string[];
-    borderWidth?: number;
-    fill?: boolean;
-  }[];
+  datasets: ChartDataset[];
   tableColumns?: TableColumnConfig[];
   tableRows?: TableRowData[];
 };
