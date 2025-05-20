@@ -225,16 +225,43 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
 
   const processedData = formattedData();
 
+  // Custom formatter for axis ticks
+  const formatAxisTick = (value: any) => {
+    if (typeof value === 'string' && value.length > 10) {
+      return `${value.substring(0, 8)}...`;
+    }
+    return value;
+  };
+
+  // Custom style for charts
+  const chartStyle = {
+    fontSize: '12px',
+    fontFamily: 'Inter, sans-serif',
+  };
+
   const renderChart = () => {
     switch (item.type) {
       case "bar":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis dataKey="name" tick={false} axisLine={true} />
-              <YAxis tick={false} axisLine={true} />
-              <RechartsTooltip />
-              <Legend />
+            <BarChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+                tickFormatter={(value) => value}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend wrapperStyle={{ paddingTop: "10px" }} />
               {item.data.datasets.map((dataset, index) => (
                 <Bar
                   key={index}
@@ -242,6 +269,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   fill={Array.isArray(dataset.backgroundColor)
                     ? dataset.backgroundColor[0]
                     : dataset.backgroundColor || "#4f46e5"}
+                  radius={[2, 2, 0, 0]}
+                  barSize={30}
                 />
               ))}
             </BarChart>
@@ -251,11 +280,23 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "line":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis dataKey="name" tick={false} axisLine={true} />
-              <YAxis tick={false} axisLine={true} />
-              <RechartsTooltip />
-              <Legend />
+            <LineChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend wrapperStyle={{ paddingTop: "10px" }} />
               {item.data.datasets.map((dataset, index) => (
                 <Line
                   key={index}
@@ -263,7 +304,9 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   dataKey={dataset.label || `dataset-${index}`}
                   stroke={dataset.borderColor as string || "#4f46e5"}
                   fill={dataset.backgroundColor as string || "#4f46e533"}
-                  strokeWidth={dataset.borderWidth || 2}
+                  strokeWidth={dataset.borderWidth || 3}
+                  dot={{ r: 4, strokeWidth: 2, fill: "white" }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
                 />
               ))}
             </LineChart>
@@ -273,11 +316,23 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "area":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis dataKey="name" tick={false} axisLine={true} />
-              <YAxis tick={false} axisLine={true} />
-              <RechartsTooltip />
-              <Legend />
+            <AreaChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend wrapperStyle={{ paddingTop: "10px" }} />
               {item.data.datasets.map((dataset, index) => (
                 <Area
                   key={index}
@@ -285,7 +340,9 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   dataKey={dataset.label || `dataset-${index}`}
                   stroke={typeof dataset.borderColor === 'string' ? dataset.borderColor : "#4f46e5"}
                   fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : "#4f46e533"}
-                  strokeWidth={dataset.borderWidth || 2}
+                  strokeWidth={dataset.borderWidth || 3}
+                  dot={{ r: 4, strokeWidth: 2, fill: "white" }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
                 />
               ))}
             </AreaChart>
@@ -295,9 +352,18 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "pie":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <RechartsTooltip />
-              <Legend />
+            <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }} style={chartStyle}>
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+                formatter={(value, name) => [`${value} (${((value as number) / processedData.reduce((a, b) => a + (b.value as number), 0) * 100).toFixed(1)}%)`, name]}
+              />
+              <Legend
+                layout="vertical"
+                verticalAlign="middle"
+                align="right"
+                wrapperStyle={{ paddingLeft: "10px" }}
+              />
               <Pie
                 data={processedData}
                 dataKey="value"
@@ -306,8 +372,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 cy="50%"
                 innerRadius={0}
                 outerRadius="80%"
-                paddingAngle={0}
+                paddingAngle={2}
                 fill="#4f46e5"
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                labelLine={false}
               >
                 {processedData.map((entry, index) => {
                   const bgColors = item.data.datasets[0].backgroundColor;
@@ -322,9 +390,18 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "donut":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <RechartsTooltip />
-              <Legend />
+            <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }} style={chartStyle}>
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+                formatter={(value, name) => [`${value} (${((value as number) / processedData.reduce((a, b) => a + (b.value as number), 0) * 100).toFixed(1)}%)`, name]}
+              />
+              <Legend
+                layout="vertical"
+                verticalAlign="middle"
+                align="right"
+                wrapperStyle={{ paddingLeft: "10px" }}
+              />
               <Pie
                 data={processedData}
                 dataKey="value"
@@ -335,6 +412,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 outerRadius="80%"
                 paddingAngle={2}
                 fill="#4f46e5"
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                labelLine={false}
               >
                 {processedData.map((entry, index) => {
                   const bgColors = item.data.datasets[0].backgroundColor;
@@ -349,17 +428,45 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "scatter":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis type="number" dataKey="x" name="x" tick={false} axisLine={true} />
-              <YAxis type="number" dataKey="y" name="y" tick={false} axisLine={true} />
-              <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
-              <Legend />
+            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <XAxis 
+                type="number" 
+                dataKey="x" 
+                name="x"
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                type="number" 
+                dataKey="y" 
+                name="y"
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                cursor={{ strokeDasharray: '3 3' }} 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend wrapperStyle={{ paddingTop: "10px" }} />
               {item.data.datasets.map((dataset, index) => (
                 <Scatter
                   key={index}
                   name={dataset.label || `dataset-${index}`}
                   data={processedData.map((item) => ({ x: item.x, y: item[dataset.label || `dataset-${index}`] }))}
                   fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor || "#4f46e5"}
+                  shape={(props) => (
+                    <circle
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={6}
+                      fill={props.fill}
+                      stroke="#fff"
+                      strokeWidth={1}
+                    />
+                  )}
                 />
               ))}
             </ScatterChart>
@@ -369,11 +476,29 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "bubble":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis type="number" dataKey="x" name="x" tick={false} axisLine={true} />
-              <YAxis type="number" dataKey="y" name="y" tick={false} axisLine={true} />
-              <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
-              <Legend />
+            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <XAxis 
+                type="number" 
+                dataKey="x" 
+                name="x"
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                type="number" 
+                dataKey="y" 
+                name="y" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                cursor={{ strokeDasharray: '3 3' }}
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend wrapperStyle={{ paddingTop: "10px" }} />
               {item.data.datasets.map((dataset, index) => (
                 <Scatter
                   key={index}
@@ -384,6 +509,20 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                     z: item.z || 100
                   }))}
                   fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor || "#4f46e5"}
+                  shape={(props) => {
+                    const size = props.payload.z ? props.payload.z / 10 : 6;
+                    return (
+                      <circle
+                        cx={props.cx}
+                        cy={props.cy}
+                        r={size}
+                        fill={props.fill}
+                        stroke="#fff"
+                        strokeWidth={1}
+                        fillOpacity={0.8}
+                      />
+                    )
+                  }}
                 />
               ))}
             </ScatterChart>
@@ -393,7 +532,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "gauge":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }} style={chartStyle}>
               <Pie
                 data={[
                   { name: 'Value', value: item.data.datasets[0].data[0] },
@@ -408,6 +547,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 innerRadius="60%"
                 outerRadius="80%"
                 paddingAngle={0}
+                cornerRadius={5}
                 fill="#4f46e5"
               >
                 <Cell fill={Array.isArray(item.data.datasets[0].backgroundColor) 
@@ -420,6 +560,9 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               <text x="50%" y="85%" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '24px', fontWeight: 'bold' }}>
                 {String(item.data.datasets[0].data[0])}%
               </text>
+              <text x="50%" y="65%" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '14px', fill: '#6B7280' }}>
+                {item.data.datasets[0].label || 'Current Value'}
+              </text>
             </PieChart>
           </ResponsiveContainer>
         );
@@ -427,9 +570,18 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "semi-circle":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <RechartsTooltip />
-              <Legend />
+            <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }} style={chartStyle}>
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+                formatter={(value, name) => [`${value} (${((value as number) / processedData.reduce((a, b) => a + (b.value as number), 0) * 100).toFixed(1)}%)`, name]}
+              />
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{ paddingTop: "10px" }}
+              />
               <Pie
                 data={processedData}
                 dataKey="value"
@@ -440,8 +592,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 endAngle={0}
                 innerRadius="60%"
                 outerRadius="80%"
-                paddingAngle={0}
+                paddingAngle={2}
                 fill="#4f46e5"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
               >
                 {processedData.map((entry, index) => {
                   const bgColors = item.data.datasets[0].backgroundColor;
@@ -456,10 +610,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       case "radar":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={processedData}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey="name" />
-              <PolarRadiusAxis />
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={processedData} style={chartStyle}>
+              <PolarGrid gridType="circle" stroke="#E5E7EB" />
+              <PolarAngleAxis dataKey="name" tick={{ fill: '#6B7280', fontSize: 12 }} />
+              <PolarRadiusAxis tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} />
               {item.data.datasets.map((dataset, index) => (
                 <Radar
                   key={index}
@@ -468,10 +622,14 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   stroke={typeof dataset.borderColor === 'string' ? dataset.borderColor : "#4f46e5"}
                   fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : "#4f46e533"}
                   fillOpacity={0.6}
+                  strokeWidth={3}
                 />
               ))}
-              <Legend />
-              <RechartsTooltip />
+              <Legend wrapperStyle={{ paddingTop: "10px" }} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
             </RadarChart>
           </ResponsiveContainer>
         );
@@ -486,6 +644,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               aspectRatio={4/3}
               stroke="#fff"
               fill="#4f46e5"
+              style={chartStyle}
             >
               {processedData.map((entry, index) => {
                 const bgColors = item.data.datasets[0].backgroundColor;
@@ -506,11 +665,21 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 order: processedData.length - i 
               }))} 
               layout="vertical"
-              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              margin={{ top: 20, right: 30, left: 80, bottom: 20 }}
+              style={chartStyle}
             >
-              <YAxis dataKey="name" type="category" />
+              <YAxis 
+                dataKey="name" 
+                type="category"
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+              />
               <XAxis type="number" hide />
-              <RechartsTooltip />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
               <Bar 
                 dataKey="value"
                 shape={(props) => {
@@ -531,6 +700,24 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                     />
                   );
                 }}
+                label={{
+                  position: 'right',
+                  content: (props) => {
+                    const { x, y, width, height, value } = props;
+                    return (
+                      <text
+                        x={x + width}
+                        y={y + height / 2}
+                        dy={3}
+                        textAnchor="start"
+                        fill="#6B7280"
+                        fontSize={12}
+                      >
+                        {value}
+                      </text>
+                    );
+                  }
+                }}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -548,7 +735,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   {columns.map((column, index) => (
                     <th 
                       key={column.id || index} 
-                      className={`p-2 border text-left text-xs font-semibold ${column.align ? `text-${column.align}` : ''}`}
+                      className={`p-3 border border-gray-200 text-left text-xs font-semibold ${column.align ? `text-${column.align}` : ''}`}
                       style={column.width ? { width: `${column.width}px` } : {}}
                     >
                       {column.header}
@@ -562,7 +749,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                     {columns.map((column, colIndex) => (
                       <td 
                         key={`${rowIndex}-${colIndex}`} 
-                        className={`p-2 border text-xs ${column.align ? `text-${column.align}` : ''}`}
+                        className={`p-3 border border-gray-200 text-xs ${column.align ? `text-${column.align}` : ''}`}
                       >
                         {row[column.accessor] !== undefined ? row[column.accessor] : '—'}
                       </td>
@@ -658,7 +845,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
       onResize={handleResize}
       onResizeStop={handleResizeStop}
       className={cn(
-        "chart-item rounded-md bg-background border",
+        "chart-item rounded-md bg-background border shadow-sm",
         isDragging && "opacity-70",
         isSelected && !previewMode && "ring-2 ring-primary",
         previewMode && "pointer-events-none"
