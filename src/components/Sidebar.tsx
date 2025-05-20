@@ -1,4 +1,3 @@
-
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartItemType, ChartType, ComplexDataPoint } from "@/types";
 import { DEFAULT_COLORS } from "@/utils/chartUtils";

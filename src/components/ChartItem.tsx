@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartItemType, ChartType, ComplexDataPoint, BoxPlotDataPoint, ChartDataPoint, TableColumnConfig, TableRowData } from "@/types";
@@ -417,7 +418,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 <Cell fill="#e5e7eb" />
               </Pie>
               <text x="50%" y="85%" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '24px', fontWeight: 'bold' }}>
-                {item.data.datasets[0].data[0]}%
+                {String(item.data.datasets[0].data[0])}%
               </text>
             </PieChart>
           </ResponsiveContainer>
