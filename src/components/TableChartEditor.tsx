@@ -1,25 +1,36 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
 import { TableColumnConfig, TableRowData } from "@/types";
 import { 
-  Plus, 
-  Trash2, 
+  PlusCircle, 
+  X, 
   GripVertical, 
-  AlignLeft, 
-  AlignCenter, 
-  AlignRight, 
-  Eye,
+  ChevronUp, 
+  ChevronDown, 
+  Eye, 
   EyeOff,
-  Table
+  AlignLeft,
+  AlignCenter,
+  AlignRight
 } from "lucide-react";
-import { 
-  DropdownMenu, 
-  DropdownMenuTrigger, 
-  DropdownMenuContent, 
-  DropdownMenuItem 
-} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 
 interface TableChartEditorProps {
@@ -29,105 +40,115 @@ interface TableChartEditorProps {
   onRowsChange: (rows: TableRowData[]) => void;
 }
 
-const TableChartEditor: React.FC<TableChartEditorProps> = ({ 
-  columns, 
-  rows, 
-  onColumnsChange, 
-  onRowsChange 
+const TableChartEditor: React.FC<TableChartEditorProps> = ({
+  columns,
+  rows,
+  onColumnsChange,
+  onRowsChange,
 }) => {
-  const [newColumnName, setNewColumnName] = useState("");
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(
-    columns.filter(col => col.visible !== false).map(col => col.id)
-  );
-  
+  const [activeTab, setActiveTab] = useState("columns");
+
   const addColumn = () => {
-    if (!newColumnName.trim()) {
-      toast.error("Please enter a column name");
-      return;
-    }
-    
-    const columnId = newColumnName.toLowerCase().replace(/\s+/g, '_');
-    
-    // Check if column with this ID already exists
-    if (columns.some(col => col.id === columnId)) {
-      toast.error("A column with this name already exists");
-      return;
-    }
-    
+    const newId = `col-${Date.now()}`;
     const newColumn: TableColumnConfig = {
-      id: columnId,
-      header: newColumnName,
-      accessor: columnId,
+      id: newId,
+      header: `Column ${columns.length + 1}`,
+      accessor: newId,
       align: 'left',
-      visible: true
+      visible: true,
     };
     
-    const updatedColumns = [...columns, newColumn];
-    onColumnsChange(updatedColumns);
-    setVisibleColumns([...visibleColumns, columnId]);
+    onColumnsChange([...columns, newColumn]);
     
-    // Add this column to all existing rows with empty value
-    const updatedRows = rows.map(row => ({
-      ...row,
-      [columnId]: ''
-    }));
-    onRowsChange(updatedRows);
+    // Add this field to existing rows
+    if (rows.length > 0) {
+      const updatedRows = rows.map(row => ({
+        ...row,
+        [newId]: '',
+      }));
+      onRowsChange(updatedRows);
+    }
     
-    setNewColumnName("");
-    toast.success("Column added successfully");
+    toast.success("Column added");
   };
-  
-  const removeColumn = (columnId: string) => {
-    const updatedColumns = columns.filter(column => column.id !== columnId);
-    onColumnsChange(updatedColumns);
-    setVisibleColumns(visibleColumns.filter(id => id !== columnId));
+
+  const updateColumn = (index: number, updates: Partial<TableColumnConfig>) => {
+    const updatedColumns = [...columns];
+    updatedColumns[index] = { ...updatedColumns[index], ...updates };
     
-    // Remove this column from all rows
-    const updatedRows = rows.map(row => {
-      const newRow = { ...row };
-      delete newRow[columnId];
-      return newRow;
-    });
-    onRowsChange(updatedRows);
+    // If column accessor changed, we need to update all rows
+    if (updates.accessor && updates.accessor !== columns[index].accessor) {
+      const oldAccessor = columns[index].accessor;
+      const newAccessor = updates.accessor;
+      
+      const updatedRows = rows.map(row => {
+        const newRow = { ...row };
+        newRow[newAccessor] = row[oldAccessor];
+        // We don't delete the old property to avoid data loss in case of reverting
+        return newRow;
+      });
+      
+      onRowsChange(updatedRows);
+    }
+    
+    onColumnsChange(updatedColumns);
+  };
+
+  const removeColumn = (index: number) => {
+    if (columns.length <= 1) {
+      toast.error("Cannot delete the last column");
+      return;
+    }
+    
+    const columnToRemove = columns[index];
+    const updatedColumns = columns.filter((_, i) => i !== index);
+    onColumnsChange(updatedColumns);
+    
+    // Remove this field from all rows
+    if (rows.length > 0) {
+      const updatedRows = rows.map(row => {
+        const newRow = { ...row };
+        delete newRow[columnToRemove.accessor];
+        return newRow;
+      });
+      onRowsChange(updatedRows);
+    }
     
     toast.success("Column removed");
   };
-  
-  const updateColumnHeader = (columnId: string, newHeader: string) => {
-    const updatedColumns = columns.map(column => 
-      column.id === columnId ? { ...column, header: newHeader } : column
-    );
-    onColumnsChange(updatedColumns);
-  };
-  
-  const updateColumnAlign = (columnId: string, align: 'left' | 'center' | 'right') => {
-    const updatedColumns = columns.map(column => 
-      column.id === columnId ? { ...column, align } : column
-    );
-    onColumnsChange(updatedColumns);
-  };
-  
-  const toggleColumnVisibility = (columnId: string) => {
-    if (visibleColumns.includes(columnId)) {
-      setVisibleColumns(visibleColumns.filter(id => id !== columnId));
-      const updatedColumns = columns.map(column => 
-        column.id === columnId ? { ...column, visible: false } : column
-      );
-      onColumnsChange(updatedColumns);
-      toast.success("Column hidden");
-    } else {
-      setVisibleColumns([...visibleColumns, columnId]);
-      const updatedColumns = columns.map(column => 
-        column.id === columnId ? { ...column, visible: true } : column
-      );
-      onColumnsChange(updatedColumns);
-      toast.success("Column shown");
+
+  const moveColumn = (index: number, direction: 'up' | 'down') => {
+    if ((direction === 'up' && index === 0) || 
+        (direction === 'down' && index === columns.length - 1)) {
+      return;
     }
+    
+    const updatedColumns = [...columns];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    // Swap positions
+    [updatedColumns[index], updatedColumns[targetIndex]] = 
+    [updatedColumns[targetIndex], updatedColumns[index]];
+    
+    onColumnsChange(updatedColumns);
   };
-  
+
+  const toggleColumnVisibility = (index: number) => {
+    const updatedColumns = [...columns];
+    updatedColumns[index].visible = !updatedColumns[index].visible;
+    onColumnsChange(updatedColumns);
+    
+    toast.success(
+      updatedColumns[index].visible
+        ? `Column "${updatedColumns[index].header}" is now visible`
+        : `Column "${updatedColumns[index].header}" is now hidden`
+    );
+  };
+
   const addRow = () => {
-    // Create a new row with empty values for all columns
     const newRow: TableRowData = {};
+    
+    // Initialize with empty values for all columns
     columns.forEach(column => {
       newRow[column.accessor] = '';
     });
@@ -135,154 +156,277 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
     onRowsChange([...rows, newRow]);
     toast.success("Row added");
   };
-  
-  const removeRow = (index: number) => {
-    const updatedRows = [...rows];
-    updatedRows.splice(index, 1);
-    onRowsChange(updatedRows);
-    toast.success("Row removed");
-  };
-  
-  const updateCellValue = (rowIndex: number, columnId: string, value: string) => {
+
+  const updateRowValue = (rowIndex: number, columnAccessor: string, value: string) => {
     const updatedRows = [...rows];
     updatedRows[rowIndex] = {
       ...updatedRows[rowIndex],
-      [columnId]: value
+      [columnAccessor]: value
     };
     onRowsChange(updatedRows);
   };
-  
-  const getAlignmentIcon = (align: string | undefined) => {
-    switch (align) {
-      case 'center': return <AlignCenter className="h-4 w-4" />;
-      case 'right': return <AlignRight className="h-4 w-4" />;
-      default: return <AlignLeft className="h-4 w-4" />;
+
+  const removeRow = (index: number) => {
+    if (rows.length <= 1) {
+      toast.error("Cannot delete the last row");
+      return;
     }
+    
+    const updatedRows = rows.filter((_, i) => i !== index);
+    onRowsChange(updatedRows);
+    toast.success("Row removed");
   };
-  
-  const isColumnVisible = (columnId: string) => visibleColumns.includes(columnId);
-  
+
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold">Table Columns</h3>
+    <div className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-2 mb-4">
+          <TabsTrigger value="columns">Columns</TabsTrigger>
+          <TabsTrigger value="rows">Rows & Data</TabsTrigger>
+        </TabsList>
         
-        <div className="space-y-2">
-          {columns.map((column, index) => (
-            <div key={column.id} className="flex items-center gap-2">
-              <div className="p-2 text-muted-foreground">
-                <GripVertical className="h-4 w-4" />
-              </div>
-              <Input
-                value={column.header}
-                onChange={(e) => updateColumnHeader(column.id, e.target.value)}
-                className="flex-1"
-                placeholder="Column header"
-              />
-              <Button
-                variant="ghost" 
-                size="icon" 
-                onClick={() => toggleColumnVisibility(column.id)}
-                className="h-9 w-9"
-                title={isColumnVisible(column.id) ? "Hide column" : "Show column"}
-              >
-                {isColumnVisible(column.id) ? 
-                  <Eye className="h-4 w-4" /> : 
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                }
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
-                    {getAlignmentIcon(column.align)}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => updateColumnAlign(column.id, 'left')}>
-                    <AlignLeft className="mr-2 h-4 w-4" /> Left
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => updateColumnAlign(column.id, 'center')}>
-                    <AlignCenter className="mr-2 h-4 w-4" /> Center
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => updateColumnAlign(column.id, 'right')}>
-                    <AlignRight className="mr-2 h-4 w-4" /> Right
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => removeColumn(column.id)}
-                className="h-9 w-9 text-destructive hover:bg-destructive/10"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex gap-2 mt-2">
-          <Input
-            placeholder="New column name"
-            value={newColumnName}
-            onChange={(e) => setNewColumnName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addColumn()}
-          />
-          <Button variant="outline" onClick={addColumn}>
-            <Plus className="h-4 w-4 mr-1" /> Add Column
-          </Button>
-        </div>
-      </div>
-      
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold">Table Data</h3>
-        
-        {rows.length > 0 && (
-          <div className="border rounded-md overflow-hidden">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-muted">
-                  <th className="w-10"></th>
-                  {columns.filter(column => isColumnVisible(column.id)).map(column => (
-                    <th key={column.id} className="p-2 text-left text-xs font-semibold">
-                      {column.header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, rowIndex) => (
-                  <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
-                    <td className="p-2 text-center">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => removeRow(rowIndex)}
-                        className="h-6 w-6 text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </td>
-                    {columns.filter(column => isColumnVisible(column.id)).map(column => (
-                      <td key={column.id} className="p-2">
-                        <Input
-                          value={row[column.accessor] || ''}
-                          onChange={(e) => updateCellValue(rowIndex, column.accessor, e.target.value)}
-                          className="h-8 text-xs"
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <TabsContent value="columns" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-medium">Table Columns</h3>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={addColumn}
+              className="flex items-center gap-1"
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span>Add Column</span>
+            </Button>
           </div>
-        )}
+          
+          <ScrollArea className="h-[400px] pr-4">
+            {columns.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No columns defined. Add a column to get started.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {columns.map((column, index) => (
+                  <div 
+                    key={column.id} 
+                    className="border rounded-md p-3 space-y-3 bg-background"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+                        <span className="font-medium text-sm">Column {index + 1}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => moveColumn(index, 'up')}
+                          disabled={index === 0}
+                          className="h-7 w-7"
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => moveColumn(index, 'down')}
+                          disabled={index === columns.length - 1}
+                          className="h-7 w-7"
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleColumnVisibility(index)}
+                          className="h-7 w-7"
+                          title={column.visible ? "Hide column" : "Show column"}
+                        >
+                          {column.visible ? 
+                            <Eye className="h-4 w-4" /> : 
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          }
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeColumn(index)}
+                          className="h-7 w-7 text-red-500 hover:text-red-700"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor={`col-header-${index}`} className="text-xs">
+                          Header
+                        </Label>
+                        <Input
+                          id={`col-header-${index}`}
+                          value={column.header}
+                          onChange={(e) => updateColumn(index, { header: e.target.value })}
+                          className="h-8"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`col-accessor-${index}`} className="text-xs">
+                          Field ID
+                        </Label>
+                        <Input
+                          id={`col-accessor-${index}`}
+                          value={column.accessor}
+                          onChange={(e) => updateColumn(index, { accessor: e.target.value })}
+                          className="h-8"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor={`col-align-${index}`} className="text-xs">
+                          Alignment
+                        </Label>
+                        <Select
+                          value={column.align || 'left'}
+                          onValueChange={(value) => 
+                            updateColumn(index, { align: value as 'left' | 'center' | 'right' })
+                          }
+                        >
+                          <SelectTrigger id={`col-align-${index}`} className="h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="left">
+                              <div className="flex items-center gap-2">
+                                <AlignLeft className="h-3.5 w-3.5" /> 
+                                <span>Left</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="center">
+                              <div className="flex items-center gap-2">
+                                <AlignCenter className="h-3.5 w-3.5" /> 
+                                <span>Center</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="right">
+                              <div className="flex items-center gap-2">
+                                <AlignRight className="h-3.5 w-3.5" /> 
+                                <span>Right</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`col-width-${index}`} className="text-xs">
+                          Width (px, optional)
+                        </Label>
+                        <Input
+                          id={`col-width-${index}`}
+                          type="number"
+                          value={column.width || ''}
+                          onChange={(e) => updateColumn(index, { 
+                            width: e.target.value ? Number(e.target.value) : undefined 
+                          })}
+                          className="h-8"
+                          placeholder="Auto"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </TabsContent>
         
-        <Button variant="outline" onClick={addRow} className="w-full mt-2">
-          <Plus className="h-4 w-4 mr-1" /> Add Row
-        </Button>
-      </div>
+        <TabsContent value="rows" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-medium">Table Data</h3>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={addRow}
+              className="flex items-center gap-1"
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span>Add Row</span>
+            </Button>
+          </div>
+          
+          {columns.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              You need to define columns first before adding data.
+            </div>
+          ) : rows.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No data rows defined. Add a row to get started.
+            </div>
+          ) : (
+            <div className="border rounded-md overflow-hidden">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="p-2 text-left text-xs font-semibold w-10">#</th>
+                    {columns.filter(col => col.visible !== false).map((column) => (
+                      <th 
+                        key={column.id} 
+                        className={`p-2 text-left text-xs font-semibold ${
+                          column.align ? `text-${column.align}` : ''
+                        }`}
+                        style={column.width ? { width: `${column.width}px` } : {}}
+                      >
+                        {column.header}
+                      </th>
+                    ))}
+                    <th className="p-2 text-center w-10">
+                      <span className="sr-only">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ScrollArea className="max-h-[300px]">
+                    {rows.map((row, rowIndex) => (
+                      <tr 
+                        key={rowIndex} 
+                        className={rowIndex % 2 === 0 ? 'bg-background' : 'bg-muted/30'}
+                      >
+                        <td className="p-2 text-xs font-medium">{rowIndex + 1}</td>
+                        {columns.filter(col => col.visible !== false).map((column) => (
+                          <td 
+                            key={`${rowIndex}-${column.id}`}
+                            className={`p-2 ${
+                              column.align ? `text-${column.align}` : ''
+                            }`}
+                          >
+                            <Input 
+                              value={row[column.accessor] || ''}
+                              onChange={(e) => updateRowValue(rowIndex, column.accessor, e.target.value)}
+                              className="h-7 text-xs"
+                            />
+                          </td>
+                        ))}
+                        <td className="p-2 text-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeRow(rowIndex)}
+                            className="h-6 w-6 text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </ScrollArea>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

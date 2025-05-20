@@ -2,71 +2,47 @@
 import { ChartDataPoint, ChartType } from "@/types";
 
 /**
- * Safely converts a chart data point to a string for rendering
- */
-export const formatDataPointToString = (value: ChartDataPoint | undefined): string => {
-  if (value === undefined) return '';
-  
-  if (typeof value === 'number') {
-    return value.toString();
-  }
-  
-  // Handle complex data points
-  if (typeof value === 'object' && value !== null) {
-    // For ComplexDataPoint with x and y
-    if ('x' in value && 'y' in value) {
-      return `${value.y}`;
-    }
-    
-    // For BoxPlotDataPoint
-    if ('y' in value && Array.isArray(value.y)) {
-      return value.y.join(', ');
-    }
-  }
-  
-  return String(value);
-};
-
-/**
- * Safely compares chart types for equality
- */
-export const isChartTypeEqual = (type1: string, type2: string): boolean => {
-  return type1 === type2;
-};
-
-/**
- * Check if a chart type is text
- * This is used to fix the TypeScript error in Sidebar.tsx
+ * Check if a chart type is a text-based chart type
  */
 export const isTextChartType = (type: ChartType): boolean => {
   return type === "text";
 };
 
 /**
- * Safely formats numbers for display with commas as thousand separators
+ * Safely add values which might be of different types
  */
-export const formatNumberWithCommas = (num: number | string): string => {
-  if (typeof num === 'number') {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-  
-  if (typeof num === 'string' && !isNaN(Number(num))) {
-    return Number(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-  
-  return String(num);
+export const safelyAddValues = (a: any, b: any): number => {
+  const numA = typeof a === 'number' ? a : 0;
+  const numB = typeof b === 'number' ? b : 0;
+  return numA + numB;
 };
 
 /**
- * Safely adds two values that could be strings or numbers
+ * Safely extract Y value from complex data points
  */
-export const safelyAddValues = (a: string | number, b: string | number): number => {
-  const numA = typeof a === 'string' ? parseFloat(a) : a;
-  const numB = typeof b === 'string' ? parseFloat(b) : b;
-  
-  if (isNaN(numA) || isNaN(numB)) {
-    return 0;
+export const getYValue = (point: ChartDataPoint): number => {
+  if (typeof point === 'number') {
+    return point;
+  } else if (point && typeof point === 'object' && 'y' in point) {
+    return typeof point.y === 'number' ? point.y : 0;
   }
-  
-  return numA + numB;
+  return 0;
+};
+
+/**
+ * Process chart data for rendering
+ */
+export const prepareChartData = (labels: string[], datasets: any[]) => {
+  return labels.map((label, index) => {
+    const dataPoint: any = { name: label };
+    
+    datasets.forEach((dataset, datasetIndex) => {
+      if (!dataset.hidden) {
+        const key = dataset.label || `dataset-${datasetIndex}`;
+        dataPoint[key] = getYValue(dataset.data[index]);
+      }
+    });
+    
+    return dataPoint;
+  });
 };

@@ -263,7 +263,13 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend wrapperStyle={{ paddingTop: "10px" }} />
+              <Legend 
+                wrapperStyle={{ paddingTop: "10px" }} 
+                formatter={(value, entry, index) => {
+                  const dataset = item.data.datasets[index];
+                  return dataset && dataset.legendHidden ? "" : value;
+                }}
+              />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -275,6 +281,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                     : dataset.backgroundColor || "#4f46e5"}
                   radius={[2, 2, 0, 0]}
                   barSize={30}
+                  name={dataset.legendHidden ? "" : dataset.label || `dataset-${index}`}
                 />
               ))}
             </BarChart>
@@ -300,7 +307,13 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend wrapperStyle={{ paddingTop: "10px" }} />
+              <Legend 
+                wrapperStyle={{ paddingTop: "10px" }}
+                formatter={(value, entry, index) => {
+                  const dataset = item.data.datasets[index];
+                  return dataset && dataset.legendHidden ? "" : value;
+                }}
+              />
               {item.data.datasets.map((dataset, index) => (
                 <Line
                   key={index}
@@ -311,6 +324,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   strokeWidth={dataset.borderWidth || 3}
                   dot={{ r: 4, strokeWidth: 2, fill: "white" }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
+                  name={dataset.legendHidden ? "" : dataset.label || `dataset-${index}`}
+                  hide={dataset.hidden}
                 />
               ))}
             </LineChart>
@@ -336,7 +351,13 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend wrapperStyle={{ paddingTop: "10px" }} />
+              <Legend 
+                wrapperStyle={{ paddingTop: "10px" }}
+                formatter={(value, entry, index) => {
+                  const dataset = item.data.datasets[index];
+                  return dataset && dataset.legendHidden ? "" : value;
+                }}
+              />
               {item.data.datasets.map((dataset, index) => (
                 <Area
                   key={index}
@@ -347,6 +368,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   strokeWidth={dataset.borderWidth || 3}
                   dot={{ r: 4, strokeWidth: 2, fill: "white" }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
+                  name={dataset.legendHidden ? "" : dataset.label || `dataset-${index}`}
+                  hide={dataset.hidden}
                 />
               ))}
             </AreaChart>
@@ -367,6 +390,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 verticalAlign="middle"
                 align="right"
                 wrapperStyle={{ paddingLeft: "10px" }}
+                formatter={(value, entry, index) => {
+                  const dataset = item.data.datasets[0];
+                  return dataset && dataset.legendHidden ? "" : value;
+                }}
               />
               <Pie
                 data={processedData}
@@ -378,7 +405,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 outerRadius="80%"
                 paddingAngle={2}
                 fill="#4f46e5"
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => {
+                  const dataset = item.data.datasets[0];
+                  return dataset && dataset.legendHidden ? "" : `${name}: ${(percent * 100).toFixed(0)}%`;
+                }}
                 labelLine={false}
               >
                 {processedData.map((entry, index) => {
@@ -405,6 +435,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 verticalAlign="middle"
                 align="right"
                 wrapperStyle={{ paddingLeft: "10px" }}
+                formatter={(value, entry, index) => {
+                  const dataset = item.data.datasets[0];
+                  return dataset && dataset.legendHidden ? "" : value;
+                }}
               />
               <Pie
                 data={processedData}
@@ -416,7 +450,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 outerRadius="80%"
                 paddingAngle={2}
                 fill="#4f46e5"
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => {
+                  const dataset = item.data.datasets[0];
+                  return dataset && dataset.legendHidden ? "" : `${name}: ${(percent * 100).toFixed(0)}%`;
+                }}
                 labelLine={false}
               >
                 {processedData.map((entry, index) => {
@@ -585,6 +622,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 verticalAlign="bottom"
                 align="center"
                 wrapperStyle={{ paddingTop: "10px" }}
+                formatter={(value, entry, index) => {
+                  const dataset = item.data.datasets[0];
+                  return dataset && dataset.legendHidden ? "" : value;
+                }}
               />
               <Pie
                 data={processedData}
@@ -684,6 +725,13 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
+              <Legend 
+                wrapperStyle={{ paddingTop: "10px" }}
+                formatter={(value, entry, index) => {
+                  const dataset = item.data.datasets[0];
+                  return dataset && dataset.legendHidden ? "" : value;
+                }}
+              />
               <Bar 
                 dataKey="value"
                 shape={(props) => {
@@ -695,14 +743,15 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   const sidePadding = 5 + (20 * (1 - percent));
                   
                   // Convert potential string values to numbers before arithmetic operations
-                  const xValue = typeof x === 'string' ? parseFloat(x) : x;
-                  const widthValue = typeof width === 'string' ? parseFloat(width) : width;
+                  const xValue = typeof x === 'string' ? parseFloat(x) : x || 0;
+                  const widthValue = typeof width === 'string' ? parseFloat(width) : width || 0;
+                  const sidePaddingValue = typeof sidePadding === 'string' ? parseFloat(sidePadding) : sidePadding || 0;
                   
-                  // Make sure to convert all values to numbers before operations
-                  const leftXPos = Number(xValue) + Number(sidePadding);
-                  const rightXPos = Number(xValue) + Number(widthValue) - Number(sidePadding);
-                  const bottomLeftXPos = Number(xValue) + Number(sidePadding) - 10;
-                  const bottomRightXPos = Number(xValue) + Number(widthValue) - Number(sidePadding) + 10;
+                  // Make sure all values are numbers before operations
+                  const leftXPos = xValue + sidePaddingValue;
+                  const rightXPos = xValue + widthValue - sidePaddingValue;
+                  const bottomLeftXPos = xValue + sidePaddingValue - 10;
+                  const bottomRightXPos = xValue + widthValue - sidePaddingValue + 10;
                   
                   return (
                     <path 
@@ -718,10 +767,19 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   position: 'right',
                   content: (props) => {
                     const { x, y, width, height, value } = props;
+                    const dataset = item.data.datasets[0];
+                    
+                    if (dataset && dataset.legendHidden) return null;
+                    
+                    const xVal = typeof x === 'string' ? parseFloat(x) : x || 0;
+                    const widthVal = typeof width === 'string' ? parseFloat(width) : width || 0;
+                    const yVal = typeof y === 'string' ? parseFloat(y) : y || 0;
+                    const heightVal = typeof height === 'string' ? parseFloat(height) : height || 0;
+                    
                     return (
                       <text
-                        x={Number(x) + Number(width)}
-                        y={Number(y) + Number(height) / 2}
+                        x={xVal + widthVal}
+                        y={yVal + heightVal / 2}
                         dy={3}
                         textAnchor="start"
                         fill="#6B7280"
@@ -736,7 +794,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
             </BarChart>
           </ResponsiveContainer>
         );
-      
+        
       case "table":
         const columns = item.data.tableColumns?.filter(col => col.visible !== false) || [];
         const rows = item.data.tableRows || [];

@@ -312,7 +312,7 @@ const Sidebar: React.FC = () => {
     const newDatasets = [...selectedItem.data.datasets];
     newDatasets[datasetIndex] = {
       ...newDatasets[datasetIndex],
-      hidden: !newDatasets[datasetIndex].hidden
+      legendHidden: !newDatasets[datasetIndex].legendHidden
     };
     
     dispatch({
@@ -328,9 +328,9 @@ const Sidebar: React.FC = () => {
       },
     });
     
-    toast.success(newDatasets[datasetIndex].hidden ? 
-      `Dataset "${newDatasets[datasetIndex].label || `Dataset ${datasetIndex + 1}`}" hidden` : 
-      `Dataset "${newDatasets[datasetIndex].label || `Dataset ${datasetIndex + 1}`}" shown`);
+    toast.success(newDatasets[datasetIndex].legendHidden ? 
+      `Dataset "${newDatasets[datasetIndex].label || `Dataset ${datasetIndex + 1}`}" label hidden` : 
+      `Dataset "${newDatasets[datasetIndex].label || `Dataset ${datasetIndex + 1}`}" label shown`);
   };
 
   const renderChartTypeIcon = (type: ChartType) => {
@@ -722,9 +722,9 @@ const Sidebar: React.FC = () => {
                             size="sm" 
                             onClick={() => toggleDatasetVisibility(datasetIndex)}
                             className="h-7"
-                            title={dataset.hidden ? "Show dataset" : "Hide dataset"}
+                            title={dataset.legendHidden ? "Show dataset label" : "Hide dataset label"}
                           >
-                            {dataset.hidden ? 
+                            {dataset.legendHidden ? 
                               <EyeOff className="h-3.5 w-3.5 text-muted-foreground" /> : 
                               <Eye className="h-3.5 w-3.5" />
                             }
