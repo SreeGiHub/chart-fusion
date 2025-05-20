@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import TextareaAutosize from "react-textarea-autosize";
 import { cn } from "@/lib/utils";
 import chroma from "chroma-js";
+import { isTextChartType, safelyAddValues } from "@/utils/chartRendererUtils";
 
 interface ChartItemProps {
   item: ChartItemType;
@@ -693,12 +694,18 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   const xValue = typeof x === 'string' ? parseFloat(x) : x;
                   const widthValue = typeof width === 'string' ? parseFloat(width) : width;
                   
+                  // Make sure to convert all values to numbers before operations
+                  const leftXPos = Number(xValue) + Number(sidePadding);
+                  const rightXPos = Number(xValue) + Number(widthValue) - Number(sidePadding);
+                  const bottomLeftXPos = Number(xValue) + Number(sidePadding) - 10;
+                  const bottomRightXPos = Number(xValue) + Number(widthValue) - Number(sidePadding) + 10;
+                  
                   return (
                     <path 
-                      d={`M ${xValue + sidePadding},${y} 
-                         L ${xValue + widthValue - sidePadding},${y} 
-                         L ${xValue + widthValue - sidePadding + 10},${y + height} 
-                         L ${xValue + sidePadding - 10},${y + height} Z`} 
+                      d={`M ${leftXPos},${y} 
+                         L ${rightXPos},${y} 
+                         L ${bottomRightXPos},${y + height} 
+                         L ${bottomLeftXPos},${y + height} Z`} 
                       fill={color}
                     />
                   );

@@ -28,6 +28,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { isTextChartType } from "@/utils/chartRendererUtils";
 
 const Sidebar: React.FC = () => {
   const { state, dispatch } = useDashboard();
@@ -649,7 +650,7 @@ const Sidebar: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="data" className="space-y-4">
-          {selectedItem.type === "text" ? (
+          {isTextChartType(selectedItem.type) ? (
             <div className="space-y-2">
               <Label htmlFor="text-content">Text Content</Label>
               <textarea
