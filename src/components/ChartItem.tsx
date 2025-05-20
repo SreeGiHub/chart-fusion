@@ -716,8 +716,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                     const { x, y, width, height, value } = props;
                     return (
                       <text
-                        x={x + width}
-                        y={y + height / 2}
+                        x={Number(x) + Number(width)}
+                        y={Number(y) + Number(height) / 2}
                         dy={3}
                         textAnchor="start"
                         fill="#6B7280"

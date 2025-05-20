@@ -12,7 +12,7 @@ export const formatDataPointToString = (value: ChartDataPoint | undefined): stri
   }
   
   // Handle complex data points
-  if (typeof value === 'object') {
+  if (typeof value === 'object' && value !== null) {
     // For ComplexDataPoint with x and y
     if ('x' in value && 'y' in value) {
       return `${value.y}`;

@@ -466,7 +466,7 @@ const Sidebar: React.FC = () => {
             />
           </div>
 
-          {selectedItem.type !== "text" && (
+          {!isTextChartType(selectedItem.type) && (
             <div className="space-y-2">
               <Label>Chart Type</Label>
               <div className="grid grid-cols-3 gap-2">
