@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartItemType, ChartType, ComplexDataPoint, BoxPlotDataPoint, ChartDataPoint, TableColumnConfig, TableRowData } from "@/types";
@@ -510,7 +509,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   }))}
                   fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor || "#4f46e5"}
                   shape={(props) => {
-                    const size = props.payload.z ? props.payload.z / 10 : 6;
+                    const size = props.payload.z ? Number(props.payload.z) / 10 : 6;
                     return (
                       <circle
                         cx={props.cx}
@@ -690,12 +689,16 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   const percent = (processedData.length - index) / processedData.length;
                   const sidePadding = 5 + (20 * (1 - percent));
                   
+                  // Convert potential string values to numbers before arithmetic operations
+                  const xValue = typeof x === 'string' ? parseFloat(x) : x;
+                  const widthValue = typeof width === 'string' ? parseFloat(width) : width;
+                  
                   return (
                     <path 
-                      d={`M ${x + sidePadding},${y} 
-                         L ${x + width - sidePadding},${y} 
-                         L ${x + width - sidePadding + 10},${y + height} 
-                         L ${x + sidePadding - 10},${y + height} Z`} 
+                      d={`M ${xValue + sidePadding},${y} 
+                         L ${xValue + widthValue - sidePadding},${y} 
+                         L ${xValue + widthValue - sidePadding + 10},${y + height} 
+                         L ${xValue + sidePadding - 10},${y + height} Z`} 
                       fill={color}
                     />
                   );

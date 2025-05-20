@@ -1,5 +1,5 @@
 
-import { ChartDataPoint } from "@/types";
+import { ChartDataPoint, ChartType } from "@/types";
 
 /**
  * Safely converts a chart data point to a string for rendering
@@ -19,7 +19,7 @@ export const formatDataPointToString = (value: ChartDataPoint | undefined): stri
     }
     
     // For BoxPlotDataPoint
-    if (Array.isArray(value.y)) {
+    if ('y' in value && Array.isArray(value.y)) {
       return value.y.join(', ');
     }
   }
@@ -32,6 +32,14 @@ export const formatDataPointToString = (value: ChartDataPoint | undefined): stri
  */
 export const isChartTypeEqual = (type1: string, type2: string): boolean => {
   return type1 === type2;
+};
+
+/**
+ * Check if a chart type is text
+ * This is used to fix the TypeScript error in Sidebar.tsx
+ */
+export const isTextChartType = (type: ChartType): boolean => {
+  return type === "text";
 };
 
 /**
