@@ -29,7 +29,8 @@ export type ChartType =
   | "funnel"
   | "sankey"
   | "radar"
-  | "boxplot";
+  | "boxplot"
+  | "table";
 
 // Defining more specific data point types
 export type SimpleDataPoint = number;
@@ -47,6 +48,17 @@ export type BoxPlotDataPoint = {
 // Union type for all possible data point types
 export type ChartDataPoint = SimpleDataPoint | ComplexDataPoint | BoxPlotDataPoint;
 
+// Table data structure
+export type TableColumnConfig = {
+  id: string;
+  header: string;
+  accessor: string;
+  width?: number;
+  align?: 'left' | 'center' | 'right';
+};
+
+export type TableRowData = Record<string, string | number>;
+
 export type ChartData = {
   labels: string[];
   datasets: {
@@ -57,6 +69,8 @@ export type ChartData = {
     borderWidth?: number;
     fill?: boolean;
   }[];
+  tableColumns?: TableColumnConfig[];
+  tableRows?: TableRowData[];
 };
 
 export type ChartItemType = {

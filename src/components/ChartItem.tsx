@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
-import { ChartItemType, ChartType, ComplexDataPoint, BoxPlotDataPoint, ChartDataPoint } from "@/types";
+import { ChartItemType, ChartType, ComplexDataPoint, BoxPlotDataPoint, ChartDataPoint, TableColumnConfig, TableRowData } from "@/types";
 import { Rnd, RndResizeCallback, RndDragCallback } from "react-rnd";
 import { snapToGrid } from "@/utils/chartUtils";
 import {
@@ -81,7 +81,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
     }
   }, [item, dispatch, height]);
 
-  const handleSelect = (e: React.MouseEvent) => {
+  const handleSelect = (e: React.MouseEvent | any) => {
     e.stopPropagation();
     if (!isSelected && !previewMode) {
       dispatch({ type: "SELECT_ITEM", payload: item.id });
@@ -213,7 +213,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
             }
           }
         } else {
-          dataPoint[dataset.label || `dataset-${datasetIndex}`] = dataset.data[index];
+          const dp = dataset.data[index];
+          dataPoint[dataset.label || `dataset-${datasetIndex}`] = dp;
         }
       });
       
@@ -229,8 +230,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis dataKey="name" />
-              <YAxis />
+              <XAxis dataKey="name" tick={false} axisLine={true} />
+              <YAxis tick={false} axisLine={true} />
               <RechartsTooltip />
               <Legend />
               {item.data.datasets.map((dataset, index) => (
@@ -250,8 +251,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis dataKey="name" />
-              <YAxis />
+              <XAxis dataKey="name" tick={false} axisLine={true} />
+              <YAxis tick={false} axisLine={true} />
               <RechartsTooltip />
               <Legend />
               {item.data.datasets.map((dataset, index) => (
@@ -272,8 +273,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis dataKey="name" />
-              <YAxis />
+              <XAxis dataKey="name" tick={false} axisLine={true} />
+              <YAxis tick={false} axisLine={true} />
               <RechartsTooltip />
               <Legend />
               {item.data.datasets.map((dataset, index) => (
@@ -348,8 +349,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis type="number" dataKey="x" name="x" />
-              <YAxis type="number" dataKey="y" name="y" />
+              <XAxis type="number" dataKey="x" name="x" tick={false} axisLine={true} />
+              <YAxis type="number" dataKey="y" name="y" tick={false} axisLine={true} />
               <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
               <Legend />
               {item.data.datasets.map((dataset, index) => (
@@ -368,8 +369,8 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <XAxis type="number" dataKey="x" name="x" />
-              <YAxis type="number" dataKey="y" name="y" />
+              <XAxis type="number" dataKey="x" name="x" tick={false} axisLine={true} />
+              <YAxis type="number" dataKey="y" name="y" tick={false} axisLine={true} />
               <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
               <Legend />
               {item.data.datasets.map((dataset, index) => (
@@ -534,6 +535,49 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
           </ResponsiveContainer>
         );
       
+      case "table":
+        const columns = item.data.tableColumns || [];
+        const rows = item.data.tableRows || [];
+        
+        return (
+          <div className="w-full h-full overflow-auto p-2">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-muted">
+                  {columns.map((column, index) => (
+                    <th 
+                      key={column.id || index} 
+                      className={`p-2 border text-left text-xs font-semibold ${column.align ? `text-${column.align}` : ''}`}
+                      style={column.width ? { width: `${column.width}px` } : {}}
+                    >
+                      {column.header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, rowIndex) => (
+                  <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-background' : 'bg-muted/30'}>
+                    {columns.map((column, colIndex) => (
+                      <td 
+                        key={`${rowIndex}-${colIndex}`} 
+                        className={`p-2 border text-xs ${column.align ? `text-${column.align}` : ''}`}
+                      >
+                        {row[column.accessor] !== undefined ? row[column.accessor] : '—'}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {(!columns.length || !rows.length) && (
+              <div className="h-full flex items-center justify-center text-muted-foreground">
+                No table data available
+              </div>
+            )}
+          </div>
+        );
+        
       case "text":
         return (
           <div 

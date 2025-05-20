@@ -36,7 +36,8 @@ import {
   BoxSelect,
   CircleDot,
   ZapOff,
-  CircleOff
+  CircleOff,
+  Table2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -317,6 +318,10 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
               <DropdownMenuItem onClick={() => handleAddItem("boxplot")}>
                 <BoxSelect className="mr-2 h-4 w-4" />
                 <span>Box Plot</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("table")}>
+                <Table2 className="mr-2 h-4 w-4" />
+                <span>Table Chart</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             
