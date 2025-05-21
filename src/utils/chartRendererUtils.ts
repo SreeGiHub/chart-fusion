@@ -23,8 +23,14 @@ export const safelyAddValues = (a: any, b: any): number => {
 export const getYValue = (point: ChartDataPoint): number => {
   if (typeof point === 'number') {
     return point;
-  } else if (point && typeof point === 'object' && 'y' in point) {
-    return typeof point.y === 'number' ? point.y : 0;
+  } else if (point && typeof point === 'object') {
+    if ('y' in point && typeof point.y === 'number') {
+      return point.y;
+    }
+    // Handle BoxPlotDataPoint type
+    if ('median' in point && typeof point.median === 'number') {
+      return point.median;
+    }
   }
   return 0;
 };
@@ -38,11 +44,22 @@ export const prepareChartData = (labels: string[], datasets: any[]) => {
     
     datasets.forEach((dataset, datasetIndex) => {
       if (!dataset.hidden) {
-        const key = dataset.label || `dataset-${datasetIndex}`;
+        // Use empty label if legendHidden is true
+        const key = dataset.legendHidden ? 
+          `dataset-${datasetIndex}` : 
+          (dataset.label || `dataset-${datasetIndex}`);
         dataPoint[key] = getYValue(dataset.data[index]);
       }
     });
     
     return dataPoint;
   });
+};
+
+/**
+ * Process chart data for legend display
+ * This function filters out datasets that have legendHidden set to true
+ */
+export const prepareChartLegend = (datasets: any[]) => {
+  return datasets.filter(dataset => !dataset.legendHidden);
 };

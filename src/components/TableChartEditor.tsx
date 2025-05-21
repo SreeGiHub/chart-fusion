@@ -21,7 +21,8 @@ import {
   EyeOff,
   AlignLeft,
   AlignCenter,
-  AlignRight
+  AlignRight,
+  Palette
 } from "lucide-react";
 import {
   Select,
@@ -32,6 +33,11 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface TableChartEditorProps {
   columns: TableColumnConfig[];
@@ -39,6 +45,18 @@ interface TableChartEditorProps {
   onColumnsChange: (columns: TableColumnConfig[]) => void;
   onRowsChange: (rows: TableRowData[]) => void;
 }
+
+// Predefined colors for cells and rows
+const CELL_COLORS = [
+  "#ffffff", // White (default)
+  "#f3f4f6", // Light gray
+  "#e5e7eb", // Gray
+  "#fee2e2", // Light red
+  "#e6f4ea", // Light green
+  "#e0f2fe", // Light blue
+  "#fef3c7", // Light yellow
+  "#f3e8ff", // Light purple
+];
 
 const TableChartEditor: React.FC<TableChartEditorProps> = ({
   columns,
@@ -145,6 +163,12 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
     );
   };
 
+  const setColumnColor = (index: number, color: string) => {
+    const updatedColumns = [...columns];
+    updatedColumns[index].backgroundColor = color;
+    onColumnsChange(updatedColumns);
+  };
+
   const addRow = () => {
     const newRow: TableRowData = {};
     
@@ -175,6 +199,15 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
     const updatedRows = rows.filter((_, i) => i !== index);
     onRowsChange(updatedRows);
     toast.success("Row removed");
+  };
+
+  const setRowColor = (rowIndex: number, color: string) => {
+    const updatedRows = [...rows];
+    updatedRows[rowIndex] = {
+      ...updatedRows[rowIndex],
+      _rowColor: color
+    };
+    onRowsChange(updatedRows);
   };
 
   return (
@@ -210,6 +243,9 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
                   <div 
                     key={column.id} 
                     className="border rounded-md p-3 space-y-3 bg-background"
+                    style={{
+                      backgroundColor: column.backgroundColor || undefined
+                    }}
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
@@ -217,6 +253,38 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
                         <span className="font-medium text-sm">Column {index + 1}</span>
                       </div>
                       <div className="flex items-center gap-1">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              title="Set column color"
+                            >
+                              <Palette className="h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-64" align="end">
+                            <div className="grid grid-cols-4 gap-2">
+                              {CELL_COLORS.map((color) => (
+                                <div
+                                  key={color}
+                                  className="h-8 w-8 rounded-md cursor-pointer border"
+                                  style={{ backgroundColor: color }}
+                                  onClick={() => setColumnColor(index, color)}
+                                />
+                              ))}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full mt-2"
+                              onClick={() => setColumnColor(index, '')}
+                            >
+                              Clear Color
+                            </Button>
+                          </PopoverContent>
+                        </Popover>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -376,39 +444,75 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
                         className={`p-2 text-left text-xs font-semibold ${
                           column.align ? `text-${column.align}` : ''
                         }`}
-                        style={column.width ? { width: `${column.width}px` } : {}}
+                        style={{
+                          width: column.width ? `${column.width}px` : undefined,
+                          backgroundColor: column.backgroundColor || undefined
+                        }}
                       >
                         {column.header}
                       </th>
                     ))}
-                    <th className="p-2 text-center w-10">
+                    <th className="p-2 text-center w-24">
                       <span className="sr-only">Actions</span>
                     </th>
                   </tr>
                 </thead>
-                <tbody>
-                  <ScrollArea className="max-h-[300px]">
-                    {rows.map((row, rowIndex) => (
-                      <tr 
-                        key={rowIndex} 
-                        className={rowIndex % 2 === 0 ? 'bg-background' : 'bg-muted/30'}
-                      >
-                        <td className="p-2 text-xs font-medium">{rowIndex + 1}</td>
-                        {columns.filter(col => col.visible !== false).map((column) => (
-                          <td 
-                            key={`${rowIndex}-${column.id}`}
-                            className={`p-2 ${
-                              column.align ? `text-${column.align}` : ''
-                            }`}
-                          >
-                            <Input 
-                              value={row[column.accessor] || ''}
-                              onChange={(e) => updateRowValue(rowIndex, column.accessor, e.target.value)}
-                              className="h-7 text-xs"
-                            />
-                          </td>
-                        ))}
-                        <td className="p-2 text-center">
+                <tbody className="max-h-[300px] overflow-auto">
+                  {rows.map((row, rowIndex) => (
+                    <tr 
+                      key={rowIndex} 
+                      className={rowIndex % 2 === 0 ? 'bg-background' : 'bg-muted/30'}
+                      style={{ backgroundColor: row._rowColor || undefined }}
+                    >
+                      <td className="p-2 text-xs font-medium">{rowIndex + 1}</td>
+                      {columns.filter(col => col.visible !== false).map((column) => (
+                        <td 
+                          key={`${rowIndex}-${column.id}`}
+                          className={`p-2 ${
+                            column.align ? `text-${column.align}` : ''
+                          }`}
+                          style={{ backgroundColor: column.backgroundColor || undefined }}
+                        >
+                          <Input 
+                            value={row[column.accessor] || ''}
+                            onChange={(e) => updateRowValue(rowIndex, column.accessor, e.target.value)}
+                            className="h-7 text-xs"
+                          />
+                        </td>
+                      ))}
+                      <td className="p-2 text-center">
+                        <div className="flex justify-center items-center space-x-1">
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                              >
+                                <Palette className="h-3.5 w-3.5" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64" align="end">
+                              <div className="grid grid-cols-4 gap-2">
+                                {CELL_COLORS.map((color) => (
+                                  <div
+                                    key={color}
+                                    className="h-8 w-8 rounded-md cursor-pointer border"
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => setRowColor(rowIndex, color)}
+                                  />
+                                ))}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full mt-2"
+                                onClick={() => setRowColor(rowIndex, '')}
+                              >
+                                Clear Color
+                              </Button>
+                            </PopoverContent>
+                          </Popover>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -417,10 +521,10 @@ const TableChartEditor: React.FC<TableChartEditorProps> = ({
                           >
                             <X className="h-3.5 w-3.5" />
                           </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </ScrollArea>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

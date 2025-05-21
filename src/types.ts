@@ -32,8 +32,8 @@ export interface ChartDataset {
   borderColor?: string | string[];
   borderWidth?: number;
   fill?: boolean;
-  hidden?: boolean;  // Add the hidden property
-  legendHidden?: boolean;  // Add this to control legend visibility separately
+  hidden?: boolean;  // Control data visibility
+  legendHidden?: boolean;  // Control legend visibility separately
 }
 
 export interface ChartData {
@@ -70,6 +70,7 @@ export interface ChartItemType {
   position: Position;
   size: Size;
   data: ChartData;
+  options?: Record<string, any>; // Add options to fix TypeScript errors
 }
 
 export interface TableColumnConfig {
@@ -79,8 +80,51 @@ export interface TableColumnConfig {
   align?: 'left' | 'center' | 'right';
   visible?: boolean;
   width?: number;
+  backgroundColor?: string; // Add background color for columns
 }
 
 export interface TableRowData {
   [key: string]: any;
+  _rowColor?: string; // Add row color property
+}
+
+// Add these types needed by DashboardContext
+export interface DashboardHistoryState {
+  title: string;
+  items: ChartItemType[];
+}
+
+export interface DashboardState {
+  title: string;
+  items: ChartItemType[];
+  selectedItemId: string | null;
+  isGridVisible: boolean;
+  gridSize: number;
+  snapToGrid: boolean;
+  editHistory: {
+    past: DashboardHistoryState[];
+    future: DashboardHistoryState[];
+  };
+  previewMode: boolean;
+}
+
+export type DashboardAction =
+  | { type: "SET_TITLE"; payload: string }
+  | { type: "ADD_ITEM"; payload: ChartItemType }
+  | { type: "UPDATE_ITEM"; payload: { id: string; updates: Partial<ChartItemType> } }
+  | { type: "REMOVE_ITEM"; payload: string }
+  | { type: "SELECT_ITEM"; payload: string | null }
+  | { type: "MOVE_ITEM"; payload: { id: string; position: Position } }
+  | { type: "RESIZE_ITEM"; payload: { id: string; size: Size } }
+  | { type: "TOGGLE_GRID"; payload?: boolean }
+  | { type: "SET_GRID_SIZE"; payload: number }
+  | { type: "TOGGLE_SNAP_TO_GRID"; payload?: boolean }
+  | { type: "UNDO" }
+  | { type: "REDO" }
+  | { type: "TOGGLE_PREVIEW_MODE"; payload?: boolean }
+  | { type: "IMPORT_DASHBOARD"; payload: DashboardState };
+
+export interface DashboardContextType {
+  state: DashboardState;
+  dispatch: React.Dispatch<DashboardAction>;
 }
