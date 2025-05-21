@@ -125,6 +125,22 @@ const DEFAULT_DATASETS = {
     backgroundColor: DEFAULT_COLORS,
     borderWidth: 0,
   },
+  table: {
+    label: "Dataset 1",
+    data: [],
+    tableColumns: [
+      { id: 'col1', header: 'Column 1', accessor: 'col1', align: 'left' },
+      { id: 'col2', header: 'Column 2', accessor: 'col2', align: 'left' },
+      { id: 'col3', header: 'Column 3', accessor: 'col3', align: 'left' },
+      { id: 'col4', header: 'Column 4', accessor: 'col4', align: 'left' }
+    ],
+    tableRows: Array(10).fill(null).map((_, rowIndex) => ({
+      col1: '',
+      col2: '',
+      col3: '',
+      col4: ''
+    }))
+  }
 };
 
 const DEFAULT_LABELS = {
@@ -143,6 +159,7 @@ const DEFAULT_LABELS = {
   funnel: ["Prospects", "Leads", "Opportunities", "Proposals", "Customers"],
   boxplot: ["Group 1", "Group 2", "Group 3"],
   sankey: ["Source 1", "Source 2", "Source 3", "Source 4", "Source 5"],
+  table: []
 };
 
 export function createNewChartItem(
@@ -157,6 +174,9 @@ export function createNewChartItem(
     }],
   };
 
+  let size = DEFAULT_CHART_SIZE;
+  let title = getDefaultTitle(type);
+
   if (type === "text") {
     chartData = {
       labels: [],
@@ -165,14 +185,33 @@ export function createNewChartItem(
         data: [],
       }],
     };
+  } else if (type === "table") {
+    title = "Data Table";
+    chartData = {
+      labels: [],
+      datasets: [],
+      tableColumns: [
+        { id: 'col1', header: 'Column 1', accessor: 'col1', align: 'left' },
+        { id: 'col2', header: 'Column 2', accessor: 'col2', align: 'left' },
+        { id: 'col3', header: 'Column 3', accessor: 'col3', align: 'left' },
+        { id: 'col4', header: 'Column 4', accessor: 'col4', align: 'left' }
+      ],
+      tableRows: Array(10).fill(null).map((_, rowIndex) => ({
+        col1: '',
+        col2: '',
+        col3: '',
+        col4: ''
+      }))
+    };
+    size = { width: 600, height: 400 };
   }
 
   return {
     id: uuidv4(),
     type,
     position,
-    size: DEFAULT_CHART_SIZE,
-    title: getDefaultTitle(type),
+    size,
+    title,
     data: chartData,
     options: getDefaultOptions(type),
   };
@@ -493,6 +532,8 @@ export function getDefaultTitle(type: ChartType): string {
       return "Box Plot";
     case "sankey":
       return "Sankey Diagram";
+    case "table":
+      return "Data Table";
     default:
       return "New Chart";
   }
@@ -621,6 +662,15 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
     case "sankey":
       return {
         ...common,
+      };
+    case "table":
+      return {
+        ...common,
+        plugins: {
+          legend: {
+            display: false,
+          },
+        },
       };
     case "text":
       return {
