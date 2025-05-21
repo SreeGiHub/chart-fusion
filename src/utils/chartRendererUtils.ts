@@ -62,7 +62,7 @@ export const prepareChartData = (labels: string[], datasets: ChartDataset[]) => 
  * to completely hide them from the legend (both label and icon)
  */
 export const prepareChartLegend = (datasets: ChartDataset[]) => {
-  return datasets.filter(dataset => !dataset.legendHidden);
+  return datasets.filter(dataset => !dataset.hidden && !dataset.legendHidden);
 };
 
 /**

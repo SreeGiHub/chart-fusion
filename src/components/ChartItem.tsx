@@ -267,7 +267,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend content={CustomLegend} />
+              <Legend content={<CustomLegend />} />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -305,7 +305,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend content={CustomLegend} />
+              <Legend content={<CustomLegend />} />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -344,7 +344,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend content={CustomLegend} />
+              <Legend content={<CustomLegend />} />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -378,7 +378,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   name
                 ]}
               />
-              <Legend content={CustomLegend} />
+              <Legend content={<CustomLegend />} />
               <Pie
                 data={processedData}
                 dataKey={item.data.datasets[0]?.label || "dataset-0"}
@@ -427,7 +427,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 cursor={{ strokeDasharray: '3 3' }}
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
               />
-              <Legend content={CustomLegend} />
+              <Legend content={<CustomLegend />} />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -475,7 +475,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
                 formatter={(value, name) => [value, name === 'z' ? 'Size' : name]}
               />
-              <Legend content={CustomLegend} />
+              <Legend content={<CustomLegend />} />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -504,7 +504,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
               />
-              <Legend content={CustomLegend} />
+              <Legend content={<CustomLegend />} />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -530,35 +530,13 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               nameKey="name"
               style={chartStyle}
               fill="#4f46e5"
-              content={(data: any) => {
-                const { depth, x, y, width, height, index, name, value } = data;
+            >
+              {processedData.map((entry, index) => {
                 const bgColors = item.data.datasets[0]?.backgroundColor;
                 const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : (bgColors as string || "#4f46e5");
                 
-                return (
-                  <g>
-                    <rect
-                      x={x}
-                      y={y}
-                      width={width}
-                      height={height}
-                      style={{ fill: color, stroke: '#fff', strokeWidth: 2 }}
-                    />
-                    {width > 30 && height > 30 && (
-                      <text
-                        x={x + width / 2}
-                        y={y + height / 2}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        style={{ fontSize: 12, fill: '#fff' }}
-                      >
-                        {name}
-                      </text>
-                    )}
-                  </g>
-                );
-              }}
-            >
+                return <Cell key={`cell-${index}`} fill={color} />;
+              })}
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
               />
@@ -573,7 +551,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
               />
-              <Legend content={CustomLegend} />
+              <Legend content={<CustomLegend />} />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -597,8 +575,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         );
 
       case "gauge": 
-      case "semi-circle":
-        // For gauge/semi-circle, we'll use a pie chart with specific configuration
+        // For gauge chart, we'll use a pie chart with specific configuration
         const value = item.data.datasets[0]?.data[0] || 0;
         const max = 100; // Assuming max value is 100 for gauge
         const percentage = typeof value === 'number' ? (value / max) * 100 : 0;
@@ -632,7 +609,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 dominantBaseline="middle"
                 style={{ fontSize: '16px', fontWeight: 'bold' }}
               >
-                {typeof value === 'number' ? value.toFixed(0) : value}%
+                {typeof value === 'number' ? value.toFixed(0) : String(value)}%
               </text>
               <text
                 x="50%"
@@ -645,18 +622,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               </text>
             </PieChart>
           </ResponsiveContainer>
-        );
-
-      case "boxplot":
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center p-4">
-              <p className="text-lg font-semibold mb-2">Box Plot</p>
-              <p className="text-muted-foreground">
-                Box plot representation will be available soon.
-              </p>
-            </div>
-          </div>
         );
       
       case "table":
@@ -708,7 +673,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                           textAlign: column.align || 'left'
                         }}
                       >
-                        {row[column.accessor] !== undefined ? row[column.accessor] : ''}
+                        {row[column.accessor] !== undefined ? String(row[column.accessor]) : ''}
                       </td>
                     ))}
                   </tr>

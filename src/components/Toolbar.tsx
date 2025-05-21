@@ -1,11 +1,11 @@
+
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartType } from "@/types";
 import { 
   createNewChartItem, 
   exportToJSON, 
   exportToPNG, 
-  exportToPDF,
-  createGenderComparisonChart 
+  exportToPDF
 } from "@/utils/chartUtils";
 import { toast } from "sonner";
 import { 
@@ -16,27 +16,22 @@ import {
   Type, 
   Save, 
   Download, 
-  Upload, 
   Undo, 
   Redo, 
   Eye, 
   EyeOff, 
   Grid, 
   Settings,
-  Share,
   Image,
   FileOutput,
-  Users,
   MessageSquareText,
   Wand2,
   ScatterChart,
   Gauge,
   Map,
   LayoutGrid,
-  BoxSelect,
   CircleDot,
   ZapOff,
-  CircleOff,
   Table2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -96,23 +91,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
     toast.success(`Added new ${type} chart`);
   };
 
-  const handleAddComparisonChart = () => {
-    const canvasElement = document.getElementById("dashboard-canvas");
-    if (!canvasElement) return;
-
-    const canvasRect = canvasElement.getBoundingClientRect();
-    const centerX = canvasRect.width / 2 - 200;
-    const centerY = canvasRect.height / 2 - 150;
-
-    const newItem = createGenderComparisonChart({
-      x: Math.max(0, centerX),
-      y: Math.max(0, centerY),
-    });
-
-    dispatch({ type: "ADD_ITEM", payload: newItem });
-    toast.success("Added gender comparison chart");
-  };
-
   const handleSave = () => {
     try {
       const data = exportToJSON(state);
@@ -148,10 +126,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
       console.error("Failed to export as PDF:", error);
       toast.error("Failed to export as PDF");
     }
-  };
-
-  const handleImport = () => {
-    fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,13 +194,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
     dispatch({ type: "SET_GRID_SIZE", payload: value[0] });
   };
 
-  const canvasUrl = `${window.location.origin}${window.location.pathname}?preview=true`;
-
-  const handleShareLink = () => {
-    navigator.clipboard.writeText(canvasUrl);
-    toast.success("Link copied to clipboard");
-  };
-
   return (
     <div className="toolbar flex items-center justify-between p-2 border-b bg-background">
       <div className="left-section flex items-center gap-2">
@@ -272,10 +239,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                 <PieChart className="mr-2 h-4 w-4" />
                 <span>Donut Chart</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("semi-circle")}>
-                <CircleOff className="mr-2 h-4 w-4" />
-                <span>Semi Circle Chart</span>
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             
             <DropdownMenuSeparator />
@@ -315,10 +278,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                 <LayoutGrid className="mr-2 h-4 w-4" />
                 <span>Treemap</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("boxplot")}>
-                <BoxSelect className="mr-2 h-4 w-4" />
-                <span>Box Plot</span>
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAddItem("table")}>
                 <Table2 className="mr-2 h-4 w-4" />
                 <span>Table Chart</span>
@@ -329,12 +288,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
             <DropdownMenuItem onClick={() => handleAddItem("text")}>
               <Type className="mr-2 h-4 w-4" />
               <span>Text Label</span>
-            </DropdownMenuItem>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleAddComparisonChart}>
-              <Users className="mr-2 h-4 w-4" />
-              <span>Gender Comparison Chart</span>
             </DropdownMenuItem>
             
             <DropdownMenuSeparator />
@@ -447,28 +400,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
           accept=".json"
           className="hidden"
         />
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={handleImport}>
-                <Upload className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Import Dashboard</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={handleShareLink}>
-                <Share className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Share Link</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
 
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DialogTrigger asChild>
