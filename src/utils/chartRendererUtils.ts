@@ -1,5 +1,5 @@
 
-import { ChartDataPoint, ChartType } from "@/types";
+import { ChartDataPoint, ChartType, ChartDataset } from "@/types";
 
 /**
  * Check if a chart type is a text-based chart type
@@ -40,7 +40,7 @@ export const getYValue = (point: ChartDataPoint): number => {
  * This function keeps all datasets in the data but marks those with legendHidden
  * to be not displayed in the legend
  */
-export const prepareChartData = (labels: string[], datasets: any[]) => {
+export const prepareChartData = (labels: string[], datasets: ChartDataset[]) => {
   return labels.map((label, index) => {
     const dataPoint: any = { name: label };
     
@@ -61,6 +61,27 @@ export const prepareChartData = (labels: string[], datasets: any[]) => {
  * This function completely filters out datasets that have legendHidden set to true
  * to completely hide them from the legend (both label and icon)
  */
-export const prepareChartLegend = (datasets: any[]) => {
+export const prepareChartLegend = (datasets: ChartDataset[]) => {
   return datasets.filter(dataset => !dataset.legendHidden);
+};
+
+/**
+ * Create a formatted data object for Recharts from chart datasets and labels
+ */
+export const formatChartData = (labels: string[], datasets: ChartDataset[]) => {
+  return labels.map((label, index) => {
+    const dataPoint: any = { name: label };
+    
+    datasets
+      .filter(dataset => !dataset.hidden)
+      .forEach((dataset, datasetIndex) => {
+        const key = dataset.label || `dataset-${datasetIndex}`;
+        const value = dataset.data[index];
+        dataPoint[key] = typeof value === 'object' && value !== null 
+          ? ('y' in value ? value.y : value) 
+          : value;
+      });
+    
+    return dataPoint;
+  });
 };

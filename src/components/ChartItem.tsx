@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartItemType } from "@/types";
@@ -16,16 +17,32 @@ import {
   Line,
   Pie,
   Area,
+  Scatter,
   Tooltip as RechartsTooltip,
   XAxis,
   YAxis,
+  ZAxis,
+  CartesianGrid,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Treemap,
+  FunnelChart,
+  Funnel,
+  LabelList
 } from "recharts";
 import { X, GripVertical, Copy, Trash2, Move } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TextareaAutosize from "react-textarea-autosize";
 import { cn } from "@/lib/utils";
 import chroma from "chroma-js";
-import { isTextChartType } from "@/utils/chartRendererUtils";
+import { 
+  isTextChartType, 
+  formatChartData,
+  prepareChartLegend 
+} from "@/utils/chartRendererUtils";
 
 interface ChartItemProps {
   item: ChartItemType;
@@ -184,25 +201,47 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
   };
 
   const formattedData = () => {
-    return item.data.labels.map((label, index) => {
-      const dataPoint: any = { name: label };
-      
-      item.data.datasets
-        .filter(dataset => !dataset.hidden) // Only include visible datasets
-        .forEach((dataset, datasetIndex) => {
-          const dp = dataset.data[index];
-          dataPoint[dataset.label || `dataset-${datasetIndex}`] = dp;
-        });
-      
-      return dataPoint;
-    });
+    return formatChartData(item.data.labels, item.data.datasets);
   };
 
   const processedData = formattedData();
 
+  // Filter datasets for legend
+  const legendDatasets = prepareChartLegend(item.data.datasets);
+
   const chartStyle = {
     fontSize: '12px',
     fontFamily: 'Inter, sans-serif',
+  };
+
+  // Custom legend component that properly hides datasets with legendHidden=true
+  const CustomLegend = (props: any) => {
+    const { payload } = props;
+    if (!payload || !payload.length) return null;
+    
+    // Filter out datasets with legendHidden=true
+    const filteredPayload = payload.filter((entry: any) => {
+      const datasetIndex = item.data.datasets.findIndex(
+        d => d.label === entry.value || (!d.label && `dataset-${item.data.datasets.indexOf(d)}` === entry.value)
+      );
+      return datasetIndex === -1 || !item.data.datasets[datasetIndex].legendHidden;
+    });
+    
+    if (!filteredPayload.length) return null;
+    
+    return (
+      <div className="flex justify-center flex-wrap mt-2 text-xs">
+        {filteredPayload.map((entry: any, index: number) => (
+          <div key={`legend-${index}`} className="flex items-center mr-3 mb-1">
+            <div 
+              className="w-2.5 h-2.5 mr-1.5 rounded-sm" 
+              style={{ backgroundColor: entry.color }} 
+            />
+            <span>{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const renderChart = () => {
@@ -211,6 +250,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
               <XAxis 
                 dataKey="name" 
                 axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
@@ -221,40 +261,13 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
                 tickLine={false}
                 tick={{ fill: '#6B7280', fontSize: 12 }}
-                tickFormatter={(value) => value}
+                tickFormatter={(value) => value.toString()}
               />
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend 
-                wrapperStyle={{ paddingTop: "10px" }} 
-                content={(props) => {
-                  const { payload } = props;
-                  if (!payload || !payload.length) return null;
-                  
-                  // Filter out datasets with legendHidden=true
-                  const filteredPayload = payload.filter(entry => {
-                    const datasetIndex = item.data.datasets.findIndex(
-                      d => d.label === entry.value || (!d.label && `dataset-${item.data.datasets.indexOf(d)}` === entry.value)
-                    );
-                    return datasetIndex === -1 || !item.data.datasets[datasetIndex].legendHidden;
-                  });
-                  
-                  if (!filteredPayload.length) return null;
-                  
-                  return (
-                    <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', marginTop: 10 }}>
-                      {filteredPayload.map((entry, index) => (
-                        <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', marginRight: 10 }}>
-                          <div style={{ width: 10, height: 10, backgroundColor: entry.color, marginRight: 5 }} />
-                          <span style={{ fontSize: 12 }}>{entry.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }}
-              />
+              <Legend content={CustomLegend} />
               {item.data.datasets
                 .filter(dataset => !dataset.hidden)
                 .map((dataset, index) => (
@@ -276,6 +289,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
               <XAxis 
                 dataKey="name" 
                 axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
@@ -291,35 +305,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend 
-                wrapperStyle={{ paddingTop: "10px" }}
-                content={(props) => {
-                  const { payload } = props;
-                  if (!payload || !payload.length) return null;
-                  
-                  // Filter out datasets with legendHidden=true
-                  const filteredPayload = payload.filter(entry => {
-                    const datasetIndex = item.data.datasets.findIndex(
-                      d => d.label === entry.value || (!d.label && `dataset-${item.data.datasets.indexOf(d)}` === entry.value)
-                    );
-                    return datasetIndex === -1 || !item.data.datasets[datasetIndex].legendHidden;
-                  });
-                  
-                  if (!filteredPayload.length) return null;
-                  
-                  return (
-                    <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', marginTop: 10 }}>
-                      {filteredPayload.map((entry, index) => (
-                        <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', marginRight: 10 }}>
-                          <div style={{ width: 10, height: 10, backgroundColor: entry.color, marginRight: 5 }} />
-                          <span style={{ fontSize: 12 }}>{entry.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }}
-              />
-              {item.data.datasets.map((dataset, index) => (
+              <Legend content={CustomLegend} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
                 <Line
                   key={index}
                   type="monotone"
@@ -329,7 +318,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   strokeWidth={dataset.borderWidth || 3}
                   dot={{ r: 4, strokeWidth: 2, fill: "white" }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
-                  hide={dataset.hidden}
                 />
               ))}
             </LineChart>
@@ -340,6 +328,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
               <XAxis 
                 dataKey="name" 
                 axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
@@ -355,35 +344,10 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
               />
-              <Legend 
-                wrapperStyle={{ paddingTop: "10px" }}
-                content={(props) => {
-                  const { payload } = props;
-                  if (!payload || !payload.length) return null;
-                  
-                  // Filter out datasets with legendHidden=true
-                  const filteredPayload = payload.filter(entry => {
-                    const datasetIndex = item.data.datasets.findIndex(
-                      d => d.label === entry.value || (!d.label && `dataset-${item.data.datasets.indexOf(d)}` === entry.value)
-                    );
-                    return datasetIndex === -1 || !item.data.datasets[datasetIndex].legendHidden;
-                  });
-                  
-                  if (!filteredPayload.length) return null;
-                  
-                  return (
-                    <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', marginTop: 10 }}>
-                      {filteredPayload.map((entry, index) => (
-                        <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', marginRight: 10 }}>
-                          <div style={{ width: 10, height: 10, backgroundColor: entry.color, marginRight: 5 }} />
-                          <span style={{ fontSize: 12 }}>{entry.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }}
-              />
-              {item.data.datasets.map((dataset, index) => (
+              <Legend content={CustomLegend} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
                 <Area
                   key={index}
                   type="monotone"
@@ -393,7 +357,6 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                   strokeWidth={dataset.borderWidth || 3}
                   dot={{ r: 4, strokeWidth: 2, fill: "white" }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
-                  hide={dataset.hidden}
                 />
               ))}
             </AreaChart>
@@ -409,36 +372,16 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
                 labelStyle={{ fontWeight: "bold", color: "#111827" }}
-                formatter={(value, name) => [`${value} (${((value as number) / processedData.reduce((a, b) => a + (b.value as number), 0) * 100).toFixed(1)}%)`, name]}
+                formatter={(value, name) => [
+                  `${value} (${((Number(value) / processedData.reduce((a: number, b: any) => 
+                    a + (Number(b[item.data.datasets[0]?.label || 'dataset-0']) || 0), 0)) * 100).toFixed(1)}%)`, 
+                  name
+                ]}
               />
-              <Legend
-                layout="vertical"
-                verticalAlign="middle"
-                align="right"
-                wrapperStyle={{ paddingLeft: "10px" }}
-                content={(props) => {
-                  const { payload } = props;
-                  if (!payload || !payload.length) return null;
-                  
-                  // For pie/donut charts, check if the dataset is hidden
-                  const dataset = item.data.datasets[0];
-                  if (dataset && dataset.legendHidden) return null;
-                  
-                  return (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingLeft: 10 }}>
-                      {payload.map((entry, index) => (
-                        <div key={`legend-${index}`} style={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}>
-                          <div style={{ width: 10, height: 10, backgroundColor: entry.color, marginRight: 5 }} />
-                          <span style={{ fontSize: 12 }}>{entry.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }}
-              />
+              <Legend content={CustomLegend} />
               <Pie
                 data={processedData}
-                dataKey="value"
+                dataKey={item.data.datasets[0]?.label || "dataset-0"}
                 nameKey="name"
                 cx="50%"
                 cy="50%"
@@ -446,11 +389,7 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 outerRadius="80%"
                 paddingAngle={2}
                 fill="#4f46e5"
-                label={({ name, percent }) => {
-                  const dataset = item.data.datasets[0];
-                  if (dataset && dataset.legendHidden) return null;
-                  return `${name}: ${(percent * 100).toFixed(0)}%`;
-                }}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 labelLine={false}
               >
                 {processedData.map((entry, index) => {
@@ -462,9 +401,371 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
             </PieChart>
           </ResponsiveContainer>
         );
+
+      case "scatter":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                type="number"
+                dataKey="x" 
+                name="X"
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                type="number"
+                dataKey="y"
+                name="Y"
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                cursor={{ strokeDasharray: '3 3' }}
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
+              />
+              <Legend content={CustomLegend} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Scatter
+                  key={index}
+                  name={dataset.label || `Dataset ${index + 1}`}
+                  data={dataset.data.map((point: any, i: number) => ({
+                    x: typeof point === 'object' ? point.x : i,
+                    y: typeof point === 'object' ? point.y : point,
+                  }))}
+                  fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : "#4f46e5"}
+                />
+              ))}
+            </ScatterChart>
+          </ResponsiveContainer>
+        );
+
+      case "bubble":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                type="number"
+                dataKey="x" 
+                name="X"
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+              />
+              <YAxis 
+                type="number"
+                dataKey="y"
+                name="Y"
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+              />
+              <ZAxis 
+                type="number" 
+                dataKey="z" 
+                range={[60, 400]} 
+                name="Size" 
+              />
+              <RechartsTooltip 
+                cursor={{ strokeDasharray: '3 3' }}
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
+                formatter={(value, name) => [value, name === 'z' ? 'Size' : name]}
+              />
+              <Legend content={CustomLegend} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Scatter
+                  key={index}
+                  name={dataset.label || `Dataset ${index + 1}`}
+                  data={dataset.data.map((point: any) => ({
+                    x: typeof point === 'object' ? point.x : 0,
+                    y: typeof point === 'object' ? point.y : point,
+                    z: typeof point === 'object' && point.r ? point.r : 10,
+                  }))}
+                  fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : "#4f46e5"}
+                />
+              ))}
+            </ScatterChart>
+          </ResponsiveContainer>
+        );
+
+      case "radar":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={processedData} style={chartStyle}>
+              <PolarGrid stroke="#E5E7EB" />
+              <PolarAngleAxis dataKey="name" tick={{ fill: '#6B7280', fontSize: 12 }} />
+              <PolarRadiusAxis axisLine={false} tick={{ fill: '#6B7280', fontSize: 10 }} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
+              />
+              <Legend content={CustomLegend} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Radar
+                  key={index}
+                  name={dataset.label || `Dataset ${index + 1}`}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  stroke={typeof dataset.borderColor === 'string' ? dataset.borderColor : "#4f46e5"}
+                  fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : "#4f46e533"}
+                  fillOpacity={0.6}
+                />
+              ))}
+            </RadarChart>
+          </ResponsiveContainer>
+        );
+
+      case "treemap":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <Treemap
+              data={processedData}
+              dataKey={item.data.datasets[0]?.label || "dataset-0"}
+              nameKey="name"
+              style={chartStyle}
+              fill="#4f46e5"
+              content={(data: any) => {
+                const { depth, x, y, width, height, index, name, value } = data;
+                const bgColors = item.data.datasets[0]?.backgroundColor;
+                const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : (bgColors as string || "#4f46e5");
+                
+                return (
+                  <g>
+                    <rect
+                      x={x}
+                      y={y}
+                      width={width}
+                      height={height}
+                      style={{ fill: color, stroke: '#fff', strokeWidth: 2 }}
+                    />
+                    {width > 30 && height > 30 && (
+                      <text
+                        x={x + width / 2}
+                        y={y + height / 2}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        style={{ fontSize: 12, fill: '#fff' }}
+                      >
+                        {name}
+                      </text>
+                    )}
+                  </g>
+                );
+              }}
+            >
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
+              />
+            </Treemap>
+          </ResponsiveContainer>
+        );
+
+      case "funnel":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <FunnelChart style={chartStyle}>
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
+              />
+              <Legend content={CustomLegend} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Funnel
+                  key={index}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  nameKey="name"
+                  data={processedData}
+                  isAnimationActive
+                >
+                  {processedData.map((entry, index) => {
+                    const bgColors = dataset.backgroundColor;
+                    const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : (bgColors as string || "#4f46e5");
+                    return <Cell key={`cell-${index}`} fill={color} />;
+                  })}
+                  <LabelList position="right" dataKey={dataset.label || `dataset-${index}`} />
+                </Funnel>
+              ))}
+            </FunnelChart>
+          </ResponsiveContainer>
+        );
+
+      case "gauge": 
+      case "semi-circle":
+        // For gauge/semi-circle, we'll use a pie chart with specific configuration
+        const value = item.data.datasets[0]?.data[0] || 0;
+        const max = 100; // Assuming max value is 100 for gauge
+        const percentage = typeof value === 'number' ? (value / max) * 100 : 0;
+        
+        const gaugeData = [
+          { name: "value", value: percentage },
+          { name: "empty", value: 100 - percentage }
+        ];
+        
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart style={chartStyle}>
+              <Pie
+                data={gaugeData}
+                cx="50%"
+                cy="80%"
+                startAngle={180}
+                endAngle={0}
+                innerRadius="60%"
+                outerRadius="80%"
+                paddingAngle={0}
+                dataKey="value"
+              >
+                <Cell fill={item.data.datasets[0]?.backgroundColor as string || "#4f46e5"} />
+                <Cell fill="#E5E7EB" />
+              </Pie>
+              <text
+                x="50%"
+                y="85%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                style={{ fontSize: '16px', fontWeight: 'bold' }}
+              >
+                {typeof value === 'number' ? value.toFixed(0) : value}%
+              </text>
+              <text
+                x="50%"
+                y="65%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                style={{ fontSize: '14px' }}
+              >
+                {item.data.labels[0] || ""}
+              </text>
+            </PieChart>
+          </ResponsiveContainer>
+        );
+
+      case "boxplot":
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center p-4">
+              <p className="text-lg font-semibold mb-2">Box Plot</p>
+              <p className="text-muted-foreground">
+                Box plot representation will be available soon.
+              </p>
+            </div>
+          </div>
+        );
+      
+      case "table":
+        if (!item.data.tableColumns || !item.data.tableRows) {
+          return (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center p-4">
+                <p>No table data available</p>
+              </div>
+            </div>
+          );
+        }
+        
+        return (
+          <div className="h-full w-full overflow-auto p-2">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  {item.data.tableColumns
+                    .filter(col => col.visible !== false)
+                    .map((column) => (
+                    <th 
+                      key={column.id}
+                      className="border border-gray-200 bg-gray-50 p-2 text-sm font-medium text-left"
+                      style={{
+                        width: column.width ? `${column.width}px` : 'auto',
+                        textAlign: column.align || 'left',
+                        backgroundColor: column.backgroundColor || undefined
+                      }}
+                    >
+                      {column.header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {item.data.tableRows.map((row, rowIndex) => (
+                  <tr 
+                    key={rowIndex}
+                    style={{ backgroundColor: row._rowColor || undefined }}
+                  >
+                    {item.data.tableColumns
+                      .filter(col => col.visible !== false)
+                      .map((column) => (
+                      <td 
+                        key={`${rowIndex}-${column.id}`}
+                        className="border border-gray-200 p-2 text-sm"
+                        style={{
+                          textAlign: column.align || 'left'
+                        }}
+                      >
+                        {row[column.accessor] !== undefined ? row[column.accessor] : ''}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+        
+      case "text":
+        return (
+          <div className="h-full w-full p-4 overflow-auto" ref={contentRef}>
+            {isEditing ? (
+              <TextareaAutosize
+                value={item.data.datasets[0]?.label || ""}
+                className="w-full border rounded p-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                autoFocus
+                onChange={(e) => {
+                  dispatch({
+                    type: "UPDATE_ITEM",
+                    payload: {
+                      id: item.id,
+                      updates: {
+                        data: {
+                          ...item.data,
+                          datasets: [
+                            {
+                              ...item.data.datasets[0],
+                              label: e.target.value,
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  });
+                }}
+                onBlur={() => setIsEditing(false)}
+              />
+            ) : (
+              <div className="prose max-w-none">
+                {item.data.datasets[0]?.label || ""}
+              </div>
+            )}
+          </div>
+        );
         
       default:
-        return <div className="flex items-center justify-center h-full">Unsupported chart type</div>;
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center p-4">
+              <p className="text-lg font-semibold mb-2">Chart Type: {item.type}</p>
+              <p className="text-muted-foreground">
+                This chart type will be supported soon.
+              </p>
+            </div>
+          </div>
+        );
     }
   };
 
