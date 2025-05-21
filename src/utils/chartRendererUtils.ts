@@ -37,6 +37,8 @@ export const getYValue = (point: ChartDataPoint): number => {
 
 /**
  * Process chart data for rendering
+ * This function keeps all datasets in the data but marks those with legendHidden
+ * to be not displayed in the legend
  */
 export const prepareChartData = (labels: string[], datasets: any[]) => {
   return labels.map((label, index) => {
@@ -44,10 +46,8 @@ export const prepareChartData = (labels: string[], datasets: any[]) => {
     
     datasets.forEach((dataset, datasetIndex) => {
       if (!dataset.hidden) {
-        // Use empty label if legendHidden is true
-        const key = dataset.legendHidden ? 
-          `dataset-${datasetIndex}` : 
-          (dataset.label || `dataset-${datasetIndex}`);
+        // Always include the dataset in the data for rendering
+        const key = dataset.label || `dataset-${datasetIndex}`;
         dataPoint[key] = getYValue(dataset.data[index]);
       }
     });
@@ -58,10 +58,9 @@ export const prepareChartData = (labels: string[], datasets: any[]) => {
 
 /**
  * Process chart data for legend display
- * This function filters out datasets that have legendHidden set to true
+ * This function completely filters out datasets that have legendHidden set to true
  * to completely hide them from the legend (both label and icon)
  */
 export const prepareChartLegend = (datasets: any[]) => {
   return datasets.filter(dataset => !dataset.legendHidden);
 };
-
