@@ -1,4 +1,3 @@
-
 export interface Position {
   x: number;
   y: number;
@@ -33,7 +32,7 @@ export interface ChartDataset {
   borderWidth?: number;
   fill?: boolean;
   hidden?: boolean;  // Control data visibility
-  legendHidden?: boolean;  // Control legend visibility separately
+  legendHidden?: boolean;  // Control legend visibility separately (both label and icon)
 }
 
 export interface ChartData {

@@ -59,7 +59,9 @@ export const prepareChartData = (labels: string[], datasets: any[]) => {
 /**
  * Process chart data for legend display
  * This function filters out datasets that have legendHidden set to true
+ * to completely hide them from the legend (both label and icon)
  */
 export const prepareChartLegend = (datasets: any[]) => {
   return datasets.filter(dataset => !dataset.legendHidden);
 };
+
