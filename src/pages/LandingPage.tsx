@@ -358,17 +358,18 @@ const LandingPage = () => {
               </Button>
             </div>
           </div>
-          <div className="relative">
-            <div className="rounded-lg shadow-lg overflow-hidden border">
-              <img 
-                src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3" 
-                alt="Dashboard Preview" 
-                className="w-full h-auto" 
-              />
-            </div>
-            <div className="absolute -bottom-4 -right-4 bg-primary text-white p-2 rounded-lg shadow-lg">
-              <PieChart className="h-8 w-8" />
-            </div>
+          <div className="rounded-lg shadow-lg overflow-hidden border bg-card">
+            <ResponsiveContainer width="100%" height={300}>
+              <RechartLine data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="Sales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="Profit" stroke="#82ca9d" />
+              </RechartLine>
+            </ResponsiveContainer>
           </div>
         </div>
       </section>
@@ -377,13 +378,13 @@ const LandingPage = () => {
       <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Explore Our Chart Types</h2>
-          <Carousel className="w-full max-w-5xl mx-auto" setApi={setApi}>
+          <Carousel className="w-full max-w-5xl mx-auto" autoScroll={true} opts={{ loop: true, align: "start" }}>
             <CarouselContent>
               {chartExamples.map((example, index) => (
                 <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                   <div className="p-2">
                     <div className="rounded-xl overflow-hidden border bg-card">
-                      <div className="h-48 bg-background flex items-center justify-center">
+                      <div className="h-48 bg-background flex items-center justify-center p-2">
                         {example.renderChart}
                       </div>
                       <div className="p-4">
@@ -404,10 +405,6 @@ const LandingPage = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div className="hidden sm:block">
-              <CarouselPrevious className="left-0" />
-              <CarouselNext className="right-0" />
-            </div>
           </Carousel>
         </div>
       </section>
