@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -22,7 +21,7 @@ import {
   AreaChart,
   Gauge,
   Radar,
-  Funnel
+  Fuel
 } from "lucide-react";
 import { ChartContainer } from "@/components/ui/chart";
 import { 
