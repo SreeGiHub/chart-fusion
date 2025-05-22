@@ -88,16 +88,40 @@ const Carousel = React.forwardRef<
       api?.scrollNext()
     }, [api])
 
-    // Auto scroll functionality
+    // Auto scroll functionality with constant movement
     React.useEffect(() => {
       if (!api || !autoScroll) return
       
-      const interval = setInterval(() => {
-        api.scrollNext()
-      }, 3000)
+      // Enable continuous scrolling mode
+      api.on('init', () => {
+        if (opts?.duration) {
+          // If duration is specified in opts, use that for the animation speed
+          // This will affect how fast the carousel scrolls
+        }
+      })
       
-      return () => clearInterval(interval)
-    }, [api, autoScroll])
+      let animationId: number
+      
+      // Create a smooth animation loop instead of interval-based jumping
+      const autoScrollAnimation = () => {
+        const scrollSnap = api.scrollSnapList()
+        const scrollProgress = api.scrollProgress()
+        
+        // Small incremental movement for smooth animation
+        api.scrollTo(api.selectedScrollSnap() + 0.005)
+        
+        // Continue the animation
+        animationId = requestAnimationFrame(autoScrollAnimation)
+      }
+      
+      // Start the animation
+      animationId = requestAnimationFrame(autoScrollAnimation)
+      
+      // Cleanup
+      return () => {
+        cancelAnimationFrame(animationId)
+      }
+    }, [api, autoScroll, opts])
 
     const handleKeyDown = React.useCallback(
       (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -172,7 +196,7 @@ const CarouselContent = React.forwardRef<
   const { carouselRef, orientation } = useCarousel()
 
   return (
-    <div ref={carouselRef} className="overflow-hidden">
+    <div ref={carouselRef} className="overflow-hidden w-full">
       <div
         ref={ref}
         className={cn(

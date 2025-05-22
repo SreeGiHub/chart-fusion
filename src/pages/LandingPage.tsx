@@ -53,79 +53,6 @@ const LandingPage = () => {
   const [activeFeature, setActiveFeature] = useState<number>(0);
   const [api, setApi] = useState<any>(null);
 
-  // Effect for auto-scrolling of carousel
-  useEffect(() => {
-    if (!api) return;
-    
-    // Create interval for scrolling
-    const interval = setInterval(() => {
-      api.scrollNext();
-    }, 3000); // Scroll every 3 seconds
-    
-    // Cleanup interval on unmount
-    return () => clearInterval(interval);
-  }, [api]);
-
-  const features = [
-    {
-      title: "Drag & Drop Interface",
-      description: "Create beautiful dashboards with an intuitive drag and drop interface. No coding required.",
-      icon: <LayoutDashboard className="h-8 w-8 text-primary" />
-    },
-    {
-      title: "Advanced Charts",
-      description: "Choose from a variety of chart types to visualize your data: bar, line, pie, radar, and more.",
-      icon: <BarChart className="h-8 w-8 text-primary" />
-    },
-    {
-      title: "Export & Share",
-      description: "Export your dashboards as PNG or PDF to share with your team or include in presentations.",
-      icon: <Activity className="h-8 w-8 text-primary" />
-    }
-  ];
-
-  const upcomingFeatures = [
-    {
-      title: "Text to Chart",
-      description: "Describe the chart you want in plain English, and our AI will generate it for you.",
-      icon: <Wand2 className="h-8 w-8 text-primary" />
-    },
-    {
-      title: "Sample Data to Chart",
-      description: "Upload your data and let our AI suggest the best chart types for visualization.",
-      icon: <Database className="h-8 w-8 text-primary" />
-    },
-    {
-      title: "Team Collaboration",
-      description: "Work together with your team on dashboards in real-time with commenting and version history.",
-      icon: <Users className="h-8 w-8 text-primary" />
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Data Analyst",
-      company: "TechNova",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3",
-      quote: "This dashboard builder has transformed how I present data to stakeholders. The intuitive interface and export options save me hours of work each week."
-    },
-    {
-      name: "Michael Chen",
-      role: "Product Manager",
-      company: "GrowthMetrics",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3",
-      quote: "The ability to create custom dashboards without writing code has been a game-changer for our team. We can now visualize product metrics in minutes."
-    },
-    {
-      name: "Priya Patel",
-      role: "Marketing Director",
-      company: "BrandFusion",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3",
-      quote: "I use this tool to track our marketing campaigns performance. The variety of chart options helps me communicate complex data trends in a simple way."
-    }
-  ];
-
   // Sample data for charts
   const salesData = [
     { name: 'Jan', Sales: 4000, Profit: 2400 },
@@ -295,9 +222,10 @@ const LandingPage = () => {
             <ResponsiveContainer width="100%" height="100%">
               <RechartLine data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" fontSize={10} />
-                <YAxis fontSize={10} />
+                <XAxis dataKey="name" />
+                <YAxis />
                 <Tooltip />
+                <Legend />
                 <Line type="monotone" dataKey="Sales" stroke="#8884d8" activeDot={{ r: 8 }} />
                 <Line type="monotone" dataKey="Profit" stroke="#82ca9d" />
               </RechartLine>
@@ -307,8 +235,8 @@ const LandingPage = () => {
             <ResponsiveContainer width="100%" height="100%">
               <RechartBar data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" fontSize={10} />
-                <YAxis fontSize={10} />
+                <XAxis dataKey="name" />
+                <YAxis />
                 <Tooltip />
                 <Bar dataKey="Profit" fill="#82ca9d" />
               </RechartBar>
@@ -318,6 +246,79 @@ const LandingPage = () => {
       )
     }
   ];
+
+  const features = [
+    {
+      title: "Drag & Drop Interface",
+      description: "Create beautiful dashboards with an intuitive drag and drop interface. No coding required.",
+      icon: <LayoutDashboard className="h-8 w-8 text-primary" />
+    },
+    {
+      title: "Advanced Charts",
+      description: "Choose from a variety of chart types to visualize your data: bar, line, pie, radar, and more.",
+      icon: <BarChart className="h-8 w-8 text-primary" />
+    },
+    {
+      title: "Export & Share",
+      description: "Export your dashboards as PNG or PDF to share with your team or include in presentations.",
+      icon: <Activity className="h-8 w-8 text-primary" />
+    }
+  ];
+
+  const upcomingFeatures = [
+    {
+      title: "Text to Chart",
+      description: "Describe the chart you want in plain English, and our AI will generate it for you.",
+      icon: <Wand2 className="h-8 w-8 text-primary" />
+    },
+    {
+      title: "Sample Data to Chart",
+      description: "Upload your data and let our AI suggest the best chart types for visualization.",
+      icon: <Database className="h-8 w-8 text-primary" />
+    },
+    {
+      title: "Team Collaboration",
+      description: "Work together with your team on dashboards in real-time with commenting and version history.",
+      icon: <Users className="h-8 w-8 text-primary" />
+    }
+  ];
+
+  const testimonials = [
+    {
+      name: "Sarah Johnson",
+      role: "Data Analyst",
+      company: "TechNova",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3",
+      quote: "This dashboard builder has transformed how I present data to stakeholders. The intuitive interface and export options save me hours of work each week."
+    },
+    {
+      name: "Michael Chen",
+      role: "Product Manager",
+      company: "GrowthMetrics",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3",
+      quote: "The ability to create custom dashboards without writing code has been a game-changer for our team. We can now visualize product metrics in minutes."
+    },
+    {
+      name: "Priya Patel",
+      role: "Marketing Director",
+      company: "BrandFusion",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3",
+      quote: "I use this tool to track our marketing campaigns performance. The variety of chart options helps me communicate complex data trends in a simple way."
+    }
+  ];
+
+  // Effect for auto-scrolling of carousel
+  useEffect(() => {
+    if (!api) return;
+    
+    // Create interval for scrolling
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 3000); // Scroll every 3 seconds
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, [api]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -375,15 +376,26 @@ const LandingPage = () => {
       </section>
 
       {/* Chart Carousel Section */}
-      <section className="py-16 bg-muted/50">
+      <section className="py-16 bg-muted/50 overflow-hidden">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Explore Our Chart Types</h2>
-          <Carousel className="w-full max-w-5xl mx-auto" autoScroll={true} opts={{ loop: true, align: "start" }}>
-            <CarouselContent>
-              {chartExamples.map((example, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-2">
-                    <div className="rounded-xl overflow-hidden border bg-card">
+        </div>
+        <div className="w-full">
+          <Carousel 
+            className="w-full" 
+            autoScroll={true} 
+            opts={{ 
+              loop: true, 
+              align: "start",
+              slidesToScroll: 1,
+              duration: 20 
+            }}
+          >
+            <CarouselContent className="gap-0">
+              {[...chartExamples, ...chartExamples].map((example, index) => (
+                <CarouselItem key={index} className="md:basis-1/3 lg:basis-1/4 pl-0">
+                  <div className="p-1">
+                    <div className="rounded-xl overflow-hidden border bg-card h-full">
                       <div className="h-48 bg-background flex items-center justify-center p-2">
                         {example.renderChart}
                       </div>
