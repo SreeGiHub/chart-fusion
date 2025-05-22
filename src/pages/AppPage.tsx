@@ -6,8 +6,8 @@ const AppPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Immediately redirect to the main dashboard application
-    navigate("/");
+    // Redirect to the main dashboard application
+    navigate("/dashboard");
   }, [navigate]);
 
   return (

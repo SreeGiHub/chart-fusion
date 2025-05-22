@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -18,11 +18,54 @@ import {
   Wand2, 
   Database, 
   Users, 
-  LayoutDashboard
+  LayoutDashboard, 
+  AreaChart,
+  Gauge,
+  Radar,
+  Funnel
 } from "lucide-react";
+import { ChartContainer } from "@/components/ui/chart";
+import { 
+  ResponsiveContainer, 
+  LineChart as RechartLine,
+  Line,
+  BarChart as RechartBar,
+  Bar,
+  PieChart as RechartPie,
+  Pie,
+  AreaChart as RechartArea,
+  Area,
+  ScatterChart as RechartScatter,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar as RechartRadar,
+  Cell
+} from "recharts";
 
 const LandingPage = () => {
   const [activeFeature, setActiveFeature] = useState<number>(0);
+  const [api, setApi] = useState<any>(null);
+
+  // Effect for auto-scrolling of carousel
+  useEffect(() => {
+    if (!api) return;
+    
+    // Create interval for scrolling
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 3000); // Scroll every 3 seconds
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, [api]);
 
   const features = [
     {
@@ -84,27 +127,196 @@ const LandingPage = () => {
     }
   ];
 
-  // Sample chart images for the carousel
+  // Sample data for charts
+  const salesData = [
+    { name: 'Jan', Sales: 4000, Profit: 2400 },
+    { name: 'Feb', Sales: 3000, Profit: 1398 },
+    { name: 'Mar', Sales: 2000, Profit: 9800 },
+    { name: 'Apr', Sales: 2780, Profit: 3908 },
+    { name: 'May', Sales: 1890, Profit: 4800 },
+    { name: 'Jun', Sales: 2390, Profit: 3800 },
+  ];
+
+  const pieData = [
+    { name: 'Desktop', value: 400 },
+    { name: 'Mobile', value: 300 },
+    { name: 'Tablet', value: 200 },
+    { name: 'Other', value: 100 },
+  ];
+
+  const marketingData = [
+    { name: 'Jan', Visits: 4000, Conversions: 2400 },
+    { name: 'Feb', Visits: 3000, Conversions: 1398 },
+    { name: 'Mar', Visits: 2000, Conversions: 1000 },
+    { name: 'Apr', Visits: 2780, Conversions: 1508 },
+    { name: 'May', Visits: 1890, Conversions: 800 },
+    { name: 'Jun', Visits: 2390, Conversions: 1300 },
+  ];
+
+  const scatterData = [
+    { x: 10, y: 30, z: 200 },
+    { x: 40, y: 50, z: 400 },
+    { x: 70, y: 20, z: 500 },
+    { x: 30, y: 80, z: 200 },
+    { x: 50, y: 10, z: 300 },
+    { x: 20, y: 40, z: 600 },
+  ];
+
+  const radarData = [
+    { subject: 'Feature A', product: 80, competitor: 70 },
+    { subject: 'Feature B', product: 98, competitor: 60 },
+    { subject: 'Feature C', product: 86, competitor: 90 },
+    { subject: 'Feature D', product: 99, competitor: 85 },
+    { subject: 'Feature E', product: 85, competitor: 75 },
+  ];
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+  // Sample chart examples for the carousel
   const chartExamples = [
     {
       title: "Sales Dashboard",
-      image: "/placeholder.svg",
-      chartTypes: ["Bar Chart", "Line Chart", "Pie Chart"]
+      chartTypes: ["Bar Chart", "Line Chart", "Pie Chart"],
+      renderChart: (
+        <div className="grid grid-cols-2 gap-2 h-full">
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartBar data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" fontSize={10} />
+                <YAxis fontSize={10} />
+                <Tooltip />
+                <Bar dataKey="Sales" fill="#8884d8" />
+                <Bar dataKey="Profit" fill="#82ca9d" />
+              </RechartBar>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartPie data={pieData}>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={30}
+                  outerRadius={60}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </RechartPie>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )
     },
     {
       title: "Marketing Analytics",
-      image: "/placeholder.svg", 
-      chartTypes: ["Area Chart", "Donut Chart", "Gauge Chart"]
+      chartTypes: ["Area Chart", "Donut Chart", "Gauge Chart"],
+      renderChart: (
+        <div className="grid grid-cols-2 gap-2 h-full">
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartArea data={marketingData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" fontSize={10} />
+                <YAxis fontSize={10} />
+                <Tooltip />
+                <Area type="monotone" dataKey="Visits" stackId="1" stroke="#8884d8" fill="#8884d8" />
+                <Area type="monotone" dataKey="Conversions" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
+              </RechartArea>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartPie data={pieData}>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={60}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </RechartPie>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )
     },
     {
       title: "Product Performance",
-      image: "/placeholder.svg",
-      chartTypes: ["Scatter Plot", "Radar Chart", "Funnel Chart"]
+      chartTypes: ["Scatter Plot", "Radar Chart", "Funnel Chart"],
+      renderChart: (
+        <div className="grid grid-cols-2 gap-2 h-full">
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartScatter>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="x" fontSize={10} />
+                <YAxis dataKey="y" fontSize={10} />
+                <Tooltip cursor={{strokeDasharray: '3 3'}} />
+                <Scatter name="Products" data={scatterData} fill="#8884d8" />
+              </RechartScatter>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart outerRadius={70} data={radarData}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="subject" fontSize={8} />
+                <PolarRadiusAxis />
+                <RechartRadar name="Product" dataKey="product" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+                <RechartRadar name="Competitor" dataKey="competitor" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.6} />
+                <Legend />
+                <Tooltip />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )
     },
     {
       title: "Financial Overview",
-      image: "/placeholder.svg",
-      chartTypes: ["Line Chart", "Bar Chart", "Treemap"]
+      chartTypes: ["Line Chart", "Bar Chart", "Treemap"],
+      renderChart: (
+        <div className="grid grid-cols-2 gap-2 h-full">
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartLine data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" fontSize={10} />
+                <YAxis fontSize={10} />
+                <Tooltip />
+                <Line type="monotone" dataKey="Sales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="Profit" stroke="#82ca9d" />
+              </RechartLine>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartBar data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" fontSize={10} />
+                <YAxis fontSize={10} />
+                <Tooltip />
+                <Bar dataKey="Profit" fill="#82ca9d" />
+              </RechartBar>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )
     }
   ];
 
@@ -119,7 +331,7 @@ const LandingPage = () => {
           </div>
           <div>
             <Button asChild>
-              <Link to="/app">Get Started</Link>
+              <Link to="/dashboard">Get Started</Link>
             </Button>
           </div>
         </div>
@@ -139,7 +351,7 @@ const LandingPage = () => {
             </p>
             <div className="flex gap-4">
               <Button asChild size="lg" className="px-8">
-                <Link to="/app">Get Started</Link>
+                <Link to="/dashboard">Get Started</Link>
               </Button>
               <Button variant="outline" size="lg">
                 <LineChart className="mr-2 h-4 w-4" />
@@ -150,7 +362,7 @@ const LandingPage = () => {
           <div className="relative">
             <div className="rounded-lg shadow-lg overflow-hidden border">
               <img 
-                src="/placeholder.svg" 
+                src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3" 
                 alt="Dashboard Preview" 
                 className="w-full h-auto" 
               />
@@ -166,18 +378,14 @@ const LandingPage = () => {
       <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Explore Our Chart Types</h2>
-          <Carousel className="w-full max-w-5xl mx-auto">
+          <Carousel className="w-full max-w-5xl mx-auto" setApi={setApi}>
             <CarouselContent>
               {chartExamples.map((example, index) => (
                 <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                   <div className="p-2">
                     <div className="rounded-xl overflow-hidden border bg-card">
-                      <div className="h-48 bg-muted flex items-center justify-center">
-                        <img 
-                          src={example.image} 
-                          alt={example.title} 
-                          className="w-full h-full object-cover" 
-                        />
+                      <div className="h-48 bg-background flex items-center justify-center">
+                        {example.renderChart}
                       </div>
                       <div className="p-4">
                         <h3 className="font-semibold text-lg">{example.title}</h3>
@@ -286,7 +494,7 @@ const LandingPage = () => {
             Create stunning dashboards and visualize your data in minutes with our intuitive platform.
           </p>
           <Button asChild size="lg" className="px-12">
-            <Link to="/app">Start Building Now</Link>
+            <Link to="/dashboard">Start Building Now</Link>
           </Button>
         </div>
       </section>
