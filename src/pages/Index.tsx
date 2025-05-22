@@ -5,7 +5,7 @@ import Toolbar from "@/components/Toolbar";
 import Canvas from "@/components/Canvas";
 import Sidebar from "@/components/Sidebar";
 import { toast } from "sonner";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AlertCircle } from "lucide-react";
 
@@ -14,6 +14,7 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const isPreview = searchParams.get("preview") === "true";
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isMobile) {

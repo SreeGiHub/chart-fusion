@@ -31,8 +31,7 @@ import {
   Map,
   LayoutGrid,
   CircleDot,
-  ZapOff,
-  Table2
+  ZapOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -72,7 +71,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
   const { state, dispatch } = useDashboard();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTextToChartOpen, setIsTextToChartOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddItem = (type: ChartType) => {
     const canvasElement = document.getElementById("dashboard-canvas");
@@ -128,40 +126,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const content = event.target?.result as string;
-        const data = JSON.parse(content);
-        
-        if (!data.title || !Array.isArray(data.items)) {
-          throw new Error("Invalid dashboard file format");
-        }
-
-        dispatch({
-          type: "IMPORT_DASHBOARD",
-          payload: {
-            ...state,
-            title: data.title,
-            items: data.items,
-          },
-        });
-
-        toast.success("Dashboard imported successfully");
-      } catch (error) {
-        console.error("Failed to import dashboard:", error);
-        toast.error("Failed to import dashboard: Invalid file format");
-      }
-    };
-
-    reader.readAsText(file);
-    e.target.value = "";
-  };
-
   const handleUndo = () => {
     if (state.editHistory.past.length === 0) {
       toast.info("Nothing to undo");
@@ -184,14 +148,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
 
   const handleToggleGrid = () => {
     dispatch({ type: "TOGGLE_GRID" });
-  };
-
-  const handleToggleSnapToGrid = () => {
-    dispatch({ type: "TOGGLE_SNAP_TO_GRID" });
-  };
-
-  const handleGridSizeChange = (value: number[]) => {
-    dispatch({ type: "SET_GRID_SIZE", payload: value[0] });
   };
 
   return (
@@ -277,10 +233,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
               <DropdownMenuItem onClick={() => handleAddItem("treemap")}>
                 <LayoutGrid className="mr-2 h-4 w-4" />
                 <span>Treemap</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("table")}>
-                <Table2 className="mr-2 h-4 w-4" />
-                <span>Table Chart</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             
@@ -393,14 +345,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept=".json"
-          className="hidden"
-        />
-
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="icon">
@@ -441,7 +385,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                   min={10}
                   max={50}
                   step={5}
-                  onValueChange={handleGridSizeChange}
+                  onValueChange={(value) => dispatch({ type: "SET_GRID_SIZE", payload: value[0] })}
                 />
               </div>
             </div>
