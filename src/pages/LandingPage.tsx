@@ -4,9 +4,7 @@ import { Link } from "react-router-dom";
 import { 
   Carousel, 
   CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
+  CarouselItem 
 } from "@/components/ui/carousel";
 import { 
   LineChart, 
@@ -103,6 +101,7 @@ const LandingPage = () => {
     {
       title: "Sales Dashboard",
       chartTypes: ["Bar Chart", "Line Chart", "Pie Chart"],
+      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&h=400",
       renderChart: (
         <div className="grid grid-cols-2 gap-2 h-full">
           <div className="h-full">
@@ -144,6 +143,7 @@ const LandingPage = () => {
     {
       title: "Marketing Analytics",
       chartTypes: ["Area Chart", "Donut Chart", "Gauge Chart"],
+      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&h=400",
       renderChart: (
         <div className="grid grid-cols-2 gap-2 h-full">
           <div className="h-full">
@@ -183,7 +183,8 @@ const LandingPage = () => {
     },
     {
       title: "Product Performance",
-      chartTypes: ["Scatter Plot", "Radar Chart", "Funnel Chart"],
+      chartTypes: ["Scatter Plot", "Radar Chart", "Fuel Chart"],
+      image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=600&h=400",
       renderChart: (
         <div className="grid grid-cols-2 gap-2 h-full">
           <div className="h-full">
@@ -216,6 +217,7 @@ const LandingPage = () => {
     {
       title: "Financial Overview",
       chartTypes: ["Line Chart", "Bar Chart", "Treemap"],
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&h=400",
       renderChart: (
         <div className="grid grid-cols-2 gap-2 h-full">
           <div className="h-full">
@@ -240,6 +242,45 @@ const LandingPage = () => {
                 <Tooltip />
                 <Bar dataKey="Profit" fill="#82ca9d" />
               </RechartBar>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Website Analytics",
+      chartTypes: ["Line Chart", "Area Chart", "Pie Chart"],
+      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&h=400",
+      renderChart: (
+        <div className="grid grid-cols-2 gap-2 h-full">
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartLine data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="Sales" stroke="#8884d8" activeDot={{ r: 8 }} />
+              </RechartLine>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartPie data={pieData}>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </RechartPie>
             </ResponsiveContainer>
           </div>
         </div>
@@ -380,24 +421,34 @@ const LandingPage = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Explore Our Chart Types</h2>
         </div>
-        <div className="w-full">
+        <div className="w-full overflow-hidden">
           <Carousel 
             className="w-full" 
             autoScroll={true} 
+            scrollSpeed={0.2}
             opts={{ 
-              loop: true, 
-              align: "start",
-              slidesToScroll: 1,
-              duration: 20 
+              loop: true,
+              containScroll: "trimSnaps",
+              dragFree: true
             }}
           >
-            <CarouselContent className="gap-0">
-              {[...chartExamples, ...chartExamples].map((example, index) => (
-                <CarouselItem key={index} className="md:basis-1/3 lg:basis-1/4 pl-0">
+            <CarouselContent className="-ml-0">
+              {/* Duplicate items to create a seamless loop */}
+              {[...chartExamples, ...chartExamples, ...chartExamples].map((example, index) => (
+                <CarouselItem key={index} className="md:basis-1/4 lg:basis-1/5 pl-0">
                   <div className="p-1">
                     <div className="rounded-xl overflow-hidden border bg-card h-full">
-                      <div className="h-48 bg-background flex items-center justify-center p-2">
-                        {example.renderChart}
+                      <div className="h-48 bg-background overflow-hidden">
+                        <img 
+                          src={example.image} 
+                          alt={example.title} 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/30">
+                          <div className="h-full w-full p-2 opacity-75">
+                            {example.renderChart}
+                          </div>
+                        </div>
                       </div>
                       <div className="p-4">
                         <h3 className="font-semibold text-lg">{example.title}</h3>

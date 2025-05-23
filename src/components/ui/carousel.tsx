@@ -19,6 +19,7 @@ type CarouselProps = {
   orientation?: "horizontal" | "vertical"
   setApi?: (api: CarouselApi) => void
   autoScroll?: boolean
+  scrollSpeed?: number
 }
 
 type CarouselContextProps = {
@@ -29,6 +30,7 @@ type CarouselContextProps = {
   canScrollPrev: boolean
   canScrollNext: boolean
   autoScroll?: boolean
+  scrollSpeed?: number
 } & CarouselProps
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
@@ -56,6 +58,7 @@ const Carousel = React.forwardRef<
       className,
       children,
       autoScroll = false,
+      scrollSpeed = 0.5,
       ...props
     },
     ref
@@ -88,27 +91,26 @@ const Carousel = React.forwardRef<
       api?.scrollNext()
     }, [api])
 
-    // Auto scroll functionality with constant movement
+    // Auto scroll functionality with continuous movement
     React.useEffect(() => {
       if (!api || !autoScroll) return
       
-      // Enable continuous scrolling mode
-      api.on('init', () => {
-        if (opts?.duration) {
-          // If duration is specified in opts, use that for the animation speed
-          // This will affect how fast the carousel scrolls
-        }
-      })
-      
       let animationId: number
+      let lastTime = 0
+      const speedFactor = scrollSpeed / 100 // Convert the speed value to a suitable increment
       
-      // Create a smooth animation loop instead of interval-based jumping
-      const autoScrollAnimation = () => {
-        const scrollSnap = api.scrollSnapList()
-        const scrollProgress = api.scrollProgress()
+      // Smooth animation loop for continuous scrolling
+      const autoScrollAnimation = (currentTime: number) => {
+        if (!lastTime) lastTime = currentTime
+        const deltaTime = currentTime - lastTime
+        lastTime = currentTime
         
-        // Small incremental movement for smooth animation
-        api.scrollTo(api.selectedScrollSnap() + 0.005)
+        // Make the scroll speed consistent regardless of frame rate
+        // The smaller the value, the slower it moves
+        const scrollIncrement = speedFactor * deltaTime
+        
+        // Directly manipulate scroll position for smooth scrolling
+        api.scrollTo(api.scrollProgress() + scrollIncrement)
         
         // Continue the animation
         animationId = requestAnimationFrame(autoScrollAnimation)
@@ -121,7 +123,7 @@ const Carousel = React.forwardRef<
       return () => {
         cancelAnimationFrame(animationId)
       }
-    }, [api, autoScroll, opts])
+    }, [api, autoScroll, scrollSpeed])
 
     const handleKeyDown = React.useCallback(
       (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -171,6 +173,7 @@ const Carousel = React.forwardRef<
           canScrollPrev,
           canScrollNext,
           autoScroll,
+          scrollSpeed,
         }}
       >
         <div
@@ -201,7 +204,7 @@ const CarouselContent = React.forwardRef<
         ref={ref}
         className={cn(
           "flex",
-          orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
+          orientation === "horizontal" ? "-ml-0" : "-mt-4 flex-col",
           className
         )}
         {...props}
@@ -224,7 +227,7 @@ const CarouselItem = React.forwardRef<
       aria-roledescription="slide"
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
-        orientation === "horizontal" ? "pl-4" : "pt-4",
+        orientation === "horizontal" ? "pl-0" : "pt-4",
         className
       )}
       {...props}
