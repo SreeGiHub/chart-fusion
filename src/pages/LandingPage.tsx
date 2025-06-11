@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -8,8 +9,7 @@ import {
   LayoutDashboard,
   Presentation,
   Palette,
-  Zap,
-  Linkedin
+  Zap
 } from "lucide-react";
 import { 
   ResponsiveContainer, 
@@ -80,58 +80,6 @@ const LandingPage = () => {
           <Button asChild size="lg" className="px-12 py-6 text-lg rounded-full bg-red-600 hover:bg-red-700">
             <Link to="/dashboard">Visualize</Link>
           </Button>
-        </div>
-      </section>
-
-      {/* Why This Product Exists Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center">
-              Why This Product Exists
-            </h2>
-            
-            <div className="flex flex-col lg:flex-row items-center gap-12">
-              <div className="lg:w-2/3">
-                <div className="text-lg text-gray-600 leading-relaxed space-y-4">
-                  <p>
-                    As a Product Manager, I often need to present how data might be visualized—whether it's to explain insights, craft compelling narratives, or show future dashboard designs in stakeholder meetings.
-                  </p>
-                  <p>
-                    Instead of relying on fully functional dashboards or mock data, I wanted a way to quickly mock up visualizations and bring ideas to life—clean, simple, and effective.
-                  </p>
-                  <p className="font-medium text-gray-900">
-                    That's why I created this product.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="lg:w-1/3 flex flex-col items-center">
-                <div className="relative mb-6">
-                  <img 
-                    src="/lovable-uploads/534d6a8f-404d-430c-aaee-052e177ae5e4.png" 
-                    alt="Srikanth Reddy - Founder" 
-                    className="w-32 h-32 rounded-full object-cover shadow-lg"
-                  />
-                </div>
-                
-                <div className="text-center">
-                  <h3 className="font-semibold text-gray-900 mb-2">Srikanth Reddy</h3>
-                  <p className="text-gray-600 mb-4">Product Manager & Founder</p>
-                  
-                  <a 
-                    href="https://www.linkedin.com/in/srikanth-reddy-dubba1ab561203/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    <Linkedin className="h-5 w-5" />
-                    <span className="text-sm font-medium">Connect on LinkedIn</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -311,6 +259,62 @@ const LandingPage = () => {
               <p className="text-gray-600">
                 No data setup required. Drag, drop, and visualize your ideas instantly.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why This Product Exists Section */}
+      <section className="py-16 bg-slate-50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center">
+              Why This Product Exists
+            </h2>
+            
+            <div className="flex flex-col lg:flex-row items-center gap-12">
+              <div className="lg:w-2/3">
+                <div className="text-lg text-gray-600 leading-relaxed space-y-4">
+                  <p>
+                    As a Product Manager, I often need to present how data might be visualized—whether it's to explain insights, craft compelling narratives, or show future dashboard designs in stakeholder meetings.
+                  </p>
+                  <p>
+                    Instead of relying on fully functional dashboards or mock data, I wanted a way to quickly mock up visualizations and bring ideas to life—clean, simple, and effective.
+                  </p>
+                  <p className="font-medium text-gray-900">
+                    That's why I created this product.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="lg:w-1/3 flex flex-col items-center">
+                <div className="relative mb-6">
+                  <img 
+                    src="/lovable-uploads/51e06673-1ab5-41f0-947d-5092dedacdcc.png" 
+                    alt="Srikanth Reddy - Product Manager" 
+                    className="w-32 h-32 rounded-full object-cover shadow-lg"
+                  />
+                </div>
+                
+                <div className="text-center">
+                  <h3 className="font-semibold text-gray-900 mb-2">Srikanth Reddy</h3>
+                  <p className="text-gray-600 mb-4">Product Manager</p>
+                  
+                  <a 
+                    href="https://www.linkedin.com/in/srikanth-reddy-dubba1ab561203/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <img 
+                      src="/lovable-uploads/d0ea3717-362a-46e9-9ff7-45e6a7dd52eb.png" 
+                      alt="LinkedIn" 
+                      className="h-5 w-5"
+                    />
+                    <span className="text-sm font-medium">Connect on LinkedIn</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
