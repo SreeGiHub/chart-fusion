@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -18,5 +19,12 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  // Ensure static files are copied to build output
+  publicDir: 'public',
+  build: {
+    outDir: 'dist',
+    // Ensure all files from public folder are copied
+    copyPublicDir: true,
   },
 }));
