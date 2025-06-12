@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -9,7 +8,10 @@ import {
   LayoutDashboard,
   Presentation,
   Palette,
-  Zap
+  Zap,
+  ChartScatter,
+  Funnel,
+  ChartPie
 } from "lucide-react";
 import { 
   ResponsiveContainer, 
@@ -25,7 +27,12 @@ import {
   CartesianGrid,
   Tooltip,
   Area,
-  AreaChart
+  AreaChart,
+  ScatterChart,
+  Scatter,
+  FunnelChart,
+  Funnel as RechartFunnel,
+  LabelList
 } from "recharts";
 
 const LandingPage = () => {
@@ -50,6 +57,30 @@ const LandingPage = () => {
     { name: 'Desktop', value: 45, color: '#3b82f6' },
     { name: 'Mobile', value: 30, color: '#10b981' },
     { name: 'Tablet', value: 25, color: '#f59e0b' },
+  ];
+
+  // New data for additional charts
+  const scatterData = [
+    { x: 100, y: 200, z: 200 },
+    { x: 120, y: 100, z: 260 },
+    { x: 170, y: 300, z: 400 },
+    { x: 140, y: 250, z: 280 },
+    { x: 150, y: 400, z: 500 },
+    { x: 110, y: 280, z: 200 },
+  ];
+
+  const funnelData = [
+    { name: 'Awareness', value: 1000, fill: '#3b82f6' },
+    { name: 'Interest', value: 800, fill: '#10b981' },
+    { name: 'Consideration', value: 600, fill: '#f59e0b' },
+    { name: 'Purchase', value: 300, fill: '#ef4444' },
+    { name: 'Retention', value: 200, fill: '#8b5cf6' },
+  ];
+
+  const additionalPieData = [
+    { name: 'Premium', value: 40, color: '#3b82f6' },
+    { name: 'Standard', value: 35, color: '#10b981' },
+    { name: 'Basic', value: 25, color: '#f59e0b' },
   ];
 
   return (
@@ -218,6 +249,143 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Additional Charts Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Advanced Visualizations
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Sophisticated chart types for complex data storytelling
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Scatter Plot */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart data={scatterData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis 
+                      type="number" 
+                      dataKey="x" 
+                      axisLine={false} 
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
+                    />
+                    <YAxis 
+                      type="number" 
+                      dataKey="y" 
+                      axisLine={false} 
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                    <Scatter dataKey="z" fill="#8b5cf6" />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4">
+                <h3 className="font-semibold text-gray-900">Scatter Analysis</h3>
+                <p className="text-sm text-gray-500">Correlation patterns visualization</p>
+              </div>
+            </div>
+
+            {/* Funnel Chart */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={funnelData} 
+                    layout="horizontal"
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis 
+                      type="number"
+                      axisLine={false} 
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
+                    />
+                    <YAxis 
+                      type="category" 
+                      dataKey="name"
+                      axisLine={false} 
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#64748b' }}
+                      width={80}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                      {funnelData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4">
+                <h3 className="font-semibold text-gray-900">Conversion Funnel</h3>
+                <p className="text-sm text-gray-500">Sales pipeline optimization</p>
+              </div>
+            </div>
+
+            {/* Enhanced Pie Chart */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartPie>
+                    <Pie
+                      data={additionalPieData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={70}
+                      fill="#8884d8"
+                      dataKey="value"
+                      stroke="none"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      labelLine={false}
+                    >
+                      {additionalPieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                  </RechartPie>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4">
+                <h3 className="font-semibold text-gray-900">Subscription Tiers</h3>
+                <p className="text-sm text-gray-500">Customer segment breakdown</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
@@ -290,7 +458,7 @@ const LandingPage = () => {
               <div className="lg:w-1/3 flex flex-col items-center">
                 <div className="relative mb-6">
                   <img 
-                    src="/lovable-uploads/51e06673-1ab5-41f0-947d-5092dedacdcc.png" 
+                    src="/lovable-uploads/8b5cfccd-bb99-4faa-8ae4-ad38d12f026e.png" 
                     alt="Srikanth Reddy - Product Manager" 
                     className="w-32 h-32 rounded-full object-cover shadow-lg"
                   />
