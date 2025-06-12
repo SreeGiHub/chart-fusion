@@ -10,7 +10,6 @@ import {
   Palette,
   Zap,
   ChartScatter,
-  Funnel,
   ChartPie
 } from "lucide-react";
 import { 
@@ -29,10 +28,7 @@ import {
   Area,
   AreaChart,
   ScatterChart,
-  Scatter,
-  FunnelChart,
-  Funnel as RechartFunnel,
-  LabelList
+  Scatter
 } from "recharts";
 
 const LandingPage = () => {
@@ -300,13 +296,13 @@ const LandingPage = () => {
               </div>
             </div>
 
-            {/* Funnel Chart */}
+            {/* Funnel Chart using Horizontal Bar Chart */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
+                  <RechartBar 
                     data={funnelData} 
-                    layout="horizontal"
+                    layout="vertical"
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -337,7 +333,7 @@ const LandingPage = () => {
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Bar>
-                  </BarChart>
+                  </RechartBar>
                 </ResponsiveContainer>
               </div>
               <div className="mt-4">
