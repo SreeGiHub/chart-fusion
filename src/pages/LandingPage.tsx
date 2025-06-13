@@ -428,6 +428,89 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Upcoming Features Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50 border-t border-blue-100">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
+              <span className="text-4xl">🔮</span>
+              Upcoming Features
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              We're always working to make your dashboard mockup experience even better. Here's a sneak peek at what's coming soon!
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+            {/* Feature 1: Text-to-Chart */}
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-blue-200 hover:shadow-xl transition-shadow relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-blue-100 text-blue-600 text-sm font-medium px-3 py-1 rounded-full">
+                Coming Soon
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                  <span className="text-2xl">✨</span>
+                  Text-to-Chart
+                </h3>
+                <p className="text-lg text-gray-700 mb-4 font-medium">
+                  Ask your data like you're talking to a teammate!
+                </p>
+                <p className="text-gray-600 mb-6">
+                  Simply type what you want to see — for example:
+                </p>
+                
+                <div className="bg-gray-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
+                  <p className="text-gray-800 italic font-medium">
+                    "Show me a bar chart of boys and subject performance"
+                  </p>
+                </div>
+                
+                <p className="text-gray-600">
+                  …and instantly get a live, editable chart. Change values, styles, or labels on the fly — no coding required.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 2: Auto-Dashboard */}
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-blue-200 hover:shadow-xl transition-shadow relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-blue-100 text-blue-600 text-sm font-medium px-3 py-1 rounded-full">
+                Coming Soon
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                  <span className="text-2xl">⚙️</span>
+                  Auto-Dashboard from Schema + Sample Data
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Upload your data structure and a few rows of sample data — and we'll auto-generate a mock dashboard for you!
+                </p>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-700">Key KPIs will be auto-identified</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-700">Layouts built instantly</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-700">Fully customizable by you</span>
+                  </div>
+                </div>
+                
+                <p className="text-gray-600 mt-6 font-medium">
+                  Perfect for prototyping or demoing fast.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Why This Product Exists Section */}
       <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-6">
