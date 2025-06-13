@@ -32,7 +32,8 @@ import {
   CircleDot,
   ZapOff,
   Palette as PaletteIcon,
-  ClipboardPaste
+  Sparkles,
+  Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -65,6 +66,7 @@ import { useRef, useState } from "react";
 import TextToChartDialog from "./TextToChartDialog";
 import PasteDataDialog from "./PasteDataDialog";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 
 interface ToolbarProps {
   canvasRef: React.RefObject<HTMLDivElement>;
@@ -185,29 +187,51 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
     toast.success("Canvas color updated");
   };
 
+  const getDataStatus = () => {
+    const chartCount = state.items.length;
+    if (chartCount === 0) {
+      return { label: "No data yet", variant: "secondary" as const };
+    }
+    return { label: `${chartCount} items`, variant: "default" as const };
+  };
+
+  const dataStatus = getDataStatus();
+
   return (
     <div className="bg-background border-b p-2 flex items-center justify-between">
-      <div className="left-section flex items-center gap-2">
+      <div className="left-section flex items-center gap-3">
+        {/* Enhanced Paste & Visualize Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
                 variant="default" 
                 onClick={() => setIsPasteDataOpen(true)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 animate-pulse"
+                size="default"
               >
-                <ClipboardPaste className="h-4 w-4" />
-                <span className="hidden sm:inline-block">Paste Data</span>
+                <Sparkles className="h-4 w-4" />
+                <span className="font-medium">Paste & Visualize</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Paste data from Excel/Sheets to auto-generate charts</TooltipContent>
+            <TooltipContent>
+              <div className="text-center">
+                <div className="font-medium">Paste your data, preview it, and instantly generate charts</div>
+                <div className="text-xs text-muted-foreground mt-1">Up to 20 rows from Excel or Sheets</div>
+              </div>
+            </TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
+        {/* Data Status Badge */}
+        <Badge variant={dataStatus.variant} className="text-xs">
+          {dataStatus.label}
+        </Badge>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              <span className="hidden sm:inline-block mr-2">Add Item</span>
+            <Button variant="outline" size="sm">
+              <span className="hidden sm:inline-block mr-2">Add Chart</span>
               <span className="sm:hidden">+</span>
             </Button>
           </DropdownMenuTrigger>
@@ -312,7 +336,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                 <Wand2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Text to Chart</TooltipContent>
+            <TooltipContent>AI Chart Generator</TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
