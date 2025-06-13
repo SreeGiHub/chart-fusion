@@ -85,7 +85,12 @@ const DataPreviewTable: React.FC<DataPreviewTableProps> = ({
                   {column.type}
                 </Badge>
                 {column.hasErrors ? (
-                  <AlertTriangle className="h-4 w-4 text-amber-500" title={column.errorMessage} />
+                  <div className="relative group">
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      {column.errorMessage}
+                    </div>
+                  </div>
                 ) : (
                   <CheckCircle className="h-4 w-4 text-green-500" />
                 )}
