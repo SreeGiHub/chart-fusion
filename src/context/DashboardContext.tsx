@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useReducer, ReactNode } from "react";
 import { 
   DashboardState, 
@@ -20,6 +19,7 @@ const initialState: DashboardState = {
     future: [],
   },
   previewMode: false,
+  canvasColor: "#FFFFFF",
 };
 
 const MAX_HISTORY_LENGTH = 30;
@@ -162,6 +162,12 @@ function dashboardReducer(state: DashboardState, action: DashboardAction): Dashb
         ...state,
         previewMode: action.payload !== undefined ? action.payload : !state.previewMode,
         selectedItemId: null,
+      };
+
+    case "SET_CANVAS_COLOR":
+      return {
+        ...state,
+        canvasColor: action.payload,
       };
 
     case "IMPORT_DASHBOARD":

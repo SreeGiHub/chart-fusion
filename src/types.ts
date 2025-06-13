@@ -1,3 +1,4 @@
+
 export interface Position {
   x: number;
   y: number;
@@ -105,6 +106,7 @@ export interface DashboardState {
     future: DashboardHistoryState[];
   };
   previewMode: boolean;
+  canvasColor: string;
 }
 
 export type DashboardAction =
@@ -121,6 +123,7 @@ export type DashboardAction =
   | { type: "UNDO" }
   | { type: "REDO" }
   | { type: "TOGGLE_PREVIEW_MODE"; payload?: boolean }
+  | { type: "SET_CANVAS_COLOR"; payload: string }
   | { type: "IMPORT_DASHBOARD"; payload: DashboardState };
 
 export interface DashboardContextType {
