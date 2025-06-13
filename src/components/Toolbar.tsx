@@ -31,7 +31,8 @@ import {
   LayoutGrid,
   CircleDot,
   ZapOff,
-  Palette as PaletteIcon
+  Palette as PaletteIcon,
+  ClipboardPaste
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -62,6 +63,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useRef, useState } from "react";
 import TextToChartDialog from "./TextToChartDialog";
+import PasteDataDialog from "./PasteDataDialog";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 interface ToolbarProps {
@@ -85,6 +87,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
   const { state, dispatch } = useDashboard();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTextToChartOpen, setIsTextToChartOpen] = useState(false);
+  const [isPasteDataOpen, setIsPasteDataOpen] = useState(false);
 
   const canvasColors = [
     { name: "White", value: "#FFFFFF" },
@@ -185,9 +188,25 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
   return (
     <div className="bg-background border-b p-2 flex items-center justify-between">
       <div className="left-section flex items-center gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="default" 
+                onClick={() => setIsPasteDataOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <ClipboardPaste className="h-4 w-4" />
+                <span className="hidden sm:inline-block">Paste Data</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Paste data from Excel/Sheets to auto-generate charts</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="default">
+            <Button variant="outline">
               <span className="hidden sm:inline-block mr-2">Add Item</span>
               <span className="sm:hidden">+</span>
             </Button>
@@ -468,6 +487,11 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
         <TextToChartDialog 
           open={isTextToChartOpen} 
           onOpenChange={setIsTextToChartOpen} 
+        />
+
+        <PasteDataDialog 
+          open={isPasteDataOpen} 
+          onOpenChange={setIsPasteDataOpen} 
         />
       </div>
     </div>
