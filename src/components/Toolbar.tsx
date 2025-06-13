@@ -1,4 +1,3 @@
-
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartType } from "@/types";
 import { 
@@ -31,7 +30,8 @@ import {
   Map,
   LayoutGrid,
   CircleDot,
-  ZapOff
+  ZapOff,
+  Palette as PaletteIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -71,6 +71,19 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
   const { state, dispatch } = useDashboard();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTextToChartOpen, setIsTextToChartOpen] = useState(false);
+
+  const canvasColors = [
+    { name: "White", value: "#FFFFFF" },
+    { name: "Light Gray", value: "#F8F9FA" },
+    { name: "Dark Gray", value: "#E9ECEF" },
+    { name: "Light Blue", value: "#E3F2FD" },
+    { name: "Light Green", value: "#E8F5E8" },
+    { name: "Light Yellow", value: "#FFF9E6" },
+    { name: "Light Pink", value: "#FDE2E7" },
+    { name: "Light Purple", value: "#F3E8FF" },
+    { name: "Cream", value: "#FDF6E3" },
+    { name: "Mint", value: "#F0FDFA" },
+  ];
 
   const handleAddItem = (type: ChartType) => {
     const canvasElement = document.getElementById("dashboard-canvas");
@@ -148,6 +161,11 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
 
   const handleToggleGrid = () => {
     dispatch({ type: "TOGGLE_GRID" });
+  };
+
+  const handleCanvasColorChange = (color: string) => {
+    dispatch({ type: "SET_CANVAS_COLOR", payload: color });
+    toast.success("Canvas color updated");
   };
 
   return (
@@ -297,6 +315,38 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
             <TooltipContent>Toggle Grid</TooltipContent>
           </Tooltip>
         </TooltipProvider>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <PaletteIcon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Canvas Color</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuLabel>Canvas Background</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {canvasColors.map((color) => (
+              <DropdownMenuItem
+                key={color.value}
+                onClick={() => handleCanvasColorChange(color.value)}
+                className="flex items-center gap-3"
+              >
+                <div
+                  className="w-4 h-4 rounded border border-gray-300"
+                  style={{ backgroundColor: color.value }}
+                />
+                <span>{color.name}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="middle-section">

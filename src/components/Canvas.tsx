@@ -43,9 +43,12 @@ const Canvas: React.FC = () => {
     <div 
       ref={canvasRef}
       id="dashboard-canvas"
-      className={`relative w-full h-[calc(100vh-56px)] overflow-auto bg-canvas ${
+      className={`relative w-full h-[calc(100vh-56px)] overflow-auto ${
         state.isGridVisible && !state.previewMode ? "canvas-grid" : ""
       }`}
+      style={{ 
+        backgroundColor: state.canvasColor || "#FFFFFF"
+      }}
       onClick={handleCanvasClick}
       onDrop={handleDrop}
       onDragOver={handleDragOver}

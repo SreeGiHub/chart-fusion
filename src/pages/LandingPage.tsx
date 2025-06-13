@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -480,8 +481,12 @@ const LandingPage = () => {
               
               <div className="mb-6">
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                  <span className="text-2xl">⚙️</span>
-                  Auto-Dashboard from Schema + Sample Data
+                  <img 
+                    src="/lovable-uploads/ae73bf95-ef0f-4b98-96e5-c362261c6ccc.png" 
+                    alt="Auto Dashboard" 
+                    className="w-8 h-8"
+                  />
+                  Sample Data to Dashboard
                 </h3>
                 <p className="text-gray-600 mb-6">
                   Upload your data structure and a few rows of sample data — and we'll auto-generate a mock dashboard for you!
