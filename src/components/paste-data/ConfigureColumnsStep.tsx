@@ -1,7 +1,6 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
@@ -25,7 +24,9 @@ import {
   AlertTriangle,
   CheckCircle,
   ArrowRight,
-  Info
+  Info,
+  Plus,
+  Trash2
 } from "lucide-react";
 import { ProcessedData, DataColumn, DataValidationResult } from "@/utils/dataProcessor";
 
@@ -52,6 +53,24 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
     onNext();
   };
 
+  const handleAddColumn = () => {
+    const newColumn: DataColumn = {
+      name: `Column_${processedData.columns.length + 1}`,
+      type: 'text',
+      description: ''
+    };
+    
+    // Add new column to the processed data
+    const newIndex = processedData.columns.length;
+    onColumnUpdate(newIndex, newColumn);
+  };
+
+  const handleDeleteColumn = (columnIndex: number) => {
+    // This would need to be handled by the parent component
+    // For now, we'll just clear the column data
+    onColumnUpdate(columnIndex, { name: '', type: 'text', description: '' });
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden space-y-6">
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
@@ -68,7 +87,7 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
           <Button 
             onClick={handleContinue}
             disabled={validation && !validation.isValid}
-            className="min-w-32 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            className="min-w-48 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           >
             <ArrowRight className="h-4 w-4 mr-2" />
             Continue to Preview
@@ -94,9 +113,20 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Column Configuration</h3>
-            <Badge variant="outline" className="text-sm">
-              {processedData.columns.length} columns found
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="text-sm">
+                {processedData.columns.length} columns found
+              </Badge>
+              <Button
+                onClick={handleAddColumn}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Column
+              </Button>
+            </div>
           </div>
           
           <Alert className="bg-blue-50 border-blue-200">
@@ -110,20 +140,20 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50">
-                  <TableHead className="font-semibold">Column Name</TableHead>
-                  <TableHead className="font-semibold">Data Type</TableHead>
+                  <TableHead className="font-semibold w-[250px]">Column Name</TableHead>
+                  <TableHead className="font-semibold w-[180px]">Data Type</TableHead>
                   <TableHead className="font-semibold">Description (AI Context)</TableHead>
-                  <TableHead className="font-semibold w-20">Status</TableHead>
+                  <TableHead className="font-semibold w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {processedData.columns.map((column, index) => (
                   <TableRow key={index} className="hover:bg-gray-50">
-                    <TableCell className="font-medium">
+                    <TableCell>
                       <Input
                         value={column.name}
                         onChange={(e) => onColumnUpdate(index, { name: e.target.value })}
-                        className="min-w-[150px]"
+                        className="w-full"
                         placeholder="Enter column name"
                       />
                     </TableCell>
@@ -133,10 +163,10 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
                         value={column.type}
                         onValueChange={(value) => onColumnUpdate(index, { type: value as DataColumn['type'] })}
                       >
-                        <SelectTrigger className="min-w-[120px]">
+                        <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
                           <SelectItem value="text">Text</SelectItem>
                           <SelectItem value="number">Number</SelectItem>
                           <SelectItem value="date">Date</SelectItem>
@@ -150,12 +180,12 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
                         placeholder="e.g., 'Monthly sales revenue in USD', 'Customer satisfaction score 1-5'"
                         value={column.description || ''}
                         onChange={(e) => onColumnUpdate(index, { description: e.target.value })}
-                        className="min-w-[250px]"
+                        className="w-full"
                       />
                     </TableCell>
                     
                     <TableCell>
-                      <div className="flex items-center justify-center">
+                      <div className="flex items-center gap-2">
                         {column.hasErrors ? (
                           <div className="relative group">
                             <AlertTriangle className="h-4 w-4 text-amber-500" />
@@ -166,6 +196,15 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
                         ) : (
                           <CheckCircle className="h-4 w-4 text-green-500" />
                         )}
+                        
+                        <Button
+                          onClick={() => handleDeleteColumn(index)}
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
