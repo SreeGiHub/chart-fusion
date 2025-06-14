@@ -1,5 +1,5 @@
 
-import { useRef, MouseEvent } from "react";
+import { useRef, MouseEvent, useState, useCallback, useEffect } from "react";
 import { useDashboard } from "@/context/DashboardContext";
 import ChartItem from "./ChartItem";
 import { ChartType } from "@/types";
@@ -9,10 +9,16 @@ import { toast } from "sonner";
 const Canvas: React.FC = () => {
   const { state, dispatch } = useDashboard();
   const canvasRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Canvas transform state
+  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [lastPanPoint, setLastPanPoint] = useState({ x: 0, y: 0 });
 
   const handleCanvasClick = () => {
-    // Deselect when clicking on the canvas
-    if (state.selectedItemId) {
+    // Only deselect if we're not panning
+    if (state.selectedItemId && !isPanning) {
       dispatch({ type: "SELECT_ITEM", payload: null });
     }
   };
@@ -43,8 +49,12 @@ const Canvas: React.FC = () => {
     const canvasRect = canvasRef.current?.getBoundingClientRect();
     if (!canvasRect) return;
     
-    const x = e.clientX - canvasRect.left;
-    const y = e.clientY - canvasRect.top;
+    // Convert screen coordinates to canvas coordinates
+    const screenX = e.clientX - canvasRect.left;
+    const screenY = e.clientY - canvasRect.top;
+    
+    const x = (screenX - transform.x) / transform.scale;
+    const y = (screenY - transform.y) / transform.scale;
     
     const newItem = createNewChartItem(type, { x, y });
     dispatch({ type: "ADD_ITEM", payload: newItem });
@@ -56,23 +66,137 @@ const Canvas: React.FC = () => {
     e.preventDefault();
   };
 
+  // Pan functionality
+  const handleMouseDown = (e: MouseEvent) => {
+    if (e.button === 0 && (e.metaKey || e.ctrlKey || e.button === 1)) { // Left click with meta/ctrl or middle click
+      setIsPanning(true);
+      setLastPanPoint({ x: e.clientX, y: e.clientY });
+      e.preventDefault();
+    }
+  };
+
+  const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
+    if (isPanning) {
+      const deltaX = e.clientX - lastPanPoint.x;
+      const deltaY = e.clientY - lastPanPoint.y;
+      
+      setTransform(prev => ({
+        ...prev,
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }));
+      
+      setLastPanPoint({ x: e.clientX, y: e.clientY });
+    }
+  }, [isPanning, lastPanPoint]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  // Zoom functionality
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      const newScale = Math.min(Math.max(transform.scale * zoomFactor, 0.1), 5);
+      
+      // Zoom towards mouse position
+      const newX = mouseX - (mouseX - transform.x) * (newScale / transform.scale);
+      const newY = mouseY - (mouseY - transform.y) * (newScale / transform.scale);
+      
+      setTransform({
+        x: newX,
+        y: newY,
+        scale: newScale
+      });
+    }
+  };
+
+  // Add global event listeners
+  useEffect(() => {
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [handleMouseMove, handleMouseUp]);
+
+  // Reset zoom and pan
+  const resetView = () => {
+    setTransform({ x: 0, y: 0, scale: 1 });
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === '0') {
+        e.preventDefault();
+        resetView();
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div 
-      ref={canvasRef}
-      id="dashboard-canvas"
-      className="relative w-full h-[calc(100vh-56px)] overflow-auto bg-white"
-      style={{ 
-        minWidth: "200%",
-        minHeight: "200%",
-        backgroundColor: "#FFFFFF"
-      }}
-      onClick={handleCanvasClick}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
+      ref={containerRef}
+      className="relative w-full h-[calc(100vh-56px)] overflow-hidden bg-gray-50"
+      onWheel={handleWheel}
     >
-      {state.items.map((item) => (
-        <ChartItem key={item.id} item={item} />
-      ))}
+      {/* Canvas controls */}
+      <div className="absolute top-4 left-4 z-10 bg-white rounded-lg shadow-md p-2 flex items-center gap-2">
+        <button
+          onClick={resetView}
+          className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+        >
+          Reset View
+        </button>
+        <span className="text-sm text-gray-600">
+          {Math.round(transform.scale * 100)}%
+        </span>
+      </div>
+      
+      {/* Instructions */}
+      <div className="absolute top-4 right-4 z-10 bg-white rounded-lg shadow-md p-3 text-sm text-gray-600 max-w-xs">
+        <div className="font-semibold mb-1">Navigation:</div>
+        <div>• Cmd/Ctrl + Scroll: Zoom</div>
+        <div>• Cmd/Ctrl + Click & Drag: Pan</div>
+        <div>• Cmd/Ctrl + 0: Reset view</div>
+      </div>
+
+      <div 
+        ref={canvasRef}
+        id="dashboard-canvas"
+        className="absolute inset-0 cursor-grab"
+        style={{ 
+          width: "8000px",
+          height: "8000px",
+          backgroundColor: "#FFFFFF",
+          transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+          transformOrigin: '0 0',
+          cursor: isPanning ? 'grabbing' : 'grab'
+        }}
+        onClick={handleCanvasClick}
+        onMouseDown={handleMouseDown}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+      >
+        {state.items.map((item) => (
+          <ChartItem key={item.id} item={item} />
+        ))}
+      </div>
     </div>
   );
 };

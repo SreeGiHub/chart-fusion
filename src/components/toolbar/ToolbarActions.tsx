@@ -1,10 +1,10 @@
 
 import { useDashboard } from "@/context/DashboardContext";
 import { toast } from "sonner";
-import { Undo, Redo, Eye, EyeOff, ZoomIn, ZoomOut } from "lucide-react";
+import { Undo, Redo, Eye, EyeOff, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ToolbarActionsProps {
   onTextToChartOpen: () => void;
@@ -12,7 +12,25 @@ interface ToolbarActionsProps {
 
 const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) => {
   const { state, dispatch } = useDashboard();
-  const [zoomLevel, setZoomLevel] = useState(100);
+  const [canvasTransform, setCanvasTransform] = useState({ scale: 1 });
+
+  // Listen for canvas transform changes
+  useEffect(() => {
+    const canvas = document.getElementById('dashboard-canvas');
+    if (canvas) {
+      const observer = new MutationObserver(() => {
+        const transform = canvas.style.transform;
+        const scaleMatch = transform.match(/scale\(([^)]+)\)/);
+        if (scaleMatch) {
+          setCanvasTransform({ scale: parseFloat(scaleMatch[1]) });
+        }
+      });
+      
+      observer.observe(canvas, { attributes: true, attributeFilter: ['style'] });
+      
+      return () => observer.disconnect();
+    }
+  }, []);
 
   const handleUndo = () => {
     if (state.editHistory.past.length === 0) {
@@ -34,23 +52,35 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) =>
     dispatch({ type: "TOGGLE_PREVIEW_MODE" });
   };
 
-  const handleZoomIn = () => {
-    const newZoom = Math.min(zoomLevel + 25, 200);
-    setZoomLevel(newZoom);
+  const adjustCanvasZoom = (scaleFactor: number) => {
     const canvas = document.getElementById('dashboard-canvas');
     if (canvas) {
-      canvas.style.transform = `scale(${newZoom / 100})`;
-      canvas.style.transformOrigin = 'top left';
+      const currentTransform = canvas.style.transform;
+      const scaleMatch = currentTransform.match(/scale\(([^)]+)\)/);
+      const translateMatch = currentTransform.match(/translate\(([^,]+),\s*([^)]+)\)/);
+      
+      const currentScale = scaleMatch ? parseFloat(scaleMatch[1]) : 1;
+      const currentX = translateMatch ? parseFloat(translateMatch[1].replace('px', '')) : 0;
+      const currentY = translateMatch ? parseFloat(translateMatch[2].replace('px', '')) : 0;
+      
+      const newScale = Math.min(Math.max(currentScale * scaleFactor, 0.1), 5);
+      
+      canvas.style.transform = `translate(${currentX}px, ${currentY}px) scale(${newScale})`;
     }
   };
 
+  const handleZoomIn = () => {
+    adjustCanvasZoom(1.25);
+  };
+
   const handleZoomOut = () => {
-    const newZoom = Math.max(zoomLevel - 25, 25);
-    setZoomLevel(newZoom);
+    adjustCanvasZoom(0.8);
+  };
+
+  const handleResetZoom = () => {
     const canvas = document.getElementById('dashboard-canvas');
     if (canvas) {
-      canvas.style.transform = `scale(${newZoom / 100})`;
-      canvas.style.transformOrigin = 'top left';
+      canvas.style.transform = 'translate(0px, 0px) scale(1)';
     }
   };
 
@@ -82,7 +112,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) =>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={handleZoomOut} disabled={zoomLevel <= 25}>
+              <Button variant="ghost" size="icon" onClick={handleZoomOut} disabled={canvasTransform.scale <= 0.1}>
                 <ZoomOut className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -90,12 +120,17 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) =>
           </Tooltip>
         </TooltipProvider>
         
-        <span className="text-sm px-2 py-1 min-w-[60px] text-center">{zoomLevel}%</span>
+        <button 
+          onClick={handleResetZoom}
+          className="text-sm px-2 py-1 min-w-[60px] text-center hover:bg-gray-100 rounded"
+        >
+          {Math.round(canvasTransform.scale * 100)}%
+        </button>
         
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={handleZoomIn} disabled={zoomLevel >= 200}>
+              <Button variant="ghost" size="icon" onClick={handleZoomIn} disabled={canvasTransform.scale >= 5}>
                 <ZoomIn className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -103,6 +138,17 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) =>
           </Tooltip>
         </TooltipProvider>
       </div>
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size="icon" onClick={handleResetZoom}>
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Reset View (Cmd/Ctrl + 0)</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <TooltipProvider>
         <Tooltip>
