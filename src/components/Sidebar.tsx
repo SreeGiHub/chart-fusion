@@ -1,3 +1,4 @@
+
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartItemType, ChartType, ComplexDataPoint } from "@/types";
 import { DEFAULT_COLORS } from "@/utils/chartUtils";
@@ -904,7 +905,7 @@ const Sidebar: React.FC = () => {
                   type="number"
                   min="0"
                   max="10"
-                  value={selectedItem.data.datasets[0].borderWidth || 1}
+                  value={selectedItem.data.datasets[0]?.borderWidth || 1}
                   onChange={(e) => {
                     const newDatasets = [...selectedItem.data.datasets];
                     newDatasets.forEach((dataset, index) => {
@@ -936,7 +937,7 @@ const Sidebar: React.FC = () => {
                   <input
                     type="checkbox"
                     id="fill-area"
-                    checked={selectedItem.data.datasets[0].fill}
+                    checked={selectedItem.data.datasets[0]?.fill || false}
                     onChange={(e) => {
                       const newDatasets = [...selectedItem.data.datasets];
                       newDatasets.forEach((dataset, index) => {
