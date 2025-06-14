@@ -1,4 +1,3 @@
-
 import { ChartData, ChartDataPoint, ChartItemType, ChartType, Position } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { DEFAULT_CHART_SIZE, DEFAULT_COLORS } from "./types";
@@ -47,8 +46,8 @@ export function createNewChartItem(
       }))
     };
     size = { width: 600, height: 400 };
-  } else if (type === "pie" || type === "donut" || type === "funnel") {
-    // For pie, donut, and funnel charts, create different colors for each label
+  } else if (type === "pie" || type === "donut") {
+    // For pie and donut charts, create different colors for each label
     const labels = ["Jan", "Feb", "Mar", "Apr", "May"];
     const data = [65, 59, 80, 81, 56];
     const colors = ["#8B5CF6", "#EC4899", "#F97316", "#0EA5E9", "#10B981"];
@@ -61,6 +60,38 @@ export function createNewChartItem(
         backgroundColor: colors,
         borderColor: colors,
         borderWidth: 2,
+        // Add label colors for customization
+        labelColors: colors,
+      }],
+    };
+  } else if (type === "funnel") {
+    // For funnel charts, create different colors for each stage
+    const labels = ["Awareness", "Interest", "Consideration", "Purchase", "Retention"];
+    const data = [1000, 800, 600, 400, 300];
+    const colors = ["#8B5CF6", "#A855F7", "#C084FC", "#D8B4FE", "#E9D5FF"];
+    
+    chartData = {
+      labels,
+      datasets: [{
+        label: "Funnel",
+        data,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 1,
+        // Add label colors for customization
+        labelColors: colors,
+      }],
+    };
+  } else if (type === "gauge") {
+    // For gauge charts, use a single color but allow customization
+    chartData = {
+      labels: ["Performance"],
+      datasets: [{
+        label: "Gauge",
+        data: [75],
+        backgroundColor: "#8B5CF6",
+        // Add label colors for customization
+        labelColors: ["#8B5CF6"],
       }],
     };
   } else if (type === "stacked-bar" || type === "stacked-column") {
@@ -423,6 +454,7 @@ export function createTextToChartItem(chartType: string, description: string): C
               data: [35, 25, 20, 15, 5],
               backgroundColor: DEFAULT_COLORS,
               borderWidth: 1,
+              labelColors: DEFAULT_COLORS,
             }
           ],
         },

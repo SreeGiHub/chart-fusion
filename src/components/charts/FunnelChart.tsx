@@ -10,14 +10,40 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { ChartItemType } from '@/types';
-import { formatChartData } from '@/utils/chartRendererUtils';
 
 interface FunnelChartProps {
   item: ChartItemType;
 }
 
 const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
-  const processedData = formatChartData(item.data.labels, item.data.datasets);
+  // Transform data for funnel chart with proper structure
+  const processedData = item.data.labels.map((label, index) => {
+    const value = item.data.datasets[0]?.data[index] || 0;
+    return {
+      name: label,
+      value: typeof value === 'number' ? value : 0,
+      fill: getLabelColor(index),
+    };
+  });
+
+  // Get color for each label/segment
+  const getLabelColor = (index: number) => {
+    const dataset = item.data.datasets[0];
+    if (!dataset) return "#8B5CF6";
+
+    // Check for labelColors first (our custom property)
+    if (dataset.labelColors && Array.isArray(dataset.labelColors)) {
+      return dataset.labelColors[index % dataset.labelColors.length];
+    }
+
+    // Fall back to backgroundColor
+    if (Array.isArray(dataset.backgroundColor)) {
+      return dataset.backgroundColor[index % dataset.backgroundColor.length];
+    }
+
+    // Default color if nothing else
+    return dataset.backgroundColor as string || "#8B5CF6";
+  };
   
   const chartStyle = {
     fontSize: '12px',
@@ -28,24 +54,15 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
     const { payload } = props;
     if (!payload || !payload.length) return null;
     
-    const filteredPayload = payload.filter((entry: any) => {
-      const datasetIndex = item.data.datasets.findIndex(
-        d => d.label === entry.value || (!d.label && `dataset-${item.data.datasets.indexOf(d)}` === entry.value)
-      );
-      return datasetIndex === -1 || !item.data.datasets[datasetIndex].legendHidden;
-    });
-    
-    if (!filteredPayload.length) return null;
-    
     return (
       <div className="flex justify-center flex-wrap mt-2 text-xs">
-        {filteredPayload.map((entry: any, index: number) => (
+        {processedData.map((entry, index) => (
           <div key={`legend-${index}`} className="flex items-center mr-3 mb-1">
             <div 
               className="w-2.5 h-2.5 mr-1.5 rounded-sm" 
-              style={{ backgroundColor: entry.color }} 
+              style={{ backgroundColor: entry.fill }} 
             />
-            <span>{entry.value}</span>
+            <span>{entry.name}</span>
           </div>
         ))}
       </div>
@@ -54,29 +71,37 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <RechartsFunnelChart style={chartStyle}>
+      <RechartsFunnelChart style={chartStyle} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
         <Tooltip 
-          contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
+          contentStyle={{ 
+            backgroundColor: "white", 
+            borderRadius: "8px", 
+            border: "1px solid #E5E7EB",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" 
+          }}
+          formatter={(value: any) => [value, 'Value']}
         />
         <Legend content={<CustomLegend />} />
-        {item.data.datasets
-          .filter(dataset => !dataset.hidden)
-          .map((dataset, index) => (
-          <Funnel
-            key={index}
-            dataKey={dataset.label || `dataset-${index}`}
-            nameKey="name"
-            data={processedData}
-            isAnimationActive
-          >
-            {processedData.map((entry, index) => {
-              const bgColors = dataset.backgroundColor;
-              const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : (bgColors as string || "#4f46e5");
-              return <Cell key={`cell-${index}`} fill={color} />;
-            })}
-            <LabelList position="center" dataKey={dataset.label || `dataset-${index}`} fill="white" />
-          </Funnel>
-        ))}
+        <Funnel
+          dataKey="value"
+          data={processedData}
+          isAnimationActive
+        >
+          {processedData.map((entry, index) => (
+            <Cell 
+              key={`cell-${index}`} 
+              fill={entry.fill}
+            />
+          ))}
+          <LabelList 
+            position="center" 
+            fill="white" 
+            stroke="rgba(0,0,0,0.1)"
+            strokeWidth={0.5}
+            fontSize={12}
+            fontWeight="bold"
+          />
+        </Funnel>
       </RechartsFunnelChart>
     </ResponsiveContainer>
   );

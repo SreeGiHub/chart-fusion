@@ -18,6 +18,26 @@ interface PieChartProps {
 const PieChart: React.FC<PieChartProps> = ({ item }) => {
   const processedData = formatChartData(item.data.labels, item.data.datasets);
   
+  // Get color for each label/segment
+  const getLabelColor = (index: number) => {
+    const dataset = item.data.datasets[0];
+    if (!dataset) return "#8B5CF6";
+
+    // Check for labelColors first (our custom property for per-label colors)
+    if (dataset.labelColors && Array.isArray(dataset.labelColors)) {
+      return dataset.labelColors[index % dataset.labelColors.length];
+    }
+
+    // Fall back to backgroundColor array
+    if (Array.isArray(dataset.backgroundColor)) {
+      return dataset.backgroundColor[index % dataset.backgroundColor.length];
+    }
+
+    // Generate different colors for each slice if no colors defined
+    const defaultColors = ["#8B5CF6", "#EC4899", "#F97316", "#0EA5E9", "#10B981", "#F59E0B", "#EF4444"];
+    return defaultColors[index % defaultColors.length];
+  };
+  
   const chartStyle = {
     fontSize: '12px',
     fontFamily: 'Inter, sans-serif',
@@ -27,24 +47,15 @@ const PieChart: React.FC<PieChartProps> = ({ item }) => {
     const { payload } = props;
     if (!payload || !payload.length) return null;
     
-    const filteredPayload = payload.filter((entry: any) => {
-      const datasetIndex = item.data.datasets.findIndex(
-        d => d.label === entry.value || (!d.label && `dataset-${item.data.datasets.indexOf(d)}` === entry.value)
-      );
-      return datasetIndex === -1 || !item.data.datasets[datasetIndex].legendHidden;
-    });
-    
-    if (!filteredPayload.length) return null;
-    
     return (
       <div className="flex justify-center flex-wrap mt-2 text-xs">
-        {filteredPayload.map((entry: any, index: number) => (
+        {item.data.labels.map((label, index) => (
           <div key={`legend-${index}`} className="flex items-center mr-3 mb-1">
             <div 
               className="w-2.5 h-2.5 mr-1.5 rounded-sm" 
-              style={{ backgroundColor: entry.color }} 
+              style={{ backgroundColor: getLabelColor(index) }} 
             />
-            <span>{entry.value}</span>
+            <span>{label}</span>
           </div>
         ))}
       </div>
@@ -57,7 +68,12 @@ const PieChart: React.FC<PieChartProps> = ({ item }) => {
     <ResponsiveContainer width="100%" height="100%">
       <RechartsPieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }} style={chartStyle}>
         <Tooltip 
-          contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+          contentStyle={{ 
+            backgroundColor: "white", 
+            borderRadius: "8px", 
+            border: "1px solid #E5E7EB", 
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" 
+          }}
           labelStyle={{ fontWeight: "bold", color: "#111827" }}
           formatter={(value, name) => [
             `${value} (${((Number(value) / processedData.reduce((a: number, b: any) => 
@@ -79,18 +95,9 @@ const PieChart: React.FC<PieChartProps> = ({ item }) => {
           label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
           labelLine={false}
         >
-          {processedData.map((entry, index) => {
-            const bgColors = item.data.datasets[0].backgroundColor;
-            let color;
-            
-            if (Array.isArray(bgColors)) {
-              color = bgColors[index % bgColors.length];
-            } else {
-              color = bgColors || `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-            }
-            
-            return <Cell key={index} fill={color} />;
-          })}
+          {processedData.map((entry, index) => (
+            <Cell key={index} fill={getLabelColor(index)} />
+          ))}
         </Pie>
       </RechartsPieChart>
     </ResponsiveContainer>
