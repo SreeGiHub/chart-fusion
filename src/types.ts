@@ -38,8 +38,8 @@ export interface ChartDataset {
   borderColor?: string | string[];
   borderWidth?: number;
   fill?: boolean;
-  hidden?: boolean;  // Control data visibility
-  legendHidden?: boolean;  // Control legend visibility separately (both label and icon)
+  hidden?: boolean;
+  legendHidden?: boolean;
 }
 
 export interface ChartData {
@@ -77,7 +77,7 @@ export interface ChartItemType {
   position: Position;
   size: Size;
   data: ChartData;
-  options?: Record<string, any>; // Add options to fix TypeScript errors
+  options?: Record<string, any>;
 }
 
 export interface TableColumnConfig {
@@ -87,15 +87,14 @@ export interface TableColumnConfig {
   align?: 'left' | 'center' | 'right';
   visible?: boolean;
   width?: number;
-  backgroundColor?: string; // Add background color for columns
+  backgroundColor?: string;
 }
 
 export interface TableRowData {
   [key: string]: any;
-  _rowColor?: string; // Add row color property
+  _rowColor?: string;
 }
 
-// Add these types needed by DashboardContext
 export interface DashboardHistoryState {
   title: string;
   items: ChartItemType[];
