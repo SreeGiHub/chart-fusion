@@ -87,7 +87,6 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
           dataKey="value"
           data={processedData}
           isAnimationActive
-          shape="triangle"
         >
           {processedData.map((entry, index) => (
             <Cell 
