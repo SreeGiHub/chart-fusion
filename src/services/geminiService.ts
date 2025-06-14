@@ -80,43 +80,105 @@ export class GeminiService {
 
   private buildAnalysisPrompt(columns: any[], sampleData: any[]): string {
     return `
-You are a data visualization expert. Analyze this dataset and provide intelligent chart recommendations.
+You are an expert data visualization consultant for Lovable, an AI-powered dashboard creation platform. Analyze this dataset and provide intelligent chart recommendations.
 
-DATASET STRUCTURE:
+=== ABOUT LOVABLE CHARTS ===
+Lovable is a modern dashboard platform that creates beautiful, interactive charts. Users can:
+- Drag and resize charts on a canvas
+- Customize colors, titles, and styling
+- Export dashboards as images or PDFs  
+- Switch between different chart types instantly
+- Edit data mappings and filters
+
+=== AVAILABLE CHART TYPES ===
+**Basic Charts:**
+- bar: Vertical bars, great for category comparisons
+- column: Horizontal bars, good for long category names
+- line: Connected points, perfect for trends over time
+- area: Filled line chart, shows volume and trends
+- pie: Circular segments, ideal for part-to-whole relationships
+- donut: Pie chart with center hole, modern alternative to pie
+
+**Advanced Charts:**
+- scatter: X/Y plots, excellent for correlations and outliers
+- bubble: Scatter with size dimension, shows 3 variables
+- combo: Mixed line + bar, compares different metrics
+- stacked-bar: Segmented bars, shows composition over categories
+- stacked-column: Horizontal stacked bars
+- stacked-area: Layered areas, shows cumulative trends
+
+**Business Intelligence:**
+- card: Single metric display with formatting
+- gauge: Speedometer style, shows progress to goal
+- funnel: Conversion steps, perfect for sales/marketing funnels
+- treemap: Hierarchical rectangles, shows proportional data
+- waterfall: Shows positive/negative changes step by step
+
+**Specialized:**
+- radar: Multi-dimensional comparison
+- heatmap: Color-coded matrix for patterns
+- histogram: Distribution of continuous data
+- boxplot: Statistical summary with quartiles
+- table: Raw data display with sorting/filtering
+
+=== USER CAPABILITIES ===
+After generation, users can:
+1. **Chart Type**: Switch any chart to a different type instantly
+2. **Data Mapping**: Change which columns map to X/Y axes
+3. **Styling**: Modify colors, fonts, backgrounds
+4. **Titles**: Edit chart and axis titles
+5. **Filters**: Add data filters and date ranges
+6. **Layout**: Drag, resize, and reposition charts
+7. **Export**: Save as PNG, PDF, or share online
+
+=== DATASET TO ANALYZE ===
 Columns: ${columns.map(col => `${col.name} (${col.type})`).join(', ')}
 
-SAMPLE DATA (first 5 rows):
+Sample Data (first 5 rows):
 ${JSON.stringify(sampleData, null, 2)}
 
-Please provide your analysis in this EXACT JSON format:
+=== YOUR TASK ===
+Provide analysis in this EXACT JSON format:
 {
-  "dataInsights": "Brief description of what this data represents and key patterns",
+  "dataInsights": "Brief description of what this data represents, key patterns, and business context",
   "chartSuggestions": [
     {
-      "chartType": "bar|line|pie|scatter|area|combo|card|gauge|funnel|treemap",
-      "title": "Descriptive chart title",
-      "description": "Why this chart is recommended",
-      "xAxis": "column_name_for_x_axis",
-      "yAxis": "column_name_for_y_axis", 
-      "reasoning": "Explanation of why this visualization works",
+      "chartType": "exact_chart_type_from_list_above",
+      "title": "Descriptive and engaging chart title",
+      "description": "Why this specific chart type tells the data story best",
+      "xAxis": "exact_column_name_for_x_axis",
+      "yAxis": "exact_column_name_for_y_axis", 
+      "reasoning": "Detailed explanation of visualization choice and business value",
       "priority": 1-10
     }
   ],
-  "layoutRecommendations": "Suggestions for dashboard layout and chart positioning"
+  "layoutRecommendations": "Suggestions for dashboard organization, which charts to place prominently, and how to tell a cohesive data story"
 }
 
-GUIDELINES:
-- Suggest 3-6 diverse chart types
-- Prioritize charts that best tell the data story
-- Consider business context and common visualization patterns
-- For time-series data, prioritize line/area charts
-- For categorical comparisons, suggest bar/column charts
-- For part-to-whole relationships, suggest pie/donut charts
-- For correlations, suggest scatter plots
-- Include KPI cards for key metrics
-- Ensure chart types match available options: bar, column, line, area, pie, donut, scatter, bubble, combo, card, gauge, funnel, treemap, radar, heatmap, waterfall, histogram, boxplot, table, matrix, timeline, gantt
+=== ANALYSIS GUIDELINES ===
+1. **Context First**: Understand what business/domain this data represents
+2. **Diverse Charts**: Suggest 4-8 different chart types that each tell a unique story
+3. **Prioritize Value**: Rank charts by business impact and insight value
+4. **Consider Users**: Think about what decisions this dashboard should enable
+5. **Be Specific**: Use exact column names and chart types from our supported list
+6. **Tell Stories**: Each chart should reveal a specific insight or pattern
 
-Return only valid JSON without any markdown formatting.
+**Chart Selection Strategy:**
+- Start with most important business metrics (cards/gauges for KPIs)
+- Add trend analysis (line/area charts for time series)
+- Include comparisons (bar/column for categories)
+- Show relationships (scatter/bubble for correlations)
+- Reveal composition (pie/treemap for part-to-whole)
+- Highlight processes (funnel/waterfall for flows)
+
+**Column Mapping Rules:**
+- Time/date columns → X-axis for temporal charts
+- Categories → X-axis for comparison charts  
+- Numeric measures → Y-axis values
+- For cards/gauges → use single most important metric
+- For scatter → use two related numeric columns
+
+Return only valid JSON without any markdown formatting or code blocks.
 `;
   }
 
