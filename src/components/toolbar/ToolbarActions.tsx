@@ -1,7 +1,7 @@
 
 import { useDashboard } from "@/context/DashboardContext";
 import { toast } from "sonner";
-import { Undo, Redo, Eye, EyeOff, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { Undo, Redo, Eye, EyeOff, ZoomIn, ZoomOut, Hand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
@@ -84,6 +84,12 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) =>
     }
   };
 
+  const handleNavigationInfo = () => {
+    toast.info("Cmd/Ctrl + Click & Drag to pan • Cmd/Ctrl + Scroll to zoom • Cmd/Ctrl + 0 to reset view", {
+      duration: 4000,
+    });
+  };
+
   return (
     <div className="flex items-center gap-2">
       <TooltipProvider>
@@ -142,11 +148,11 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) =>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={handleResetZoom}>
-              <RotateCcw className="h-4 w-4" />
+            <Button variant="outline" size="icon" onClick={handleNavigationInfo}>
+              <Hand className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Reset View (Cmd/Ctrl + 0)</TooltipContent>
+          <TooltipContent>Canvas Navigation</TooltipContent>
         </Tooltip>
       </TooltipProvider>
 

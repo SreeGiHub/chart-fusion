@@ -156,27 +156,6 @@ const Canvas: React.FC = () => {
       className="relative w-full h-[calc(100vh-56px)] overflow-hidden bg-gray-50"
       onWheel={handleWheel}
     >
-      {/* Canvas controls */}
-      <div className="absolute top-4 left-4 z-10 bg-white rounded-lg shadow-md p-2 flex items-center gap-2">
-        <button
-          onClick={resetView}
-          className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-        >
-          Reset View
-        </button>
-        <span className="text-sm text-gray-600">
-          {Math.round(transform.scale * 100)}%
-        </span>
-      </div>
-      
-      {/* Instructions */}
-      <div className="absolute top-4 right-4 z-10 bg-white rounded-lg shadow-md p-3 text-sm text-gray-600 max-w-xs">
-        <div className="font-semibold mb-1">Navigation:</div>
-        <div>• Cmd/Ctrl + Scroll: Zoom</div>
-        <div>• Cmd/Ctrl + Click & Drag: Pan</div>
-        <div>• Cmd/Ctrl + 0: Reset view</div>
-      </div>
-
       <div 
         ref={canvasRef}
         id="dashboard-canvas"
