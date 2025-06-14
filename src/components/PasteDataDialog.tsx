@@ -144,54 +144,14 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
   const handleTrySampleData = () => {
     setPastedData(sampleData);
     
-    // Process the data and set default descriptions and correct types
+    // Process the data with automatic type detection
     const processed = processData(sampleData);
     if (processed.isValid) {
-      const columnsWithDescriptions = processed.columns.map(col => {
-        const descriptions: Record<string, string> = {
-          'Name': 'Full name of the sales representative',
-          'Age': 'Age of the sales representative in years',
-          'Sales': 'Individual sales amount achieved in USD',
-          'Region': 'Geographic sales region (North, South, East, West)',
-          'Date': 'Date of the sales transaction (YYYY-MM-DD format)',
-          'Product': 'Type of product sold (Laptop, Phone, Tablet, Monitor, etc.)',
-          'Revenue': 'Total revenue generated from the sale in USD',
-          'Units_Sold': 'Number of units sold in the transaction',
-          'Customer_Rating': 'Customer satisfaction rating on a scale of 1-5',
-          'Market_Share': 'Market share percentage for the product category'
-        };
-        
-        return {
-          ...col,
-          description: descriptions[col.name] || '',
-          type: getColumnType(col.name)
-        };
-      });
-      
-      setProcessedData({
-        ...processed,
-        columns: columnsWithDescriptions
-      });
+      // The descriptions will be auto-populated by ConfigureColumnsStep
+      setProcessedData(processed);
     }
     
-    toast.success("Sample data loaded with descriptions! Click 'Continue to Preview' to proceed.");
-  };
-
-  const getColumnType = (columnName: string): DataColumn['type'] => {
-    const typeMap: Record<string, DataColumn['type']> = {
-      'Name': 'text',
-      'Age': 'number',
-      'Sales': 'number',
-      'Region': 'text',
-      'Date': 'date',
-      'Product': 'text',
-      'Revenue': 'number',
-      'Units_Sold': 'number',
-      'Customer_Rating': 'number',
-      'Market_Share': 'number'
-    };
-    
-    return typeMap[columnName] || 'text';
+    toast.success("Sample data loaded with auto-detected types and descriptions! Click 'Continue to Preview' to proceed.");
   };
 
   const handlePasteData = () => {
@@ -211,7 +171,7 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
         setActiveTab("configure");
         toast.success(
           <div className="flex items-center gap-2">
-            <span>Data processed successfully! Found {processed.columns.length} columns and {processed.rows.length} rows.</span>
+            <span>Data processed successfully! Found {processed.columns.length} columns and {processed.rows.length} rows with auto-detected types.</span>
           </div>
         );
       } else {
@@ -278,7 +238,7 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
       return;
     }
 
-    console.log('Starting AI-powered chart generation with data:', processedData);
+    console.log('Starting AI-powered chart generation with enhanced data context:', processedData);
     
     const validation = validateData(processedData);
     if (!validation.isValid) {
@@ -289,7 +249,7 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
 
     setIsGenerating(true);
     try {
-      console.log('Generating AI chart suggestions...');
+      console.log('Generating AI chart suggestions with rich column descriptions...');
       const suggestions = await generateAIChartSuggestions(processedData, geminiApiKey);
       console.log('Generated suggestions:', suggestions);
       
@@ -317,7 +277,7 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
         
         toast.success("Generated 1 chart from your data! 🎉");
       } else {
-        console.log('Creating charts from AI suggestions...');
+        console.log('Creating charts from AI suggestions with enhanced context...');
         const charts = createAIChartsFromData(processedData, suggestions);
         console.log('Created charts:', charts);
         
@@ -330,7 +290,7 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
         });
 
         const aiMessage = geminiApiKey ? 
-          `Generated ${charts.length} AI-enhanced charts from your data! 🤖✨` :
+          `Generated ${charts.length} AI-enhanced charts with intelligent insights from your rich data context! 🤖✨` :
           `Generated ${charts.length} charts from your data! 🎉`;
 
         toast.success(

@@ -43,35 +43,45 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
     onColumnUpdate(columnIndex, { name: '', type: 'text', description: '' });
   };
 
-  // Sample descriptions for the preloaded sample data
+  // Enhanced sample descriptions for better AI context
   const getSampleDescription = (columnName: string): string => {
     const sampleDescriptions: Record<string, string> = {
-      'Name': 'Full name of the sales representative',
-      'Age': 'Age of the sales representative in years',
-      'Sales': 'Individual sales amount achieved in USD',
-      'Region': 'Geographic sales region (North, South, East, West)',
-      'Date': 'Date of the sales transaction (YYYY-MM-DD format)',
-      'Product': 'Type of product sold (Laptop, Phone, Tablet, Monitor, etc.)',
-      'Revenue': 'Total revenue generated from the sale in USD',
-      'Units_Sold': 'Number of units sold in the transaction',
-      'Customer_Rating': 'Customer satisfaction rating on a scale of 1-5',
-      'Market_Share': 'Market share percentage for the product category'
+      'Name': 'Full name of the sales representative - key identifier for performance tracking and team management',
+      'Age': 'Age of the sales representative in years - demographic data for workforce analysis and performance correlation',
+      'Sales': 'Individual sales amount achieved in USD - core performance metric for revenue analysis and commission calculations',
+      'Region': 'Geographic sales region (North, South, East, West) - territorial segmentation for market analysis and resource allocation',
+      'Date': 'Date of the sales transaction in YYYY-MM-DD format - temporal data for trend analysis and seasonal performance tracking',
+      'Product': 'Type of product sold (Laptop, Phone, Tablet, Monitor, Keyboard, Mouse, Headset, Webcam) - product category for inventory and sales mix analysis',
+      'Revenue': 'Total revenue generated from the sale in USD - financial metric for profitability analysis and business performance',
+      'Units_Sold': 'Number of units sold in the transaction - volume metric for inventory management and sales efficiency',
+      'Customer_Rating': 'Customer satisfaction rating on a scale of 1-5 - quality metric for service improvement and customer retention',
+      'Market_Share': 'Market share percentage for the product category - competitive positioning metric for strategic planning'
     };
     
-    return sampleDescriptions[columnName] || `Description for ${columnName} column`;
+    return sampleDescriptions[columnName] || `Business context and usage description for ${columnName} column - helps AI understand data purpose for intelligent chart generation`;
   };
 
   // Auto-populate descriptions if they're empty (for sample data)
   React.useEffect(() => {
+    let hasUpdates = false;
+    const updates: { index: number; updates: Partial<DataColumn> }[] = [];
+    
     processedData.columns.forEach((column, index) => {
-      if (!column.description) {
+      if (!column.description || column.description.trim() === '') {
         const sampleDesc = getSampleDescription(column.name);
-        if (sampleDesc !== `Description for ${column.name} column`) {
-          onColumnUpdate(index, { description: sampleDesc });
+        if (sampleDesc !== `Business context and usage description for ${column.name} column - helps AI understand data purpose for intelligent chart generation`) {
+          updates.push({ index, updates: { description: sampleDesc } });
+          hasUpdates = true;
         }
       }
     });
-  }, []);
+    
+    if (hasUpdates) {
+      updates.forEach(({ index, updates }) => {
+        onColumnUpdate(index, updates);
+      });
+    }
+  }, [processedData.columns, onColumnUpdate]);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden space-y-6">
@@ -91,7 +101,7 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
                   <TableRow className="bg-gray-50">
                     <TableHead className="font-semibold min-w-[200px]">Column Name</TableHead>
                     <TableHead className="font-semibold min-w-[150px]">Data Type</TableHead>
-                    <TableHead className="font-semibold min-w-[300px]">Description (AI Context)</TableHead>
+                    <TableHead className="font-semibold min-w-[400px]">AI Context Description</TableHead>
                     <TableHead className="font-semibold w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -111,8 +121,9 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
           </div>
           
           {processedData.rows.length > 0 && (
-            <div className="text-sm text-gray-600">
-              Preview: {processedData.rows.length} rows of data ready for visualization
+            <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <strong>Ready for AI Enhancement:</strong> {processedData.rows.length} rows of data with {processedData.columns.length} configured columns. 
+              Rich descriptions will help our AI generate more intelligent and relevant chart suggestions.
             </div>
           )}
         </div>
@@ -120,7 +131,7 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
 
       <div className="flex justify-between items-center pt-4 border-t bg-white">
         <div className="text-sm text-gray-500">
-          Step 2 of 3: Configure your data columns
+          Step 2 of 3: Configure your data columns for AI-powered dashboard generation
         </div>
       </div>
     </div>

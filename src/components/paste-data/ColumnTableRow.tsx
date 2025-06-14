@@ -61,12 +61,12 @@ const ColumnTableRow: React.FC<ColumnTableRowProps> = ({
         </Select>
       </TableCell>
       
-      <TableCell className="min-w-[300px]">
+      <TableCell className="min-w-[400px]">
         <Input
-          placeholder="e.g., 'Monthly sales revenue in USD', 'Customer satisfaction score 1-5'"
+          placeholder="Detailed business context that helps AI understand this data's purpose and generate intelligent chart suggestions"
           value={column.description || ''}
           onChange={(e) => onColumnUpdate(index, { description: e.target.value })}
-          className="w-full"
+          className="w-full text-sm"
         />
       </TableCell>
       
