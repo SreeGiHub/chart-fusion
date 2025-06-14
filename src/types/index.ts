@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 
 export type Position = {
@@ -71,6 +70,7 @@ export type ChartDataset = {
   borderWidth?: number;
   fill?: boolean;
   visible?: boolean;
+  labelColors?: string[]; // Add this property for per-label colors
 };
 
 export type ChartData = {

@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 
 export interface Position {
@@ -89,6 +88,7 @@ export interface ChartDataset {
   fill?: boolean;
   hidden?: boolean;
   legendHidden?: boolean;
+  labelColors?: string[]; // Add this property for per-label colors
 }
 
 export interface ChartData {
