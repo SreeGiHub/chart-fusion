@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartItemType } from "@/types";
@@ -31,7 +30,8 @@ import {
   Treemap,
   FunnelChart,
   Funnel,
-  LabelList
+  LabelList,
+  ComposedChart
 } from "recharts";
 import { X, GripVertical, Copy, Trash2, Move } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -283,6 +283,399 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
               ))}
             </BarChart>
           </ResponsiveContainer>
+        );
+        
+      case "column":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend content={<CustomLegend />} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Bar
+                  key={index}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  fill={Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[0]
+                    : dataset.backgroundColor || "#4f46e5"}
+                  radius={[2, 2, 0, 0]}
+                  barSize={30}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        );
+        
+      case "stacked-bar":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend content={<CustomLegend />} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Bar
+                  key={index}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  stackId="stack"
+                  fill={Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[0]
+                    : dataset.backgroundColor || "#4f46e5"}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        );
+        
+      case "stacked-column":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend content={<CustomLegend />} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Bar
+                  key={index}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  stackId="stack"
+                  fill={Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[0]
+                    : dataset.backgroundColor || "#4f46e5"}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        );
+        
+      case "stacked-area":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend content={<CustomLegend />} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Area
+                  key={index}
+                  type="monotone"
+                  dataKey={dataset.label || `dataset-${index}`}
+                  stackId="stack"
+                  stroke={typeof dataset.borderColor === 'string' ? dataset.borderColor : "#4f46e5"}
+                  fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : "#4f46e533"}
+                  strokeWidth={dataset.borderWidth || 2}
+                />
+              ))}
+            </AreaChart>
+          </ResponsiveContainer>
+        );
+        
+      case "combo":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }}
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend content={<CustomLegend />} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => {
+                  if (index % 2 === 0) {
+                    return (
+                      <Bar
+                        key={index}
+                        dataKey={dataset.label || `dataset-${index}`}
+                        fill={Array.isArray(dataset.backgroundColor)
+                          ? dataset.backgroundColor[0]
+                          : dataset.backgroundColor || "#4f46e5"}
+                      />
+                    );
+                  } else {
+                    return (
+                      <Line
+                        key={index}
+                        type="monotone"
+                        dataKey={dataset.label || `dataset-${index}`}
+                        stroke={dataset.borderColor as string || "#ec4899"}
+                        strokeWidth={dataset.borderWidth || 3}
+                        dot={{ r: 4 }}
+                      />
+                    );
+                  }
+                })}
+            </ComposedChart>
+          </ResponsiveContainer>
+        );
+        
+      case "histogram":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend content={<CustomLegend />} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Bar
+                  key={index}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  fill={Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[0]
+                    : dataset.backgroundColor || "#4f46e5"}
+                  radius={[0, 0, 0, 0]}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        );
+        
+      case "card":
+        const cardValue = item.data.datasets[0]?.data[0] || 0;
+        const cardTitle = item.data.labels[0] || "Value";
+        const cardChange = item.data.datasets[0]?.data[1] || null;
+        
+        return (
+          <div className="h-full w-full flex flex-col justify-center items-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-600 mb-2">{cardTitle}</h3>
+              <div className="text-3xl font-bold text-gray-900 mb-2">
+                {typeof cardValue === 'number' ? cardValue.toLocaleString() : String(cardValue)}
+              </div>
+              {cardChange !== null && (
+                <div className={`text-sm font-medium ${Number(cardChange) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {Number(cardChange) >= 0 ? '+' : ''}{cardChange}%
+                </div>
+              )}
+            </div>
+          </div>
+        );
+        
+      case "multi-row-card":
+        return (
+          <div className="h-full w-full p-4 space-y-3">
+            {item.data.labels.map((label, index) => {
+              const value = item.data.datasets[0]?.data[index];
+              const change = item.data.datasets[1]?.data[index];
+              return (
+                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{label}</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {typeof value === 'number' ? value.toLocaleString() : String(value)}
+                    </div>
+                  </div>
+                  {change !== undefined && (
+                    <div className={`text-sm font-medium ${Number(change) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {Number(change) >= 0 ? '+' : ''}{change}%
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+        
+      case "boxplot":
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center p-4">
+              <p className="text-lg font-semibold mb-2">Box Plot Chart</p>
+              <p className="text-muted-foreground">
+                Statistical box plot visualization showing data distribution
+              </p>
+              <div className="mt-4 p-4 bg-gray-50 rounded">
+                <div className="text-sm text-gray-600">
+                  Min: {item.data.datasets[0]?.data[0] || 0} | 
+                  Max: {item.data.datasets[0]?.data[item.data.datasets[0]?.data.length - 1] || 100}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+        
+      case "waterfall":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }} style={chartStyle}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis 
+                axisLine={{ stroke: '#E5E7EB', strokeWidth: 1 }} 
+                tickLine={false}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}
+                labelStyle={{ fontWeight: "bold", color: "#111827" }}
+              />
+              <Legend content={<CustomLegend />} />
+              {item.data.datasets
+                .filter(dataset => !dataset.hidden)
+                .map((dataset, index) => (
+                <Bar
+                  key={index}
+                  dataKey={dataset.label || `dataset-${index}`}
+                  fill={(entry: any, index: number) => {
+                    const value = entry[dataset.label || `dataset-${index}`];
+                    return Number(value) >= 0 ? "#10b981" : "#ef4444";
+                  }}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        );
+        
+      case "decomposition-tree":
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <Treemap
+              data={processedData}
+              dataKey={item.data.datasets[0]?.label || "dataset-0"}
+              nameKey="name"
+              style={chartStyle}
+              fill="#4f46e5"
+            >
+              {processedData.map((entry, index) => {
+                const bgColors = item.data.datasets[0]?.backgroundColor;
+                const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : (bgColors as string || "#4f46e5");
+                return <Cell key={`cell-${index}`} fill={color} />;
+              })}
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E5E7EB" }}
+              />
+            </Treemap>
+          </ResponsiveContainer>
+        );
+        
+      case "kpi":
+        const kpiValue = item.data.datasets[0]?.data[0] || 0;
+        const kpiTarget = item.data.datasets[0]?.data[1] || 100;
+        const kpiPercentage = typeof kpiValue === 'number' && typeof kpiTarget === 'number' 
+          ? (kpiValue / kpiTarget) * 100 : 0;
+        
+        return (
+          <div className="h-full w-full flex flex-col justify-center items-center p-4">
+            <div className="text-center">
+              <div className="text-sm text-gray-600 mb-1">KPI Performance</div>
+              <div className="text-4xl font-bold text-gray-900 mb-2">
+                {typeof kpiValue === 'number' ? kpiValue.toLocaleString() : String(kpiValue)}
+              </div>
+              <div className="text-sm text-gray-500 mb-4">
+                Target: {typeof kpiTarget === 'number' ? kpiTarget.toLocaleString() : String(kpiTarget)}
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                <div 
+                  className={`h-3 rounded-full transition-all duration-300 ${
+                    kpiPercentage >= 100 ? 'bg-green-500' : 
+                    kpiPercentage >= 80 ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}
+                  style={{ width: `${Math.min(kpiPercentage, 100)}%` }}
+                />
+              </div>
+              <div className="text-sm font-medium">
+                {kpiPercentage.toFixed(1)}% of target
+              </div>
+            </div>
+          </div>
         );
         
       case "line":

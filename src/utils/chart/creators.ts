@@ -1,4 +1,3 @@
-
 import { ChartData, ChartDataPoint, ChartItemType, ChartType, Position } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { DEFAULT_CHART_SIZE, DEFAULT_COLORS } from "./types";
@@ -19,11 +18,12 @@ export function createNewChartItem(
   let size = DEFAULT_CHART_SIZE;
   let title = getDefaultTitle(type);
 
+  // Special handling for specific chart types
   if (type === "text") {
     chartData = {
       labels: [],
       datasets: [{
-        label: "",
+        label: "Click to edit text",
         data: [],
       }],
     };
@@ -46,6 +46,102 @@ export function createNewChartItem(
       }))
     };
     size = { width: 600, height: 400 };
+  } else if (type === "stacked-bar" || type === "stacked-column") {
+    // Add multiple datasets for stacked charts
+    chartData.datasets = [
+      {
+        label: "Region 1",
+        data: [30, 40, 35, 50],
+        backgroundColor: DEFAULT_COLORS[0],
+      },
+      {
+        label: "Region 2", 
+        data: [25, 35, 30, 40],
+        backgroundColor: DEFAULT_COLORS[1],
+      },
+      {
+        label: "Region 3",
+        data: [20, 25, 28, 35],
+        backgroundColor: DEFAULT_COLORS[2],
+      }
+    ];
+  } else if (type === "stacked-area") {
+    chartData.datasets = [
+      {
+        label: "Desktop",
+        data: [30, 40, 45, 50, 55],
+        borderColor: DEFAULT_COLORS[0],
+        backgroundColor: `${DEFAULT_COLORS[0]}33`,
+        borderWidth: 2,
+        fill: true,
+      },
+      {
+        label: "Mobile",
+        data: [20, 25, 30, 35, 40],
+        borderColor: DEFAULT_COLORS[1],
+        backgroundColor: `${DEFAULT_COLORS[1]}33`,
+        borderWidth: 2,
+        fill: true,
+      },
+      {
+        label: "Tablet",
+        data: [10, 15, 18, 20, 25],
+        borderColor: DEFAULT_COLORS[2],
+        backgroundColor: `${DEFAULT_COLORS[2]}33`,
+        borderWidth: 2,
+        fill: true,
+      }
+    ];
+  } else if (type === "combo") {
+    chartData.datasets = [
+      {
+        label: "Sales",
+        data: [65, 80, 95, 110],
+        backgroundColor: DEFAULT_COLORS[0],
+      },
+      {
+        label: "Trend",
+        data: [70, 85, 90, 105],
+        borderColor: DEFAULT_COLORS[1],
+        backgroundColor: `${DEFAULT_COLORS[1]}33`,
+        borderWidth: 3,
+        fill: false,
+      }
+    ];
+  } else if (type === "multi-row-card") {
+    chartData = {
+      labels: ["Sales", "Users", "Revenue", "Growth"],
+      datasets: [
+        {
+          label: "Values",
+          data: [125000, 8542, 95000, 15.2],
+          backgroundColor: DEFAULT_COLORS[0],
+        },
+        {
+          label: "Changes",
+          data: [12.5, -2.1, 8.7, 3.2],
+          backgroundColor: DEFAULT_COLORS[1],
+        }
+      ],
+    };
+  } else if (type === "kpi") {
+    chartData = {
+      labels: ["Performance"],
+      datasets: [{
+        label: "KPI",
+        data: [85, 100], // [current, target]
+        backgroundColor: DEFAULT_COLORS[0],
+      }],
+    };
+  } else if (type === "waterfall") {
+    chartData = {
+      labels: ["Starting", "Increase", "Decrease", "Ending"],
+      datasets: [{
+        label: "Value",
+        data: [100, 20, -15, 105],
+        backgroundColor: [DEFAULT_COLORS[0], DEFAULT_COLORS[1], DEFAULT_COLORS[3], DEFAULT_COLORS[0]],
+      }],
+    };
   }
 
   return {
