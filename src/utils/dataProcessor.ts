@@ -1,3 +1,4 @@
+
 export interface DataRow {
   [key: string]: any;
 }
@@ -13,6 +14,8 @@ export interface DataColumn {
 export interface ProcessedData {
   rows: DataRow[];
   columns: DataColumn[];
+  isValid: boolean;
+  errors: string[];
 }
 
 export interface DataValidationResult {
@@ -23,7 +26,12 @@ export interface DataValidationResult {
 export function processData(rawData: string): ProcessedData {
   const rows = rawData.trim().split('\n');
   if (rows.length === 0) {
-    return { rows: [], columns: [] };
+    return { 
+      rows: [], 
+      columns: [], 
+      isValid: false, 
+      errors: ['No data found'] 
+    };
   }
 
   const headers = rows[0].split(',').map(header => header.trim());
@@ -31,7 +39,8 @@ export function processData(rawData: string): ProcessedData {
 
   const columns: DataColumn[] = headers.map(header => ({
     name: header,
-    type: 'text'
+    type: 'text',
+    description: ''
   }));
 
   const processedRows: DataRow[] = dataRows.map(row => {
@@ -42,9 +51,19 @@ export function processData(rawData: string): ProcessedData {
     return rowData;
   });
 
+  const errors: string[] = [];
+  if (headers.length === 0) {
+    errors.push('No column headers found');
+  }
+  if (dataRows.length === 0) {
+    errors.push('No data rows found');
+  }
+
   return {
     rows: processedRows,
-    columns: columns
+    columns: columns,
+    isValid: errors.length === 0,
+    errors: errors
   };
 }
 

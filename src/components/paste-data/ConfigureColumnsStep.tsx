@@ -24,7 +24,8 @@ import {
   Settings,
   AlertTriangle,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Info
 } from "lucide-react";
 import { ProcessedData, DataColumn, DataValidationResult } from "@/utils/dataProcessor";
 
