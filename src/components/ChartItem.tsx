@@ -43,6 +43,9 @@ import {
   formatChartData,
   prepareChartLegend 
 } from "@/utils/chartRendererUtils";
+import TableChart from './charts/TableChart';
+import MapChart from './charts/MapChart';
+import PlaceholderChart from './charts/PlaceholderChart';
 
 interface ChartItemProps {
   item: ChartItemType;
@@ -1018,64 +1021,27 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
         );
       
       case "table":
-        if (!item.data.tableColumns || !item.data.tableRows) {
-          return (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center p-4">
-                <p>No table data available</p>
-              </div>
-            </div>
-          );
-        }
-        
         return (
-          <div className="h-full w-full overflow-auto p-2">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {item.data.tableColumns
-                    .filter(col => col.visible !== false)
-                    .map((column) => (
-                    <th 
-                      key={column.id}
-                      className="border border-gray-200 bg-gray-50 p-2 text-sm font-medium text-left"
-                      style={{
-                        width: column.width ? `${column.width}px` : 'auto',
-                        textAlign: column.align || 'left',
-                        backgroundColor: column.backgroundColor || undefined
-                      }}
-                    >
-                      {column.header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {item.data.tableRows.map((row, rowIndex) => (
-                  <tr 
-                    key={rowIndex}
-                    style={{ backgroundColor: row._rowColor || undefined }}
-                  >
-                    {item.data.tableColumns
-                      .filter(col => col.visible !== false)
-                      .map((column) => (
-                      <td 
-                        key={`${rowIndex}-${column.id}`}
-                        className="border border-gray-200 p-2 text-sm"
-                        style={{
-                          textAlign: column.align || 'left'
-                        }}
-                      >
-                        {row[column.accessor] !== undefined ? String(row[column.accessor]) : ''}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <TableChart 
+            data={item.data} 
+            onDataUpdate={(newData) => {
+              onUpdate(item.id, { data: newData });
+            }}
+          />
         );
-        
+
+      case "map":
+        return <MapChart data={item.data} />;
+
+      case "gantt":
+      case "matrix":
+      case "slicer":
+      case "filled-map":
+      case "heatmap":
+      case "word-cloud":
+      case "timeline":
+        return <PlaceholderChart type={item.type} title={item.title} />;
+
       case "text":
         return (
           <div className="h-full w-full p-4 overflow-auto" ref={contentRef}>

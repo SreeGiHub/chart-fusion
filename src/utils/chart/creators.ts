@@ -38,11 +38,11 @@ export function createNewChartItem(
         { id: 'col3', header: 'Column 3', accessor: 'col3', align: 'left' },
         { id: 'col4', header: 'Column 4', accessor: 'col4', align: 'left' }
       ],
-      tableRows: Array(10).fill(null).map((_, rowIndex) => ({
-        col1: '',
-        col2: '',
-        col3: '',
-        col4: ''
+      tableRows: Array(5).fill(null).map((_, rowIndex) => ({
+        col1: `Row ${rowIndex + 1} Col 1`,
+        col2: `Row ${rowIndex + 1} Col 2`,
+        col3: `Row ${rowIndex + 1} Col 3`,
+        col4: `Row ${rowIndex + 1} Col 4`
       }))
     };
     size = { width: 600, height: 400 };
@@ -142,6 +142,17 @@ export function createNewChartItem(
         backgroundColor: [DEFAULT_COLORS[0], DEFAULT_COLORS[1], DEFAULT_COLORS[3], DEFAULT_COLORS[0]],
       }],
     };
+  } else if (type === "map") {
+    title = "India Map";
+    chartData = {
+      labels: ["Delhi", "Mumbai", "Bangalore", "Chennai"],
+      datasets: [{
+        label: "Cities",
+        data: [25, 35, 30, 28],
+        backgroundColor: DEFAULT_COLORS,
+      }],
+    };
+    size = { width: 500, height: 400 };
   }
 
   return {

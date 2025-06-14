@@ -1,4 +1,3 @@
-
 import { ChartType, ChartDataset } from "@/types";
 import { DEFAULT_COLORS } from "./types";
 
@@ -28,6 +27,13 @@ export const DEFAULT_LABELS: Record<string, string[]> = {
   kpi: ["Performance"],
   table: [],
   text: [],
+  gantt: ["Task 1", "Task 2", "Task 3", "Task 4"],
+  matrix: ["Row 1", "Row 2", "Row 3"],
+  slicer: ["Option 1", "Option 2", "Option 3"],
+  "filled-map": ["Region 1", "Region 2", "Region 3"],
+  heatmap: ["Jan", "Feb", "Mar", "Apr"],
+  "word-cloud": ["Innovation", "Technology", "Growth", "Success"],
+  timeline: ["2020", "2021", "2022", "2023"],
 };
 
 export const DEFAULT_DATASETS: Record<string, ChartDataset> = {
@@ -175,6 +181,73 @@ export const DEFAULT_DATASETS: Record<string, ChartDataset> = {
   text: {
     label: "Click to edit text",
     data: [],
+  },
+  gantt: {
+    label: "Tasks",
+    data: [
+      { task: "Planning", start: "2024-01-01", end: "2024-01-15", progress: 100 },
+      { task: "Development", start: "2024-01-10", end: "2024-02-28", progress: 75 },
+      { task: "Testing", start: "2024-02-15", end: "2024-03-15", progress: 50 },
+      { task: "Deployment", start: "2024-03-01", end: "2024-03-31", progress: 25 }
+    ],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  matrix: {
+    label: "Matrix Data",
+    data: [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9]
+    ],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  slicer: {
+    label: "Filter Options",
+    data: ["All", "Category A", "Category B", "Category C"],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  "filled-map": {
+    label: "Regional Data",
+    data: [
+      { region: "North", value: 45 },
+      { region: "South", value: 32 },
+      { region: "East", value: 28 },
+      { region: "West", value: 38 }
+    ],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  heatmap: {
+    label: "Heat Data",
+    data: [
+      { x: "Jan", y: "Product A", v: 20 },
+      { x: "Feb", y: "Product A", v: 35 },
+      { x: "Mar", y: "Product A", v: 15 },
+      { x: "Jan", y: "Product B", v: 25 },
+      { x: "Feb", y: "Product B", v: 40 },
+      { x: "Mar", y: "Product B", v: 30 }
+    ],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  "word-cloud": {
+    label: "Words",
+    data: [
+      { text: "Innovation", size: 40 },
+      { text: "Technology", size: 35 },
+      { text: "Growth", size: 30 },
+      { text: "Success", size: 25 },
+      { text: "Future", size: 20 }
+    ],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  timeline: {
+    label: "Events",
+    data: [
+      { date: "2020", event: "Project Started" },
+      { date: "2021", event: "First Milestone" },
+      { date: "2022", event: "Major Release" },
+      { date: "2023", event: "Market Launch" }
+    ],
+    backgroundColor: DEFAULT_COLORS[0],
   },
 };
 
