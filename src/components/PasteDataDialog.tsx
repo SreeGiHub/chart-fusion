@@ -31,7 +31,7 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
   open,
   onOpenChange,
 }) => {
-  const { dispatch } = useDashboard();
+  const { state, dispatch } = useDashboard();
   const [activeTab, setActiveTab] = useState("enter");
   const [pastedData, setPastedData] = useState("");
   const [processedData, setProcessedData] = useState<ProcessedData | null>(null);
@@ -205,6 +205,21 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
     toast.success("Configuration complete! Review your data and generate dashboard.");
   };
 
+  const getNextPosition = (index: number) => {
+    const existingItems = state.items;
+    const totalItems = existingItems.length + index;
+    
+    // Create a grid layout to avoid overlapping
+    const gridSize = 450; // Chart width + spacing
+    const row = Math.floor(totalItems / 3);
+    const col = totalItems % 3;
+    
+    return {
+      x: 50 + (col * gridSize),
+      y: 50 + (row * 350) // Chart height + spacing
+    };
+  };
+
   const handleGenerateCharts = () => {
     if (!processedData) {
       console.error('No processed data available');
@@ -228,7 +243,6 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
       
       if (suggestions.length === 0) {
         console.log('No suggestions found, creating default charts');
-        // Create at least one default chart
         const defaultSuggestions = [
           {
             type: 'bar' as const,
@@ -242,9 +256,11 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
         const charts = createChartsFromData(processedData, defaultSuggestions);
         console.log('Created default charts:', charts);
         
-        charts.forEach(chart => {
-          console.log('Adding chart to dashboard:', chart);
-          dispatch({ type: "ADD_ITEM", payload: chart });
+        charts.forEach((chart, index) => {
+          const position = getNextPosition(index);
+          const chartWithPosition = { ...chart, position };
+          console.log('Adding chart to dashboard:', chartWithPosition);
+          dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
         });
         
         toast.success("Generated 1 chart from your data! 🎉");
@@ -253,10 +269,12 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
         const charts = createChartsFromData(processedData, suggestions);
         console.log('Created charts:', charts);
         
-        // Add charts to dashboard
-        charts.forEach(chart => {
-          console.log('Adding chart to dashboard:', chart);
-          dispatch({ type: "ADD_ITEM", payload: chart });
+        // Add charts to dashboard with proper positioning
+        charts.forEach((chart, index) => {
+          const position = getNextPosition(index);
+          const chartWithPosition = { ...chart, position };
+          console.log('Adding chart to dashboard:', chartWithPosition);
+          dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
         });
 
         toast.success(

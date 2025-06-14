@@ -63,52 +63,21 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
     dispatch({ type: "ADD_ITEM", payload: newItem });
   };
 
-  const chartCategories = [
-    {
-      name: "Bar & Column",
-      color: "bg-blue-100 border-blue-200 hover:bg-blue-150",
-      charts: [
-        { type: "bar", label: "Bar Chart" },
-        { type: "column", label: "Column Chart" },
-        { type: "stacked-bar", label: "Stacked Bar" },
-        { type: "histogram", label: "Histogram" },
-      ],
-    },
-    {
-      name: "Line & Area",
-      color: "bg-green-100 border-green-200 hover:bg-green-150",
-      charts: [
-        { type: "line", label: "Line Chart" },
-        { type: "area", label: "Area Chart" },
-        { type: "stacked-area", label: "Stacked Area" },
-      ],
-    },
-    {
-      name: "Pie & Distribution",
-      color: "bg-purple-100 border-purple-200 hover:bg-purple-150",
-      charts: [
-        { type: "pie", label: "Pie Chart" },
-        { type: "donut", label: "Donut Chart" },
-        { type: "scatter", label: "Scatter Plot" },
-        { type: "bubble", label: "Bubble Chart" },
-      ],
-    },
-    {
-      name: "Cards & Others",
-      color: "bg-orange-100 border-orange-200 hover:bg-orange-150",
-      charts: [
-        { type: "card", label: "Card" },
-        { type: "multi-row-card", label: "Multi-row Card" },
-        { type: "radar", label: "Radar Chart" },
-        { type: "treemap", label: "Treemap" },
-        { type: "funnel", label: "Funnel Chart" },
-        { type: "gauge", label: "Gauge" },
-        { type: "semi-circle", label: "Semi-circle" },
-        { type: "combo", label: "Combo Chart" },
-        { type: "text", label: "Text" },
-        { type: "table", label: "Table" },
-      ],
-    },
+  const chartTypes = [
+    { type: "bar", label: "Bar Chart" },
+    { type: "line", label: "Line Chart" },
+    { type: "area", label: "Area Chart" },
+    { type: "pie", label: "Pie Chart" },
+    { type: "donut", label: "Donut Chart" },
+    { type: "scatter", label: "Scatter Plot" },
+    { type: "bubble", label: "Bubble Chart" },
+    { type: "radar", label: "Radar Chart" },
+    { type: "treemap", label: "Treemap" },
+    { type: "funnel", label: "Funnel Chart" },
+    { type: "gauge", label: "Gauge" },
+    { type: "combo", label: "Combo Chart" },
+    { type: "card", label: "Card" },
+    { type: "table", label: "Table" },
   ];
 
   return (
@@ -120,28 +89,16 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-96 p-4" align="start">
-        <div className="grid grid-cols-2 gap-3">
-          {chartCategories.map((category) => (
-            <div
-              key={category.name}
-              className={`border rounded-lg p-3 ${category.color} transition-colors`}
+      <DropdownMenuContent className="w-56 p-2" align="start">
+        <div className="space-y-1">
+          {chartTypes.map((chart) => (
+            <button
+              key={chart.type}
+              onClick={() => addChart(chart.type)}
+              className="w-full text-left text-sm px-3 py-2 rounded hover:bg-gray-100 transition-colors"
             >
-              <h3 className="font-medium text-sm mb-2 text-gray-700">
-                {category.name}
-              </h3>
-              <div className="space-y-1">
-                {category.charts.map((chart) => (
-                  <button
-                    key={chart.type}
-                    onClick={() => addChart(chart.type)}
-                    className="w-full text-left text-xs px-2 py-1 rounded hover:bg-white/50 transition-colors text-gray-600 hover:text-gray-800"
-                  >
-                    {chart.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+              {chart.label}
+            </button>
           ))}
         </div>
       </DropdownMenuContent>

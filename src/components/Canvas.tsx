@@ -17,6 +17,23 @@ const Canvas: React.FC = () => {
     }
   };
 
+  const getNextPosition = () => {
+    const existingItems = state.items;
+    if (existingItems.length === 0) {
+      return { x: 50, y: 50 };
+    }
+    
+    // Find a position that doesn't overlap with existing items
+    const gridSize = 450; // Chart width + some spacing
+    const row = Math.floor(existingItems.length / 3);
+    const col = existingItems.length % 3;
+    
+    return {
+      x: 50 + (col * gridSize),
+      y: 50 + (row * 350) // Chart height + some spacing
+    };
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     
@@ -43,11 +60,11 @@ const Canvas: React.FC = () => {
     <div 
       ref={canvasRef}
       id="dashboard-canvas"
-      className={`relative w-full h-[calc(100vh-56px)] overflow-auto bg-gray-50 ${
-        state.isGridVisible && !state.previewMode ? "canvas-grid" : ""
-      }`}
+      className="relative w-full h-[calc(100vh-56px)] overflow-auto bg-white"
       style={{ 
-        backgroundColor: state.canvasColor || "#F8FAFC"
+        minWidth: "200%",
+        minHeight: "200%",
+        backgroundColor: "#FFFFFF"
       }}
       onClick={handleCanvasClick}
       onDrop={handleDrop}
