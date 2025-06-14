@@ -16,7 +16,7 @@ interface FunnelChartProps {
 }
 
 const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
-  // Get color for each label/segment - MOVED BEFORE processedData
+  // Get color for each label/segment
   const getLabelColor = (index: number) => {
     const dataset = item.data.datasets[0];
     if (!dataset) return "#8B5CF6";
@@ -31,8 +31,9 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
       return dataset.backgroundColor[index % dataset.backgroundColor.length];
     }
 
-    // Default color if nothing else
-    return dataset.backgroundColor as string || "#8B5CF6";
+    // Generate different colors for each segment if no colors defined
+    const defaultColors = ["#8B5CF6", "#EC4899", "#F97316", "#0EA5E9", "#10B981"];
+    return defaultColors[index % defaultColors.length];
   };
 
   // Transform data for funnel chart with proper structure
@@ -86,6 +87,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
           dataKey="value"
           data={processedData}
           isAnimationActive
+          shape="triangle"
         >
           {processedData.map((entry, index) => (
             <Cell 
@@ -96,7 +98,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
           <LabelList 
             position="center" 
             fill="white" 
-            stroke="rgba(0,0,0,0.1)"
+            stroke="rgba(0,0,0,0.2)"
             strokeWidth={0.5}
             fontSize={12}
             fontWeight="bold"
