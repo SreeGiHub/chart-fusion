@@ -1,4 +1,3 @@
-
 import { useDashboard } from "@/context/DashboardContext";
 import { ChartItemType, ChartType, ComplexDataPoint } from "@/types";
 import { DEFAULT_COLORS } from "@/utils/chartUtils";
@@ -69,6 +68,44 @@ const Sidebar: React.FC = () => {
       payload: selectedItem.id,
     });
     toast.success("Item deleted");
+  };
+
+  // Table-specific functions
+  const addTableColumn = () => {
+    if (selectedItem.type !== "table") return;
+
+    const newColumnId = `col${(selectedItem.data.tableColumns?.length || 0) + 1}`;
+    const newColumn = {
+      id: newColumnId,
+      header: `Column ${(selectedItem.data.tableColumns?.length || 0) + 1}`,
+      accessor: newColumnId,
+      align: 'left' as const,
+    };
+
+    const currentColumns = selectedItem.data.tableColumns || [];
+    const currentRows = selectedItem.data.tableRows || [];
+
+    // Add the new column to existing rows
+    const updatedRows = currentRows.map(row => ({
+      ...row,
+      [newColumnId]: '',
+    }));
+
+    dispatch({
+      type: "UPDATE_ITEM",
+      payload: {
+        id: selectedItem.id,
+        updates: {
+          data: {
+            ...selectedItem.data,
+            tableColumns: [...currentColumns, newColumn],
+            tableRows: updatedRows,
+          },
+        },
+      },
+    });
+
+    toast.success("Column added");
   };
 
   const updateDatasetLabel = (index: number, value: string) => {
@@ -501,7 +538,7 @@ const Sidebar: React.FC = () => {
             />
           </div>
 
-          {!isTextChartType(selectedItem.type) && (
+          {!isTextChartType(selectedItem.type) && selectedItem.type !== "table" && (
             <div className="space-y-2">
               <Label>Chart Type</Label>
               <div className="grid grid-cols-3 gap-2">
@@ -694,6 +731,28 @@ const Sidebar: React.FC = () => {
                 onChange={(e) => updateDatasetLabel(0, e.target.value)}
                 className="w-full min-h-[100px] border rounded-md p-2"
               />
+            </div>
+          ) : selectedItem.type === "table" ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Table Columns</Label>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={addTableColumn}
+                  className="h-7"
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  Add Column
+                </Button>
+              </div>
+              
+              <div className="text-sm text-muted-foreground">
+                Columns: {selectedItem.data.tableColumns?.length || 0}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Rows: {selectedItem.data.tableRows?.length || 0}
+              </div>
             </div>
           ) : (
             <ScrollArea className="h-[calc(100vh-250px)] pr-3">
@@ -891,7 +950,7 @@ const Sidebar: React.FC = () => {
           {renderColorPickers()}
           
           {/* Additional style options */}
-          {selectedItem.type !== "text" && selectedItem.type !== "pie" && selectedItem.type !== "donut" && (
+          {selectedItem.type !== "text" && selectedItem.type !== "pie" && selectedItem.type !== "donut" && selectedItem.type !== "table" && (
             <div className="space-y-4 mt-4">
               <h3 className="text-sm font-medium">Chart Options</h3>
               

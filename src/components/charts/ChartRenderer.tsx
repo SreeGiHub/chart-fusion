@@ -12,7 +12,6 @@ import RadarChart from './RadarChart';
 import TreemapChart from './TreemapChart';
 import FunnelChart from './FunnelChart';
 import GaugeChart from './GaugeChart';
-import BoxPlotChart from './BoxPlotChart';
 import TextChart from './TextChart';
 import TableChart from './TableChart';
 import { useDashboard } from '@/context/DashboardContext';
@@ -66,9 +65,6 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({ item }) => {
     case "gauge":
     case "semi-circle":
       return <GaugeChart item={item} />;
-      
-    case "boxplot":
-      return <BoxPlotChart item={item} />;
       
     case "text":
       return <TextChart item={item} isSelected={isSelected} />;

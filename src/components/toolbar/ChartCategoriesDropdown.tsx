@@ -1,34 +1,12 @@
 
-import { useDashboard } from "@/context/DashboardContext";
-import { ChartType } from "@/types";
-import { createNewChartItem } from "@/utils/chartUtils";
-import { toast } from "sonner";
-import { 
-  BarChart, 
-  LineChart, 
-  PieChart, 
-  Activity, 
-  Type, 
-  MessageSquareText,
-  Sparkles,
-  BarChart3,
-  TrendingUp,
-  Layers,
-  Target,
-  Hash,
-  ScatterChart,
-  Gauge,
-  LayoutGrid,
-  CircleDot
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useDashboard } from "@/context/DashboardContext";
+import { ChevronDown, Plus } from "lucide-react";
 
 interface ChartCategoriesDropdownProps {
   onTextToChartOpen: () => void;
@@ -37,133 +15,129 @@ interface ChartCategoriesDropdownProps {
 const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTextToChartOpen }) => {
   const { dispatch } = useDashboard();
 
-  const handleAddItem = (type: ChartType) => {
-    const canvasElement = document.getElementById("dashboard-canvas");
-    if (!canvasElement) return;
+  const addChart = (type: string) => {
+    const newItem = {
+      id: `chart-${Date.now()}`,
+      type: type as any,
+      title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
+      position: { x: 100, y: 100 },
+      size: { width: 400, height: 300 },
+      data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+        datasets: [
+          {
+            label: "Dataset 1",
+            data: [65, 59, 80, 81, 56],
+            backgroundColor: "#8884d8",
+            borderColor: "#8884d8",
+            borderWidth: 2,
+          },
+        ],
+      },
+    };
 
-    const canvasRect = canvasElement.getBoundingClientRect();
-    const centerX = canvasRect.width / 2 - 200;
-    const centerY = canvasRect.height / 2 - 150;
-
-    const newItem = createNewChartItem(type, {
-      x: Math.max(0, centerX),
-      y: Math.max(0, centerY),
-    });
+    if (type === "table") {
+      newItem.data = {
+        labels: [],
+        datasets: [],
+        tableColumns: [
+          { id: "col1", header: "Column 1", accessor: "col1", align: "left" },
+          { id: "col2", header: "Column 2", accessor: "col2", align: "left" },
+          { id: "col3", header: "Column 3", accessor: "col3", align: "left" },
+        ],
+        tableRows: [
+          { col1: "Row 1 Col 1", col2: "Row 1 Col 2", col3: "Row 1 Col 3" },
+          { col1: "Row 2 Col 1", col2: "Row 2 Col 2", col3: "Row 2 Col 3" },
+          { col1: "Row 3 Col 1", col2: "Row 3 Col 2", col3: "Row 3 Col 3" },
+          { col1: "Row 4 Col 1", col2: "Row 4 Col 2", col3: "Row 4 Col 3" },
+          { col1: "Row 5 Col 1", col2: "Row 5 Col 2", col3: "Row 5 Col 3" },
+        ],
+      };
+    }
 
     dispatch({ type: "ADD_ITEM", payload: newItem });
-    toast.success(`Added new ${type} chart`);
   };
 
   const chartCategories = [
     {
-      title: "Bar & Column Charts",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200",
-      titleColor: "text-orange-600",
-      count: "4 charts",
+      name: "Bar & Column",
+      color: "bg-blue-100 border-blue-200 hover:bg-blue-150",
       charts: [
-        { type: "bar", icon: BarChart, label: "Bar Chart" },
-        { type: "column", icon: BarChart3, label: "Column Chart" },
-        { type: "stacked-bar", icon: BarChart, label: "Stacked Bar" },
-        { type: "histogram", icon: BarChart, label: "Histogram" },
-      ]
+        { type: "bar", label: "Bar Chart" },
+        { type: "column", label: "Column Chart" },
+        { type: "stacked-bar", label: "Stacked Bar" },
+        { type: "histogram", label: "Histogram" },
+      ],
     },
     {
-      title: "Line & Area Charts", 
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      titleColor: "text-blue-600",
-      count: "4 charts",
+      name: "Line & Area",
+      color: "bg-green-100 border-green-200 hover:bg-green-150",
       charts: [
-        { type: "line", icon: LineChart, label: "Line Chart" },
-        { type: "area", icon: Activity, label: "Area Chart" },
-        { type: "stacked-area", icon: Layers, label: "Stacked Area" },
-        { type: "combo", icon: TrendingUp, label: "Combo Chart" },
-      ]
+        { type: "line", label: "Line Chart" },
+        { type: "area", label: "Area Chart" },
+        { type: "stacked-area", label: "Stacked Area" },
+      ],
     },
     {
-      title: "Pie & Distribution",
-      bgColor: "bg-purple-50", 
-      borderColor: "border-purple-200",
-      titleColor: "text-purple-600",
-      count: "5 charts",
+      name: "Pie & Distribution",
+      color: "bg-purple-100 border-purple-200 hover:bg-purple-150",
       charts: [
-        { type: "pie", icon: PieChart, label: "Pie Chart" },
-        { type: "donut", icon: CircleDot, label: "Donut Chart" },
-        { type: "scatter", icon: ScatterChart, label: "Scatter Plot" },
-        { type: "bubble", icon: CircleDot, label: "Bubble Chart" },
-        { type: "boxplot", icon: Activity, label: "Box Plot" },
-      ]
+        { type: "pie", label: "Pie Chart" },
+        { type: "donut", label: "Donut Chart" },
+        { type: "scatter", label: "Scatter Plot" },
+        { type: "bubble", label: "Bubble Chart" },
+      ],
     },
     {
-      title: "Cards & Others",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200", 
-      titleColor: "text-green-600",
-      count: "8 charts",
+      name: "Cards & Others",
+      color: "bg-orange-100 border-orange-200 hover:bg-orange-150",
       charts: [
-        { type: "card", icon: Hash, label: "Card" },
-        { type: "multi-row-card", icon: Hash, label: "Multi-row Card" },
-        { type: "gauge", icon: Gauge, label: "Gauge" },
-        { type: "table", icon: LayoutGrid, label: "Table" },
-        { type: "radar", icon: Target, label: "Radar Chart" },
-        { type: "treemap", icon: LayoutGrid, label: "Treemap" },
-        { type: "funnel", icon: Activity, label: "Funnel Chart" },
-        { type: "text", icon: Type, label: "Text Label" },
-      ]
-    }
+        { type: "card", label: "Card" },
+        { type: "multi-row-card", label: "Multi-row Card" },
+        { type: "radar", label: "Radar Chart" },
+        { type: "treemap", label: "Treemap" },
+        { type: "funnel", label: "Funnel Chart" },
+        { type: "gauge", label: "Gauge" },
+        { type: "semi-circle", label: "Semi-circle" },
+        { type: "combo", label: "Combo Chart" },
+        { type: "text", label: "Text" },
+        { type: "table", label: "Table" },
+      ],
+    },
   ];
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          <span className="hidden sm:inline-block mr-2">Add Chart</span>
-          <span className="sm:hidden">+</span>
+        <Button variant="outline" className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Add Chart
+          <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[800px] p-6" align="start">
-        <DropdownMenuLabel className="text-xl font-bold mb-6 text-center">Choose Chart Type</DropdownMenuLabel>
-        
-        <div className="grid grid-cols-2 gap-6 mb-6">
+      <DropdownMenuContent className="w-96 p-4" align="start">
+        <div className="grid grid-cols-2 gap-3">
           {chartCategories.map((category) => (
-            <div 
-              key={category.title}
-              className={`${category.bgColor} ${category.borderColor} border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-200`}
+            <div
+              key={category.name}
+              className={`border rounded-lg p-3 ${category.color} transition-colors`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className={`text-lg font-bold ${category.titleColor}`}>
-                  {category.title}
-                </h3>
-                <span className={`text-sm ${category.titleColor} opacity-75`}>
-                  {category.count}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
+              <h3 className="font-medium text-sm mb-2 text-gray-700">
+                {category.name}
+              </h3>
+              <div className="space-y-1">
                 {category.charts.map((chart) => (
                   <button
                     key={chart.type}
-                    onClick={() => handleAddItem(chart.type as ChartType)}
-                    className="flex items-center gap-2 p-3 text-sm bg-white/70 hover:bg-white rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-md"
+                    onClick={() => addChart(chart.type)}
+                    className="w-full text-left text-xs px-2 py-1 rounded hover:bg-white/50 transition-colors text-gray-600 hover:text-gray-800"
                   >
-                    <chart.icon className="h-4 w-4" />
-                    <span className="font-medium">{chart.label}</span>
+                    {chart.label}
                   </button>
                 ))}
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="pt-4 border-t">
-          <button
-            onClick={onTextToChartOpen}
-            className="w-full flex items-center justify-center gap-2 p-3 text-sm hover:bg-accent rounded-md transition-colors bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 border border-purple-200"
-          >
-            <MessageSquareText className="h-4 w-4" />
-            <span className="font-medium">🪄 AI Text to Chart Generator</span>
-          </button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
