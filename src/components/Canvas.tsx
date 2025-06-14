@@ -68,7 +68,8 @@ const Canvas: React.FC = () => {
 
   // Pan functionality
   const handleMouseDown = (e: MouseEvent) => {
-    if (e.button === 0 && (e.metaKey || e.ctrlKey || e.button === 1)) { // Left click with meta/ctrl or middle click
+    // Left click with meta/ctrl or middle click
+    if ((e.button === 0 && (e.metaKey || e.ctrlKey)) || e.button === 1) {
       setIsPanning(true);
       setLastPanPoint({ x: e.clientX, y: e.clientY });
       e.preventDefault();
