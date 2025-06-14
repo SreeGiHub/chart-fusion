@@ -1,4 +1,6 @@
 
+import { ReactNode } from "react";
+
 export interface Position {
   x: number;
   y: number;
@@ -29,7 +31,54 @@ export interface HeatmapDataPoint {
   v: number;
 }
 
-export type ChartDataPoint = number | ComplexDataPoint | BoxPlotDataPoint | HeatmapDataPoint;
+// Extended data point types for new chart types
+export interface WordCloudDataPoint {
+  text: string;
+  size: number;
+}
+
+export interface TimelineDataPoint {
+  date: string;
+  event: string;
+}
+
+export interface GanttDataPoint {
+  task: string;
+  start: string;
+  end: string;
+  progress: number;
+}
+
+export interface MapDataPoint {
+  location: string;
+  value: number;
+}
+
+export interface TreeDataPoint {
+  name: string;
+  value: number;
+  children?: TreeDataPoint[];
+}
+
+export interface CardDataPoint {
+  title: string;
+  value: string;
+  change?: string;
+}
+
+export type ChartDataPoint = 
+  | number 
+  | string 
+  | ComplexDataPoint 
+  | BoxPlotDataPoint 
+  | HeatmapDataPoint
+  | WordCloudDataPoint
+  | TimelineDataPoint
+  | GanttDataPoint
+  | MapDataPoint
+  | TreeDataPoint
+  | CardDataPoint
+  | any; // Allow any for flexibility with complex chart types
 
 export interface ChartDataset {
   label: string;
