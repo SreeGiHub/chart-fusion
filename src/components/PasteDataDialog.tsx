@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -34,6 +33,15 @@ import { processData, validateData, DataColumn, ProcessedData } from "@/utils/da
 import { generateChartSuggestions, createChartsFromData } from "@/utils/autoChartGenerator";
 import { useDashboard } from "@/context/DashboardContext";
 import DataPreviewTable from "./DataPreviewTable";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PasteDataDialogProps {
   open: boolean;
@@ -523,14 +531,49 @@ Mike	28	1800	East"
                   )}
 
                   <div className="flex-1 overflow-auto">
-                    <DataPreviewTable 
-                      data={processedData}
-                      onColumnUpdate={handleColumnUpdate}
-                    />
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-medium">Data Preview ({processedData.rows.length} rows)</h3>
+                      <ScrollArea className="h-96 w-full border rounded-lg">
+                        <Table>
+                          <TableHeader className="sticky top-0 bg-muted">
+                            <TableRow>
+                              <TableHead className="w-12">#</TableHead>
+                              {processedData.columns.map((column, index) => (
+                                <TableHead key={index} className="min-w-24">
+                                  <div className="flex items-center gap-1">
+                                    <span>{column.name}</span>
+                                    {column.hasErrors && (
+                                      <AlertTriangle className="h-3 w-3 text-amber-500" />
+                                    )}
+                                  </div>
+                                </TableHead>
+                              ))}
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {processedData.rows.map((row, rowIndex) => (
+                              <TableRow key={rowIndex}>
+                                <TableCell className="text-muted-foreground font-mono">{rowIndex + 1}</TableCell>
+                                {processedData.columns.map((column, colIndex) => (
+                                  <TableCell key={colIndex}>
+                                    <span className="truncate block max-w-32" title={String(row[column.name])}>
+                                      {row[column.name] !== undefined && row[column.name] !== null
+                                        ? String(row[column.name])
+                                        : '-'
+                                      }
+                                    </span>
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </ScrollArea>
+                    </div>
                   </div>
 
                   {validation && validation.isValid && (
-                    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6 mt-4">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
                           <Zap className="h-4 w-4 text-green-600" />
