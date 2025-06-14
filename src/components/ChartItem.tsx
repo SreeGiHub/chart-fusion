@@ -617,11 +617,18 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
                 <Bar
                   key={index}
                   dataKey={dataset.label || `dataset-${index}`}
-                  fill={(entry: any, index: number) => {
+                  fill="#10b981"
+                >
+                  {processedData.map((entry, dataIndex) => {
                     const value = entry[dataset.label || `dataset-${index}`];
-                    return Number(value) >= 0 ? "#10b981" : "#ef4444";
-                  }}
-                />
+                    return (
+                      <Cell 
+                        key={`cell-${dataIndex}`} 
+                        fill={Number(value) >= 0 ? "#10b981" : "#ef4444"} 
+                      />
+                    );
+                  })}
+                </Bar>
               ))}
             </BarChart>
           </ResponsiveContainer>
@@ -1025,7 +1032,13 @@ const ChartItem: React.FC<ChartItemProps> = ({ item }) => {
           <TableChart 
             data={item.data} 
             onDataUpdate={(newData) => {
-              onUpdate(item.id, { data: newData });
+              dispatch({
+                type: "UPDATE_ITEM",
+                payload: {
+                  id: item.id,
+                  updates: { data: newData },
+                },
+              });
             }}
           />
         );
