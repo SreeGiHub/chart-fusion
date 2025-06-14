@@ -179,8 +179,7 @@ function prepareDefaultChartData(data: ProcessedData, suggestion: ChartSuggestio
         data: timeData.map(row => row[valueCol]),
         borderColor: '#4F46E5',
         backgroundColor: suggestion.type === 'area' ? 'rgba(79, 70, 229, 0.1)' : undefined,
-        fill: suggestion.type === 'area',
-        tension: 0.4
+        fill: suggestion.type === 'area'
       }]
     };
   }
