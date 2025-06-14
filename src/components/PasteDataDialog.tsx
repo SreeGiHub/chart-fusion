@@ -21,6 +21,8 @@ import { useDashboard } from "@/context/DashboardContext";
 import EnterDataStep from "./paste-data/EnterDataStep";
 import ConfigureColumnsStep from "./paste-data/ConfigureColumnsStep";
 import PreviewDataStep from "./paste-data/PreviewDataStep";
+import { generateAIChartSuggestions, createAIChartsFromData } from "@/utils/aiChartGenerator";
+import GeminiApiKeyInput from "./paste-data/GeminiApiKeyInput";
 
 interface PasteDataDialogProps {
   open: boolean;
@@ -37,6 +39,8 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
   const [processedData, setProcessedData] = useState<ProcessedData | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
 
   // Enhanced sample data with 100 rows
   const sampleData = `Name	Age	Sales	Region	Date	Product	Revenue	Units_Sold	Customer_Rating	Market_Share
@@ -220,13 +224,13 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
     };
   };
 
-  const handleGenerateCharts = () => {
+  const handleGenerateCharts = async () => {
     if (!processedData) {
       console.error('No processed data available');
       return;
     }
 
-    console.log('Starting chart generation with data:', processedData);
+    console.log('Starting AI-powered chart generation with data:', processedData);
     
     const validation = validateData(processedData);
     if (!validation.isValid) {
@@ -237,8 +241,8 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
 
     setIsGenerating(true);
     try {
-      console.log('Generating chart suggestions...');
-      const suggestions = generateChartSuggestions(processedData);
+      console.log('Generating AI chart suggestions...');
+      const suggestions = await generateAIChartSuggestions(processedData, geminiApiKey);
       console.log('Generated suggestions:', suggestions);
       
       if (suggestions.length === 0) {
@@ -253,7 +257,7 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
           }
         ];
         
-        const charts = createChartsFromData(processedData, defaultSuggestions);
+        const charts = createAIChartsFromData(processedData, defaultSuggestions);
         console.log('Created default charts:', charts);
         
         charts.forEach((chart, index) => {
@@ -265,8 +269,8 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
         
         toast.success("Generated 1 chart from your data! 🎉");
       } else {
-        console.log('Creating charts from suggestions...');
-        const charts = createChartsFromData(processedData, suggestions);
+        console.log('Creating charts from AI suggestions...');
+        const charts = createAIChartsFromData(processedData, suggestions);
         console.log('Created charts:', charts);
         
         // Add charts to dashboard with proper positioning
@@ -277,10 +281,14 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
           dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
         });
 
+        const aiMessage = geminiApiKey ? 
+          `Generated ${charts.length} AI-enhanced charts from your data! 🤖✨` :
+          `Generated ${charts.length} charts from your data! 🎉`;
+
         toast.success(
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-blue-500" />
-            <span>Generated {charts.length} charts from your data! 🎉</span>
+            <span>{aiMessage}</span>
           </div>
         );
       }
@@ -340,7 +348,7 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="enter" className="flex-1">
+            <TabsContent value="enter" className="flex-1 space-y-6">
               <EnterDataStep
                 pastedData={pastedData}
                 setPastedData={setPastedData}
@@ -348,6 +356,13 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
                 isProcessing={isProcessing}
                 onTrySampleData={handleTrySampleData}
                 onProcessData={handlePasteData}
+              />
+              
+              <GeminiApiKeyInput
+                apiKey={geminiApiKey}
+                setApiKey={setGeminiApiKey}
+                showKey={showApiKey}
+                setShowKey={setShowApiKey}
               />
             </TabsContent>
 
