@@ -234,7 +234,8 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
             type: 'bar' as const,
             columns: processedData.columns.slice(0, 2).map(col => col.name),
             title: 'Data Overview',
-            description: 'Bar chart showing your data'
+            description: 'Bar chart showing your data',
+            priority: 1
           }
         ];
         
