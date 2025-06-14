@@ -1,0 +1,118 @@
+
+import { ProcessedData, processData } from "@/utils/dataProcessor";
+
+export const useSampleData = () => {
+  // Enhanced sample data with 100 rows
+  const sampleData = `Name	Age	Sales	Region	Date	Product	Revenue	Units_Sold	Customer_Rating	Market_Share
+John Smith	25	1500	North	2024-01-15	Laptop	25000	50	4.2	12.5
+Sarah Johnson	30	2000	South	2024-01-16	Phone	18000	90	4.5	8.3
+Mike Davis	28	1800	East	2024-01-17	Tablet	15000	30	4.1	6.7
+Lisa Wilson	35	2200	West	2024-01-18	Monitor	12000	20	4.3	9.2
+Alex Brown	32	1900	North	2024-01-19	Keyboard	8000	200	4.0	15.1
+Emma White	27	2100	South	2024-01-20	Mouse	5000	150	4.4	18.9
+Tom Green	29	1750	East	2024-01-21	Headset	10000	40	4.6	11.3
+Amy Black	26	1650	West	2024-01-22	Webcam	7500	75	4.2	7.8
+Chris Blue	31	2050	North	2024-01-23	Laptop	28000	56	4.3	13.2
+Kate Red	33	1850	South	2024-01-24	Phone	19500	95	4.4	8.9
+Dave Gold	30	2150	East	2024-01-25	Tablet	16500	35	4.1	7.1
+Nina Silver	28	1950	West	2024-01-26	Monitor	13500	25	4.5	9.8
+Paul Gray	34	2250	North	2024-01-27	Keyboard	8500	210	4.0	15.7
+Rose Pink	29	1700	South	2024-01-28	Mouse	5200	160	4.3	19.2
+Jack Orange	27	1600	East	2024-01-29	Headset	10500	42	4.7	11.8
+Jill Purple	32	2000	West	2024-01-30	Webcam	8000	80	4.1	8.1
+Ben Cyan	30	1800	North	2024-01-31	Laptop	26500	52	4.4	12.8
+Zoe Lime	26	1900	South	2024-02-01	Phone	18500	88	4.6	8.5
+Max Teal	31	2100	East	2024-02-02	Tablet	15500	32	4.2	6.9
+Eva Navy	35	2300	West	2024-02-03	Monitor	14000	22	4.3	10.1
+Sam Coral	28	1750	North	2024-02-04	Keyboard	7800	195	3.9	14.8
+Ivy Beige	33	2050	South	2024-02-05	Mouse	5300	165	4.5	19.5
+Leo Tan	29	1850	East	2024-02-06	Headset	11000	45	4.6	12.1
+Mia Rust	27	1650	West	2024-02-07	Webcam	7800	78	4.2	8.3
+Rex Azure	32	2200	North	2024-02-08	Laptop	27500	54	4.5	13.5
+Ava Mint	30	1950	South	2024-02-09	Phone	19000	92	4.3	8.7
+Ian Plum	28	1800	East	2024-02-10	Tablet	16000	33	4.1	7.0
+Zara Jade	34	2400	West	2024-02-11	Monitor	14500	24	4.4	10.3
+Kyle Sand	31	1900	North	2024-02-12	Keyboard	8200	205	4.0	15.4
+Nora Ruby	26	1750	South	2024-02-13	Mouse	5100	155	4.2	18.7
+Owen Clay	33	2150	East	2024-02-14	Headset	10800	43	4.7	11.9
+Ella Pearl	29	1700	West	2024-02-15	Webcam	7600	76	4.1	8.0
+Finn Sage	35	2350	North	2024-02-16	Laptop	28500	58	4.6	13.8
+Lily Dusk	27	1850	South	2024-02-17	Phone	18800	89	4.4	8.6
+Dean Rose	30	2000	East	2024-02-18	Tablet	15800	31	4.2	6.8
+Hope Steel	32	2100	West	2024-02-19	Monitor	13200	21	4.3	9.5
+Cole Amber	28	1650	North	2024-02-20	Keyboard	7900	198	3.8	14.9
+Maya Ivory	31	1950	South	2024-02-21	Mouse	5400	170	4.5	19.8
+Ryan Flame	29	1800	East	2024-02-22	Headset	11200	46	4.8	12.4
+Tara Ocean	26	1600	West	2024-02-23	Webcam	8100	82	4.0	8.5
+Luke Stone	34	2250	North	2024-02-24	Laptop	27000	53	4.3	13.1
+Aria Frost	33	2050	South	2024-02-25	Phone	19200	94	4.5	8.8
+Jude Earth	28	1750	East	2024-02-26	Tablet	16200	34	4.1	7.2
+Sage Cloud	30	2150	West	2024-02-27	Monitor	14200	23	4.4	9.9
+Cade Smoke	32	1900	North	2024-02-28	Keyboard	8300	208	4.0	15.6
+Luna Mist	27	1700	South	2024-03-01	Mouse	5250	162	4.3	19.1
+Drew Storm	35	2400	East	2024-03-02	Headset	10900	44	4.7	12.0
+Iris Snow	29	1850	West	2024-03-03	Webcam	7700	77	4.2	8.2
+Noah Tide	31	2000	North	2024-03-04	Laptop	26800	51	4.4	12.9
+Vera Wind	28	1950	South	2024-03-05	Phone	18600	87	4.6	8.4
+Axel Rain	33	2100	East	2024-03-06	Tablet	15600	32	4.2	6.9
+Wren Star	26	1650	West	2024-03-07	Monitor	13800	22	4.3	9.7
+Cruz Moon	30	2200	North	2024-03-08	Keyboard	8100	202	3.9	15.2
+Skye Sun	32	1800	South	2024-03-09	Mouse	5350	168	4.4	19.4
+Blake Fire	34	2300	East	2024-03-10	Headset	11100	47	4.8	12.2
+Faye Ice	29	1750	West	2024-03-11	Webcam	7900	79	4.1	8.4
+Troy Leaf	27	1900	North	2024-03-12	Laptop	27200	55	4.5	13.3
+Vale Sky	31	2050	South	2024-03-13	Phone	19100	91	4.3	8.7
+Nash Wave	28	1850	East	2024-03-14	Tablet	16100	33	4.1	7.1
+Eden Peak	35	2450	West	2024-03-15	Monitor	14800	25	4.4	10.5
+Kane Rock	30	2000	North	2024-03-16	Keyboard	8400	212	4.0	15.8
+Lux Dawn	26	1700	South	2024-03-17	Mouse	5150	158	4.2	18.8
+Sage Dune	33	2150	East	2024-03-18	Headset	10700	41	4.6	11.7
+Roux Glen	32	1950	West	2024-03-19	Webcam	8200	81	4.0	8.6
+Clay Reed	29	1800	North	2024-03-20	Laptop	28200	57	4.6	13.6
+Neve Hill	27	1850	South	2024-03-21	Phone	18700	86	4.4	8.3
+Jett Vale	31	2100	East	2024-03-22	Tablet	15900	31	4.2	6.8
+Wynn Park	28	1750	West	2024-03-23	Monitor	13600	21	4.3	9.6
+Ford Lake	34	2350	North	2024-03-24	Keyboard	8000	195	3.8	14.7
+Bree Woods	30	2000	South	2024-03-25	Mouse	5500	175	4.5	19.9
+Dale Grove	32	1900	East	2024-03-26	Headset	11300	48	4.9	12.5
+Sage Ridge	29	1650	West	2024-03-27	Webcam	7500	74	4.1	7.9
+Quinn Brook	26	1950	North	2024-03-28	Laptop	26500	50	4.3	12.6
+Lane Field	35	2250	South	2024-03-29	Phone	19300	96	4.5	8.9
+Reed Marsh	31	1850	East	2024-03-30	Tablet	16300	35	4.2	7.3
+Vale Stone	28	2050	West	2024-03-31	Monitor	14100	24	4.4	10.0
+Sage Cliff	33	1750	North	2024-04-01	Keyboard	8600	218	4.1	16.0
+Bryn Coast	27	1700	South	2024-04-02	Mouse	5080	152	4.2	18.5
+Knox Creek	30	2150	East	2024-04-03	Headset	10600	39	4.5	11.5
+Remy Falls	32	1900	West	2024-04-04	Webcam	8300	83	4.0	8.7
+Glen Shore	29	1800	North	2024-04-05	Laptop	27800	56	4.4	13.4
+Bria Wells	34	2400	South	2024-04-06	Phone	18900	90	4.6	8.5
+Drew Banks	28	1950	East	2024-04-07	Tablet	15700	30	4.1	6.6
+Fern Mills	31	2100	West	2024-04-08	Monitor	14400	26	4.3	10.2
+Cole Rivers	26	1650	North	2024-04-09	Keyboard	7700	190	3.7	14.4
+Blair Ponds	35	2300	South	2024-04-10	Mouse	5600	180	4.6	20.1
+Kent Trails	30	2000	East	2024-04-11	Headset	11400	49	4.8	12.6
+Sage Moors	33	1850	West	2024-04-12	Webcam	7400	72	4.0	7.7
+Gray Peaks	29	1750	North	2024-04-13	Laptop	28800	59	4.7	14.0
+June Vales	27	1950	South	2024-04-14	Phone	19400	97	4.4	9.0
+Nash Bays	32	2050	East	2024-04-15	Tablet	16400	36	4.2	7.4
+Wren Coves	28	1700	West	2024-04-16	Monitor	13900	23	4.3	9.8
+Sage Dells	31	2200	North	2024-04-17	Keyboard	8500	215	4.0	15.9
+Bree Fords	34	1800	South	2024-04-18	Mouse	5250	165	4.3	19.0
+Knox Gates	30	2100	East	2024-04-19	Headset	10800	42	4.6	11.8
+Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
+
+  const loadSampleData = (setPastedData: (data: string) => void, setProcessedData: (data: ProcessedData) => void) => {
+    setPastedData(sampleData);
+    
+    // Process the data with automatic type detection
+    const processed = processData(sampleData);
+    if (processed.isValid) {
+      // The descriptions will be auto-populated by ConfigureColumnsStep
+      setProcessedData(processed);
+    }
+    
+    return processed.isValid;
+  };
+
+  return { loadSampleData };
+};
