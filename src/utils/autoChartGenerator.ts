@@ -31,10 +31,14 @@ const POWERBI_CHART_CONFIGS = [
 
 // Analyze data and suggest appropriate charts
 export function generateChartSuggestions(data: ProcessedData): ChartSuggestion[] {
+  console.log('Generating chart suggestions for data:', data);
+  
   const suggestions: ChartSuggestion[] = [];
   const numericColumns = data.columns.filter(col => col.type === 'number');
   const categoricalColumns = data.columns.filter(col => col.type === 'text');
   const dateColumns = data.columns.filter(col => col.type === 'date');
+  
+  console.log('Column analysis:', { numericColumns, categoricalColumns, dateColumns });
   
   POWERBI_CHART_CONFIGS.forEach(config => {
     let columns: string[] = [];
@@ -77,6 +81,7 @@ export function generateChartSuggestions(data: ProcessedData): ChartSuggestion[]
     });
   });
   
+  console.log('Generated suggestions:', suggestions);
   return suggestions.sort((a, b) => b.priority - a.priority);
 }
 
@@ -86,6 +91,8 @@ export function createChartsFromData(
   suggestions: ChartSuggestion[], 
   startPosition: Position = { x: 20, y: 20 }
 ): ChartItemType[] {
+  console.log('Creating charts from data with suggestions:', suggestions);
+  
   const charts: ChartItemType[] = [];
   
   // PowerBI-style grid layout - 4 columns, tight spacing
@@ -96,6 +103,8 @@ export function createChartsFromData(
   const verticalGap = 10;
   
   suggestions.slice(0, 12).forEach((suggestion, index) => {
+    console.log(`Creating chart ${index + 1}: ${suggestion.type}`);
+    
     const col = index % gridCols;
     const row = Math.floor(index / gridCols);
     
@@ -104,55 +113,23 @@ export function createChartsFromData(
       y: startPosition.y + (row * (chartHeight + verticalGap))
     };
     
-    const chartData = prepareChartData(data, suggestion);
-    const chart = createNewChartItem(suggestion.type, position);
-    
-    // PowerBI-style sizing
-    chart.size = { width: chartWidth, height: chartHeight };
-    chart.title = suggestion.title;
-    chart.data = chartData;
-    chart.id = uuidv4();
-    
-    // Enhanced styling for PowerBI look
-    if (chart.options) {
-      chart.options = {
-        ...chart.options,
-        plugins: {
-          ...chart.options.plugins,
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              padding: 15,
-              usePointStyle: true,
-              font: {
-                size: 11
-              }
-            }
-          },
-          title: {
-            display: true,
-            text: suggestion.title,
-            font: {
-              size: 14,
-              weight: 'bold'
-            },
-            padding: 15
-          }
-        },
-        layout: {
-          padding: {
-            top: 10,
-            bottom: 10,
-            left: 15,
-            right: 15
-          }
-        }
-      };
+    try {
+      const chartData = prepareChartData(data, suggestion);
+      const chart = createNewChartItem(suggestion.type, position);
+      
+      // PowerBI-style sizing
+      chart.size = { width: chartWidth, height: chartHeight };
+      chart.title = suggestion.title;
+      chart.data = chartData;
+      chart.id = uuidv4();
+      
+      console.log(`Successfully created chart: ${chart.title}`);
+      charts.push(chart);
+    } catch (error) {
+      console.error(`Error creating chart ${suggestion.type}:`, error);
     }
-    
-    charts.push(chart);
   });
   
+  console.log(`Created ${charts.length} charts total`);
   return charts;
 }

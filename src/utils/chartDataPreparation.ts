@@ -4,6 +4,8 @@ import { ProcessedData } from "./dataProcessor";
 import { ChartSuggestion } from "./autoChartGenerator";
 
 export function prepareChartData(data: ProcessedData, suggestion: ChartSuggestion): ChartData {
+  console.log('Preparing chart data for:', suggestion.type, 'with data:', data);
+  
   const relevantColumns = suggestion.columns;
   
   // Enhanced gauge chart
@@ -129,10 +131,13 @@ export function prepareChartData(data: ProcessedData, suggestion: ChartSuggestio
     };
   }
   
+  console.log('Using default chart data preparation for type:', suggestion.type);
   return prepareDefaultChartData(data, suggestion, relevantColumns);
 }
 
 function prepareDefaultChartData(data: ProcessedData, suggestion: ChartSuggestion, relevantColumns: string[]): ChartData {
+  console.log('Preparing default chart data for:', suggestion.type);
+  
   // Default chart data preparation for scatter, line, area, and categorical charts
   if (suggestion.type === 'scatter') {
     const xCol = relevantColumns[0];
@@ -142,6 +147,8 @@ function prepareDefaultChartData(data: ProcessedData, suggestion: ChartSuggestio
       .filter(row => typeof row[xCol] === 'number' && typeof row[yCol] === 'number')
       .slice(0, 50)
       .map(row => ({ x: row[xCol], y: row[yCol] }));
+    
+    console.log('Scatter data prepared:', scatterData);
     
     return {
       labels: [],
@@ -168,6 +175,8 @@ function prepareDefaultChartData(data: ProcessedData, suggestion: ChartSuggestio
         [valueCol]: Math.floor(Math.random() * 100) + 50
       }));
     }
+    
+    console.log('Time series data prepared:', timeData);
     
     return {
       labels: timeData.map(row => {
@@ -203,6 +212,8 @@ function prepareDefaultChartData(data: ProcessedData, suggestion: ChartSuggestio
   
   const labels = Array.from(groupedData.keys());
   const values = Array.from(groupedData.values());
+  
+  console.log('Categorical data prepared:', { labels, values });
   
   const colors = [
     '#4F46E5', '#8B5CF6', '#EC4899', '#F97316', '#0D9488', 
