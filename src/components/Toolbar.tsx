@@ -248,193 +248,293 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
               <span className="sm:hidden">+</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Chart Types</DropdownMenuLabel>
-            <DropdownMenuSeparator />
+          <DropdownMenuContent className="w-[800px] p-4" align="start">
+            <DropdownMenuLabel className="text-lg font-semibold mb-4">Chart Types</DropdownMenuLabel>
             
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Bar & Column Charts</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("bar")}>
-                <BarChart className="mr-2 h-4 w-4" />
-                <span>Bar Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("column")}>
-                <BarChart3 className="mr-2 h-4 w-4" />
-                <span>Column Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("stacked-bar")}>
-                <BarChart4 className="mr-2 h-4 w-4" />
-                <span>Stacked Bar Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("stacked-column")}>
-                <BarChart4 className="mr-2 h-4 w-4" />
-                <span>Stacked Column Chart</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Line & Area Charts</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("line")}>
-                <LineChart className="mr-2 h-4 w-4" />
-                <span>Line Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("area")}>
-                <Activity className="mr-2 h-4 w-4" />
-                <span>Area Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("stacked-area")}>
-                <Layers className="mr-2 h-4 w-4" />
-                <span>Stacked Area Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("combo")}>
-                <TrendingUp className="mr-2 h-4 w-4" />
-                <span>Combo Chart (Line + Column)</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Pie & Donut Charts</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("pie")}>
-                <PieChart className="mr-2 h-4 w-4" />
-                <span>Pie Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("donut")}>
-                <CircleDot className="mr-2 h-4 w-4" />
-                <span>Donut Chart</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Scatter & Distribution</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("scatter")}>
-                <ScatterChart className="mr-2 h-4 w-4" />
-                <span>Scatter Plot</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("bubble")}>
-                <CircleDot className="mr-2 h-4 w-4" />
-                <span>Bubble Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("histogram")}>
-                <BarChart className="mr-2 h-4 w-4" />
-                <span>Histogram</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("boxplot")}>
-                <Activity className="mr-2 h-4 w-4" />
-                <span>Box Plot</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Flow & Hierarchy</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("waterfall")}>
-                <Activity className="mr-2 h-4 w-4" />
-                <span>Waterfall Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("funnel")}>
-                <Activity className="mr-2 h-4 w-4" />
-                <span>Funnel Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("decomposition-tree")}>
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                <span>Decomposition Tree</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("treemap")}>
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                <span>Treemap</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Maps & Geographic</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("map")}>
-                <Map className="mr-2 h-4 w-4" />
-                <span>Map</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("filled-map")}>
-                <MapPin className="mr-2 h-4 w-4" />
-                <span>Filled Map</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Cards & KPIs</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("card")}>
-                <Hash className="mr-2 h-4 w-4" />
-                <span>Card</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("multi-row-card")}>
-                <Hash className="mr-2 h-4 w-4" />
-                <span>Multi-row Card</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("gauge")}>
-                <Gauge className="mr-2 h-4 w-4" />
-                <span>Gauge</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("kpi")}>
-                <Target className="mr-2 h-4 w-4" />
-                <span>KPI Visual</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Tables & Data</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("table")}>
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                <span>Table</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("matrix")}>
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                <span>Matrix</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("slicer")}>
-                <Filter className="mr-2 h-4 w-4" />
-                <span>Slicer/Filter</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Special Visuals</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleAddItem("radar")}>
-                <ZapOff className="mr-2 h-4 w-4" />
-                <span>Radar Chart</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("heatmap")}>
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                <span>Heatmap</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("word-cloud")}>
-                <CloudRain className="mr-2 h-4 w-4" />
-                <span>Word Cloud</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("timeline")}>
-                <Calendar1 className="mr-2 h-4 w-4" />
-                <span>Timeline</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddItem("gantt")}>
-                <Kanban className="mr-2 h-4 w-4" />
-                <span>Gantt Chart</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleAddItem("text")}>
-              <Type className="mr-2 h-4 w-4" />
-              <span>Text Label</span>
-            </DropdownMenuItem>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setIsTextToChartOpen(true)}>
-              <MessageSquareText className="mr-2 h-4 w-4" />
-              <span>Text to Chart</span>
-            </DropdownMenuItem>
+            <div className="grid grid-cols-6 gap-6">
+              {/* Bar & Column Charts Column */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Bar & Column Charts</h3>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => handleAddItem("bar")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <BarChart className="h-4 w-4" />
+                    <span>Bar Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("column")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    <span>Column Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("stacked-bar")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <BarChart4 className="h-4 w-4" />
+                    <span>Stacked Bar</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("stacked-column")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <BarChart4 className="h-4 w-4" />
+                    <span>Stacked Column</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Line & Area Charts Column */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Line & Area Charts</h3>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => handleAddItem("line")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <LineChart className="h-4 w-4" />
+                    <span>Line Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("area")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Activity className="h-4 w-4" />
+                    <span>Area Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("stacked-area")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Layers className="h-4 w-4" />
+                    <span>Stacked Area</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("combo")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <TrendingUp className="h-4 w-4" />
+                    <span>Combo Chart</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Pie & Distribution Column */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Pie & Distribution</h3>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => handleAddItem("pie")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <PieChart className="h-4 w-4" />
+                    <span>Pie Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("donut")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <CircleDot className="h-4 w-4" />
+                    <span>Donut Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("scatter")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <ScatterChart className="h-4 w-4" />
+                    <span>Scatter Plot</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("bubble")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <CircleDot className="h-4 w-4" />
+                    <span>Bubble Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("histogram")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <BarChart className="h-4 w-4" />
+                    <span>Histogram</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("boxplot")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Activity className="h-4 w-4" />
+                    <span>Box Plot</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Flow & Hierarchy Column */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Flow & Hierarchy</h3>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => handleAddItem("waterfall")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Activity className="h-4 w-4" />
+                    <span>Waterfall</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("funnel")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Activity className="h-4 w-4" />
+                    <span>Funnel Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("decomposition-tree")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    <span>Decomposition Tree</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("treemap")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    <span>Treemap</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Cards & KPIs Column */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Cards & KPIs</h3>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => handleAddItem("card")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Hash className="h-4 w-4" />
+                    <span>Card</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("multi-row-card")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Hash className="h-4 w-4" />
+                    <span>Multi-row Card</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("gauge")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Gauge className="h-4 w-4" />
+                    <span>Gauge</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("kpi")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Target className="h-4 w-4" />
+                    <span>KPI Visual</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Tables & More Column */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Tables & More</h3>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => handleAddItem("table")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    <span>Table</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("matrix")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    <span>Matrix</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("slicer")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Filter className="h-4 w-4" />
+                    <span>Slicer/Filter</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("map")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Map className="h-4 w-4" />
+                    <span>Map</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("filled-map")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    <span>Filled Map</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("radar")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <ZapOff className="h-4 w-4" />
+                    <span>Radar Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("heatmap")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    <span>Heatmap</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("word-cloud")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <CloudRain className="h-4 w-4" />
+                    <span>Word Cloud</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("timeline")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Calendar1 className="h-4 w-4" />
+                    <span>Timeline</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("gantt")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Kanban className="h-4 w-4" />
+                    <span>Gantt Chart</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddItem("text")}
+                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Type className="h-4 w-4" />
+                    <span>Text Label</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t">
+              <button
+                onClick={() => setIsTextToChartOpen(true)}
+                className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100"
+              >
+                <MessageSquareText className="h-4 w-4" />
+                <span>🪄 AI Text to Chart Generator</span>
+              </button>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
 
