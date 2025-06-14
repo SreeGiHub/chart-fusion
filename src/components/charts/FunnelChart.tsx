@@ -68,13 +68,14 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
             nameKey="name"
             data={processedData}
             isAnimationActive
+            trapezoidAngle={5} // This creates a more triangular/funnel shape
           >
             {processedData.map((entry, index) => {
               const bgColors = dataset.backgroundColor;
               const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : (bgColors as string || "#4f46e5");
               return <Cell key={`cell-${index}`} fill={color} />;
             })}
-            <LabelList position="right" dataKey={dataset.label || `dataset-${index}`} />
+            <LabelList position="center" dataKey={dataset.label || `dataset-${index}`} fill="white" />
           </Funnel>
         ))}
       </RechartsFunnelChart>

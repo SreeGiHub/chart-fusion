@@ -1,3 +1,4 @@
+
 import { ChartData, ChartDataPoint, ChartItemType, ChartType, Position } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { DEFAULT_CHART_SIZE, DEFAULT_COLORS } from "./types";
@@ -46,6 +47,22 @@ export function createNewChartItem(
       }))
     };
     size = { width: 600, height: 400 };
+  } else if (type === "pie" || type === "donut" || type === "funnel") {
+    // For pie, donut, and funnel charts, create different colors for each label
+    const labels = ["Jan", "Feb", "Mar", "Apr", "May"];
+    const data = [65, 59, 80, 81, 56];
+    const colors = ["#8B5CF6", "#EC4899", "#F97316", "#0EA5E9", "#10B981"];
+    
+    chartData = {
+      labels,
+      datasets: [{
+        label: "Dataset 1",
+        data,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 2,
+      }],
+    };
   } else if (type === "stacked-bar" || type === "stacked-column") {
     // Add multiple datasets for stacked charts
     chartData.datasets = [

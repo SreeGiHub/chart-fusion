@@ -81,8 +81,15 @@ const PieChart: React.FC<PieChartProps> = ({ item }) => {
         >
           {processedData.map((entry, index) => {
             const bgColors = item.data.datasets[0].backgroundColor;
-            const color = Array.isArray(bgColors) ? bgColors[index % bgColors.length] : bgColors;
-            return <Cell key={index} fill={color || `#${Math.floor(Math.random() * 16777215).toString(16)}`} />;
+            let color;
+            
+            if (Array.isArray(bgColors)) {
+              color = bgColors[index % bgColors.length];
+            } else {
+              color = bgColors || `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+            }
+            
+            return <Cell key={index} fill={color} />;
           })}
         </Pie>
       </RechartsPieChart>
