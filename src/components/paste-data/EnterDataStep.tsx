@@ -33,14 +33,33 @@ const EnterDataStep: React.FC<EnterDataStepProps> = ({
   return (
     <div className="flex-1 space-y-6">
       <div className="bg-gradient-to-r from-emerald-50 to-blue-50 p-4 rounded-lg border border-emerald-200">
-        <div className="flex items-start gap-3">
-          <TrendingUp className="h-5 w-5 text-emerald-600 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-gray-900">How it works</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Copy data from Excel or Google Sheets, paste it below, and we'll instantly create multiple chart types to visualize your insights.
-            </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <TrendingUp className="h-5 w-5 text-emerald-600 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-gray-900">How it works</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Copy data from Excel or Google Sheets, paste it below, and we'll instantly create multiple chart types to visualize your insights.
+              </p>
+            </div>
           </div>
+          <Button 
+            onClick={onProcessData} 
+            disabled={!pastedData.trim() || isProcessing}
+            className="min-w-32 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"
+          >
+            {isProcessing ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <ArrowRight className="h-4 w-4 mr-2" />
+                Process Data
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
@@ -102,23 +121,9 @@ Mike	28	1800	East"
       )}
 
       <div className="flex justify-end pt-4 border-t">
-        <Button 
-          onClick={onProcessData} 
-          disabled={!pastedData.trim() || isProcessing}
-          className="min-w-32 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"
-        >
-          {isProcessing ? (
-            <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            <>
-              <ArrowRight className="h-4 w-4 mr-2" />
-              Process Data
-            </>
-          )}
-        </Button>
+        <div className="text-sm text-gray-500">
+          Step 1 of 3: Enter your data
+        </div>
       </div>
     </div>
   );

@@ -54,14 +54,24 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
   return (
     <div className="flex-1 flex flex-col overflow-hidden space-y-6">
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
-        <div className="flex items-start gap-3">
-          <Settings className="h-5 w-5 text-blue-600 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-gray-900">Configure Your Columns</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Review and adjust column names and data types to ensure accurate chart generation.
-            </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <Settings className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-gray-900">Configure Your Columns</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Review and adjust column names and data types to ensure accurate chart generation.
+              </p>
+            </div>
           </div>
+          <Button 
+            onClick={handleContinue}
+            disabled={validation && !validation.isValid}
+            className="min-w-32 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
+            <ArrowRight className="h-4 w-4 mr-2" />
+            Continue to Preview
+          </Button>
         </div>
       </div>
 
@@ -167,14 +177,6 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
         <div className="text-sm text-gray-500">
           Step 2 of 3: Configure your data columns
         </div>
-        <Button 
-          onClick={handleContinue}
-          disabled={validation && !validation.isValid}
-          className="min-w-32 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-        >
-          <ArrowRight className="h-4 w-4 mr-2" />
-          Continue to Preview
-        </Button>
       </div>
     </div>
   );
