@@ -68,7 +68,6 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
             nameKey="name"
             data={processedData}
             isAnimationActive
-            trapezoidAngle={5} // This creates a more triangular/funnel shape
           >
             {processedData.map((entry, index) => {
               const bgColors = dataset.backgroundColor;
