@@ -28,8 +28,25 @@ interface ChartCategoriesDropdownProps {
 }
 
 const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTextToChartOpen }) => {
-  const { dispatch } = useDashboard();
+  const { state, dispatch } = useDashboard();
   const [isOpen, setIsOpen] = useState(false);
+
+  const getNextPosition = () => {
+    const existingItems = state.items;
+    if (existingItems.length === 0) {
+      return { x: 50, y: 50 };
+    }
+    
+    // Find a position that doesn't overlap with existing items
+    const gridSize = 450; // Chart width + some spacing
+    const row = Math.floor(existingItems.length / 3);
+    const col = existingItems.length % 3;
+    
+    return {
+      x: 50 + (col * gridSize),
+      y: 50 + (row * 350) // Chart height + some spacing
+    };
+  };
 
   const addChart = (type: string) => {
     let chartData: ChartData;
@@ -66,11 +83,13 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
       };
     }
 
+    const position = getNextPosition();
+
     const newItem = {
       id: `chart-${Date.now()}`,
       type: type as any,
       title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
-      position: { x: 100, y: 100 },
+      position: position,
       size: { width: 400, height: 300 },
       data: chartData,
     };
