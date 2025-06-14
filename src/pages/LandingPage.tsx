@@ -11,7 +11,9 @@ import {
   Palette,
   Zap,
   ChartScatter,
-  ChartPie
+  ChartPie,
+  Sparkles,
+  Plus
 } from "lucide-react";
 import { 
   ResponsiveContainer, 
@@ -105,9 +107,39 @@ const LandingPage = () => {
             No data required, just pure visualization.
           </p>
 
-          <Button asChild size="lg" className="px-12 py-6 text-lg rounded-full bg-red-600 hover:bg-red-700">
-            <Link to="/dashboard">Visualize</Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            {/* Visualize Button with Sample Data */}
+            <div className="flex flex-col items-center gap-3">
+              <Button asChild size="lg" className="px-12 py-6 text-lg rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200">
+                <Link to="/dashboard?loadSample=true" className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" />
+                  Visualize
+                </Link>
+              </Button>
+              <div className="text-center max-w-xs">
+                <p className="text-sm font-medium text-gray-700 mb-1">Auto-loads sample data</p>
+                <p className="text-xs text-gray-500">Start with example charts and data to explore features instantly</p>
+              </div>
+            </div>
+
+            {/* Canvas Button for Blank Start */}
+            <div className="flex flex-col items-center gap-3">
+              <Button asChild size="lg" variant="outline" className="px-12 py-6 text-lg rounded-full border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white shadow-lg hover:shadow-xl transition-all duration-200">
+                <Link to="/dashboard" className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Canvas
+                </Link>
+              </Button>
+              <div className="text-center max-w-xs">
+                <p className="text-sm font-medium text-gray-700 mb-1">Start from scratch</p>
+                <p className="text-xs text-gray-500">Begin with a blank canvas and build your dashboard step by step</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 text-xs text-gray-400">
+            Choose your starting point • No account required • Export ready
+          </div>
         </div>
       </section>
 
