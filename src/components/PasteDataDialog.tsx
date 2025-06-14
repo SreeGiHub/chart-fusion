@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -572,43 +573,54 @@ Mike	28	1800	East"
                     </div>
                   </div>
 
-                  {validation && validation.isValid && (
-                    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6 mt-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
-                          <Zap className="h-4 w-4 text-green-600" />
+                  {/* Generate Dashboard CTA Section */}
+                  <div className="border-t pt-6">
+                    {validation && validation.isValid ? (
+                      <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
+                            <Zap className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-green-800">Ready to Generate Dashboard!</h3>
+                            <p className="text-sm text-green-700">
+                              We'll create 6-8 diverse charts including bar, line, pie, and scatter plots based on your {processedData.rows.length} rows of data
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-green-800">Ready to Generate Dashboard!</h3>
-                          <p className="text-sm text-green-700">
-                            We'll create 6-8 diverse charts including bar, line, pie, and scatter plots based on your {processedData.rows.length} rows of data
-                          </p>
+                        <div className="flex items-center gap-2 text-xs text-green-600 mb-4">
+                          <span>• Charts will be fully editable and movable</span>
+                          <span>• Smart chart type selection</span>
+                          <span>• Instant insights</span>
+                        </div>
+                        <Button 
+                          onClick={handleGenerateCharts}
+                          disabled={isGenerating}
+                          size="lg"
+                          className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white min-w-48"
+                        >
+                          {isGenerating ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Generating Dashboard...
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-4 w-4 mr-2" />
+                              Generate My Dashboard
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-yellow-800">
+                          <AlertTriangle className="h-4 w-4" />
+                          <span className="text-sm font-medium">Please fix data errors before generating dashboard</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-green-600 mb-4">
-                        <span>• Charts will be fully editable and movable</span>
-                        <span>• Smart chart type selection</span>
-                        <span>• Instant insights</span>
-                      </div>
-                      <Button 
-                        onClick={handleGenerateCharts}
-                        disabled={isGenerating}
-                        className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white min-w-40"
-                      >
-                        {isGenerating ? (
-                          <>
-                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                            Generating...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4 mr-2" />
-                            Generate My Dashboard
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
             </TabsContent>
