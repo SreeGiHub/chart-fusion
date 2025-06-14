@@ -207,7 +207,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
               <Button 
                 variant="default" 
                 onClick={() => setIsPasteDataOpen(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 animate-pulse"
+                className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 size="default"
               >
                 <Sparkles className="h-4 w-4" />

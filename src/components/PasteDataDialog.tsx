@@ -162,10 +162,10 @@ Lisa Wilson	35	2200	West	2024-01-18`;
       onOpenChange(open);
       if (!open) resetDialog();
     }}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="space-y-3">
+      <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col">
+        <DialogHeader className="space-y-3 pb-4 border-b">
           <DialogTitle className="flex items-center gap-3 text-xl">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -175,180 +175,181 @@ Lisa Wilson	35	2200	West	2024-01-18`;
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="paste" className="flex items-center gap-2">
-              <FileSpreadsheet className="h-4 w-4" />
-              <span>1. Paste Data</span>
-            </TabsTrigger>
-            <TabsTrigger value="preview" disabled={!processedData} className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              <span>2. Preview & Generate</span>
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex-1 overflow-hidden">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="paste" className="flex items-center gap-2">
+                <FileSpreadsheet className="h-4 w-4" />
+                <span>1. Paste Data</span>
+              </TabsTrigger>
+              <TabsTrigger value="preview" disabled={!processedData} className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                <span>2. Preview & Generate</span>
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="paste" className="flex-1 space-y-6">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border">
-              <div className="flex items-start gap-3">
-                <TrendingUp className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <h3 className="font-medium text-gray-900">How it works</h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Copy data from Excel or Google Sheets, paste it below, and we'll instantly create multiple chart types to visualize your insights.
-                  </p>
+            <TabsContent value="paste" className="flex-1 space-y-6">
+              <div className="bg-gradient-to-r from-emerald-50 to-blue-50 p-4 rounded-lg border border-emerald-200">
+                <div className="flex items-start gap-3">
+                  <TrendingUp className="h-5 w-5 text-emerald-600 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">How it works</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Copy data from Excel or Google Sheets, paste it below, and we'll instantly create multiple chart types to visualize your insights.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="paste-area" className="text-base font-medium">
-                  Paste your data here
-                </Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleTrySampleData}
-                  className="text-xs"
-                >
-                  Try sample data
-                </Button>
-              </div>
-              <Textarea
-                id="paste-area"
-                placeholder="Paste tabular data here...
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="paste-area" className="text-base font-medium">
+                    Paste your data here
+                  </Label>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleTrySampleData}
+                    className="text-xs"
+                  >
+                    Try sample data
+                  </Button>
+                </div>
+                <Textarea
+                  id="paste-area"
+                  placeholder="Paste tabular data here...
 
 Example:
 Name	Age	Sales	Region
 John	25	1500	North
 Sarah	30	2000	South
 Mike	28	1800	East"
-                value={pastedData}
-                onChange={(e) => setPastedData(e.target.value)}
-                className="h-48 font-mono text-sm resize-none"
-              />
-            </div>
-
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-3 w-3 text-green-500" />
-                <span>Supports Excel & Sheets formats</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-3 w-3 text-green-500" />
-                <span>Auto-detects data types</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-3 w-3 text-green-500" />
-                <span>Up to 20 rows</span>
-              </div>
-            </div>
-
-            {processedData && !processedData.isValid && (
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="space-y-1">
-                    {processedData.errors.map((error, index) => (
-                      <div key={index}>• {error}</div>
-                    ))}
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <div className="flex justify-end">
-              <Button 
-                onClick={handlePasteData} 
-                disabled={!pastedData.trim() || isProcessing}
-                className="min-w-32"
-              >
-                {isProcessing ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <ArrowRight className="h-4 w-4 mr-2" />
-                    Process Data
-                  </>
-                )}
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="preview" className="flex-1 space-y-6 overflow-auto">
-            {processedData && (
-              <>
-                {validation && validation.warnings.length > 0 && (
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      <div className="space-y-1">
-                        <strong>Data Warnings:</strong>
-                        {validation.warnings.map((warning, index) => (
-                          <div key={index} className="text-xs">• {warning}</div>
-                        ))}
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                <DataPreviewTable 
-                  data={processedData}
-                  onColumnUpdate={handleColumnUpdate}
+                  value={pastedData}
+                  onChange={(e) => setPastedData(e.target.value)}
+                  className="h-48 font-mono text-sm resize-none"
                 />
+              </div>
 
-                {validation && validation.isValid && (
-                  <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
-                        <Zap className="h-4 w-4 text-green-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-green-800">Ready to Generate Dashboard!</h3>
-                        <p className="text-sm text-green-700">
-                          We'll create 6-8 diverse charts including bar, line, pie, and scatter plots based on your data
-                        </p>
-                      </div>
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <span>Supports Excel & Sheets formats</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <span>Auto-detects data types</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <span>Up to 20 rows</span>
+                </div>
+              </div>
+
+              {processedData && !processedData.isValid && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="space-y-1">
+                      {processedData.errors.map((error, index) => (
+                        <div key={index}>• {error}</div>
+                      ))}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-green-600">
-                      <span>• Charts will be fully editable and movable</span>
-                      <span>• Smart chart type selection</span>
-                      <span>• Instant insights</span>
-                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex justify-end pt-4 border-t">
+                <Button 
+                  onClick={handlePasteData} 
+                  disabled={!pastedData.trim() || isProcessing}
+                  className="min-w-32 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"
+                >
+                  {isProcessing ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                      Process Data
+                    </>
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="preview" className="flex-1 flex flex-col overflow-hidden">
+              {processedData && (
+                <div className="flex-1 flex flex-col space-y-6 overflow-hidden">
+                  {validation && validation.warnings.length > 0 && (
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        <div className="space-y-1">
+                          <strong>Data Warnings:</strong>
+                          {validation.warnings.map((warning, index) => (
+                            <div key={index} className="text-xs">• {warning}</div>
+                          ))}
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="flex-1 overflow-auto">
+                    <DataPreviewTable 
+                      data={processedData}
+                      onColumnUpdate={handleColumnUpdate}
+                    />
                   </div>
-                )}
-              </>
-            )}
-          </TabsContent>
-        </Tabs>
+
+                  {validation && validation.isValid && (
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6 mt-6">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
+                          <Zap className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-green-800">Ready to Generate Dashboard!</h3>
+                          <p className="text-sm text-green-700">
+                            We'll create 6-8 diverse charts including bar, line, pie, and scatter plots based on your data
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-green-600 mb-4">
+                        <span>• Charts will be fully editable and movable</span>
+                        <span>• Smart chart type selection</span>
+                        <span>• Instant insights</span>
+                      </div>
+                      <Button 
+                        onClick={handleGenerateCharts}
+                        disabled={isGenerating}
+                        className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white min-w-40"
+                      >
+                        {isGenerating ? (
+                          <>
+                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4 mr-2" />
+                            Generate My Dashboard
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
 
         <DialogFooter className="flex justify-between border-t pt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          
-          {processedData && validation?.isValid && (
-            <Button 
-              onClick={handleGenerateCharts}
-              disabled={isGenerating}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white min-w-40"
-            >
-              {isGenerating ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4 mr-2" />
-                  Generate My Dashboard
-                </>
-              )}
-            </Button>
-          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
