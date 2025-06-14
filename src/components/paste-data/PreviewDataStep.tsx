@@ -60,9 +60,8 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
           </div>
           <Button 
             onClick={handleGenerate}
-            disabled={validation && !validation.isValid}
+            disabled={isGenerating || (validation && !validation.isValid)}
             className="min-w-48 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-            loading={isGenerating}
           >
             <Sparkles className="h-4 w-4 mr-2" />
             {isGenerating ? 'Generating Charts...' : 'Generate AI Dashboard'}
