@@ -13,7 +13,7 @@ import {
   LineChart, 
   PieChart, 
   AreaChart,
-  Scatter,
+  ChartScatter,
   Target,
   Table,
   FileText,
@@ -82,7 +82,6 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
       textColor: "text-orange-600",
       charts: [
         { type: "bar", label: "Bar Chart", icon: BarChart3 },
-        { type: "column", label: "Column Chart", icon: BarChart3 },
       ]
     },
     {
@@ -101,20 +100,14 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
       textColor: "text-purple-600",
       charts: [
         { type: "pie", label: "Pie Chart", icon: PieChart },
-        { type: "donut", label: "Donut Chart", icon: PieChart },
-        { type: "treemap", label: "Treemap", icon: Target },
-        { type: "funnel", label: "Funnel Chart", icon: Target },
       ]
     },
     {
-      name: "Scatter & Bubble",
+      name: "Scatter",
       color: "bg-green-100 border-green-200",
       textColor: "text-green-600",
       charts: [
-        { type: "scatter", label: "Scatter Plot", icon: Scatter },
-        { type: "bubble", label: "Bubble Chart", icon: Scatter },
-        { type: "radar", label: "Radar Chart", icon: Target },
-        { type: "gauge", label: "Gauge", icon: Target },
+        { type: "scatter", label: "Scatter Plot", icon: ChartScatter },
       ]
     },
     {
