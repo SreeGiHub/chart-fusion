@@ -11,20 +11,22 @@ export function createAIChartsFromData(
   suggestions: AIChartSuggestion[], 
   startPosition: Position = { x: 20, y: 20 }
 ): ChartItemType[] {
-  console.log('=== ENHANCED AI CHART CREATION ===');
-  console.log('Creating charts from AI suggestions with business intelligence...');
+  console.log('=== STRATEGIC DASHBOARD CREATION WITH BUSINESS INTELLIGENCE ===');
+  console.log('Creating intelligent dashboard from AI business analysis...');
   
   const charts: ChartItemType[] = [];
   
-  // Smart grid layout based on chart priorities and types
-  const gridLayout = calculateSmartGridLayout(suggestions);
+  // Strategic grid layout optimized for business decision-making
+  const gridLayout = calculateBusinessIntelligentLayout(suggestions);
   
+  // Create up to 8 high-value charts based on business priority
   suggestions.slice(0, 8).forEach((suggestion, index) => {
-    console.log(`Creating AI-suggested chart ${index + 1}:`, {
+    console.log(`Creating strategic chart ${index + 1}:`, {
       type: suggestion.type,
       title: suggestion.title,
       priority: suggestion.priority,
-      goal: suggestion.visualizationGoal
+      businessGoal: suggestion.visualizationGoal,
+      insight: suggestion.businessInsight?.substring(0, 50) + '...'
     });
     
     const layout = gridLayout[index];
@@ -48,50 +50,94 @@ export function createAIChartsFromData(
       chart.data = chartData;
       chart.id = uuidv4();
       
-      console.log(`Successfully created AI chart: ${chart.title} (Priority: ${suggestion.priority})`);
+      // Add business context to chart options if available
+      if (suggestion.businessInsight || suggestion.reasoning) {
+        chart.options = {
+          ...chart.options,
+          businessInsight: suggestion.businessInsight,
+          reasoning: suggestion.reasoning,
+          visualizationGoal: suggestion.visualizationGoal
+        };
+      }
+      
+      console.log(`Successfully created strategic chart: ${chart.title}`, {
+        priority: suggestion.priority,
+        goal: suggestion.visualizationGoal,
+        size: chart.size
+      });
       charts.push(chart);
     } catch (error) {
-      console.error(`Error creating AI chart ${suggestion.type}:`, error);
+      console.error(`Error creating strategic chart ${suggestion.type}:`, error);
     }
   });
   
-  console.log(`Created ${charts.length} AI-enhanced charts with intelligent layout`);
+  console.log(`Created ${charts.length} strategic business intelligence charts with optimized layout`);
   return charts;
 }
 
-function calculateSmartGridLayout(suggestions: AIChartSuggestion[]) {
+function calculateBusinessIntelligentLayout(suggestions: AIChartSuggestion[]) {
   const layouts = [];
   const baseWidth = 400;
   const baseHeight = 300;
-  const gap = 20;
+  const gap = 30;
   
-  // Sort suggestions by priority to place most important charts prominently
-  const sortedSuggestions = [...suggestions].sort((a, b) => b.priority - a.priority);
+  // Sort suggestions by business priority for optimal placement
+  const prioritizedSuggestions = [...suggestions].sort((a, b) => b.priority - a.priority);
   
-  for (let i = 0; i < Math.min(sortedSuggestions.length, 8); i++) {
-    const suggestion = sortedSuggestions[i];
-    const isHighPriority = suggestion.priority >= 8;
+  for (let i = 0; i < Math.min(prioritizedSuggestions.length, 8); i++) {
+    const suggestion = prioritizedSuggestions[i];
+    const isExecutiveLevel = suggestion.priority >= 9; // Executive-level insights
+    const isStrategic = suggestion.priority >= 7; // Strategic insights
     const isKPI = suggestion.type === 'card' || suggestion.type === 'gauge';
+    const isDetailedAnalysis = suggestion.type === 'table' || suggestion.type === 'scatter';
     
     let width = baseWidth;
     let height = baseHeight;
     
-    // Adjust size based on chart type and priority
-    if (isKPI) {
-      width = 280;
+    // Strategic sizing based on business importance and chart type
+    if (isKPI && isExecutiveLevel) {
+      // Executive KPI cards - prominent but compact
+      width = 320;
       height = 200;
-    } else if (isHighPriority) {
+    } else if (isExecutiveLevel) {
+      // Executive-level charts - larger for impact
+      width = 500;
+      height = 350;
+    } else if (isStrategic) {
+      // Strategic charts - enhanced size
       width = 450;
       height = 320;
+    } else if (isDetailedAnalysis) {
+      // Detailed analysis - wider for data exploration
+      width = 480;
+      height = 320;
+    } else if (isKPI) {
+      // Standard KPI cards
+      width = 300;
+      height = 180;
     }
     
-    // Calculate position in a smart grid
-    const col = i % 3;
-    const row = Math.floor(i / 3);
+    // Calculate position in business-optimized grid
+    // Place highest priority items in prime real estate (top-left)
+    let col, row;
+    
+    if (i < 3) {
+      // Top row for most critical insights
+      col = i;
+      row = 0;
+    } else if (i < 6) {
+      // Second row for supporting insights
+      col = i - 3;
+      row = 1;
+    } else {
+      // Third row for detailed analysis
+      col = i - 6;
+      row = 2;
+    }
     
     layouts.push({
       x: col * (baseWidth + gap),
-      y: row * (baseHeight + gap),
+      y: row * (baseHeight + gap + 20), // Extra spacing for business context
       size: { width, height }
     });
   }

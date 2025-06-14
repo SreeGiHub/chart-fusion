@@ -19,6 +19,7 @@ interface GeminiChartSuggestion {
   reasoning: string;
   priority: number;
   visualizationGoal: string;
+  businessInsight: string;
 }
 
 interface GeminiAnalysisResponse {
@@ -26,6 +27,10 @@ interface GeminiAnalysisResponse {
   chartSuggestions: GeminiChartSuggestion[];
   layoutRecommendations: string;
   executiveSummary: string;
+  kpis: Array<{
+    metric: string;
+    value: string;
+  }>;
 }
 
 export class GeminiService {
@@ -37,9 +42,9 @@ export class GeminiService {
   }
 
   async analyzeDataForCharts(request: GeminiAnalysisRequest): Promise<GeminiAnalysisResponse> {
-    const sampleData = request.data.slice(0, 10); // Send first 10 rows for better analysis
+    const sampleData = request.data.slice(0, 15); // Send more sample data for better analysis
     
-    const prompt = this.buildEnhancedAnalysisPrompt(request.columns, sampleData, request.availableChartTypes, request.datasetSize);
+    const prompt = this.buildAdvancedBusinessAnalysisPrompt(request.columns, sampleData, request.availableChartTypes, request.datasetSize);
     
     try {
       const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
@@ -58,9 +63,9 @@ export class GeminiService {
             }
           ],
           generationConfig: {
-            temperature: 0.3,
-            topP: 0.8,
-            maxOutputTokens: 3000,
+            temperature: 0.2,
+            topP: 0.9,
+            maxOutputTokens: 4000,
           }
         }),
       });
@@ -76,97 +81,113 @@ export class GeminiService {
         throw new Error('No content received from Gemini API');
       }
 
-      return this.parseGeminiResponse(content);
+      return this.parseAdvancedGeminiResponse(content);
     } catch (error) {
       console.error('Gemini API error:', error);
       throw error;
     }
   }
 
-  private buildEnhancedAnalysisPrompt(columns: any[], sampleData: any[], availableChartTypes: string[], datasetSize: number): string {
+  private buildAdvancedBusinessAnalysisPrompt(columns: any[], sampleData: any[], availableChartTypes: string[], datasetSize: number): string {
     return `
-You are an expert data visualization consultant analyzing business data to create an intelligent dashboard. Your goal is to recommend the most insightful charts that tell a compelling data story.
+You are an expert business intelligence consultant and data visualization specialist. Your task is to analyze business data and create a sophisticated dashboard that tells a compelling data story with actionable insights.
 
-=== DATASET ANALYSIS ===
+=== BUSINESS DATA CONTEXT ===
 Total Records: ${datasetSize}
-Columns with Rich Business Context:
-${columns.map(col => `• ${col.name} (${col.type}): ${col.description || 'No description provided'}`).join('\n')}
+Data Structure & Business Context:
+${columns.map(col => `• ${col.name} (${col.type}): ${col.description || 'Business metric - analyze for patterns and insights'}`).join('\n')}
 
-Sample Data (showing patterns and relationships):
+Representative Sample Data (showing actual business patterns):
 ${JSON.stringify(sampleData, null, 2)}
 
-=== AVAILABLE CHART TYPES ===
-You can recommend from these chart types:
+=== AVAILABLE VISUALIZATION TYPES ===
+Chart types available in our system:
 ${availableChartTypes.map(type => `• ${type}`).join('\n')}
 
-Chart Type Usage Guidelines:
-- **bar/column**: Category comparisons, rankings, discrete data
-- **line**: Time series, trends, continuous data over time
-- **area**: Cumulative values, trend visualization with emphasis on volume
-- **pie/donut**: Part-to-whole relationships, composition (max 7 categories)
-- **scatter**: Correlation analysis, relationship between two continuous variables
-- **card**: Key metrics, KPIs, single important values
-- **gauge**: Progress toward goals, performance indicators (0-100% scales)
-- **treemap**: Hierarchical data, nested categories with size relationships
-- **funnel**: Process flow, conversion rates, sequential steps
-- **radar**: Multi-dimensional comparison, skill assessments
-- **table**: Detailed data exploration, when precision is needed
+Chart Type Selection Guidelines:
+- **bar/column**: Comparisons, rankings, performance by category
+- **line**: Time trends, performance over time, growth patterns  
+- **area**: Cumulative trends, volume emphasis, stacked performance
+- **pie/donut**: Market share, composition, percentage breakdowns (max 8 segments)
+- **scatter**: Correlations, relationship analysis, performance matrices
+- **bubble**: Multi-dimensional analysis (3+ variables simultaneously)
+- **card**: KPIs, key metrics, executive summary numbers
+- **gauge**: Goal tracking, performance indicators, progress metrics
+- **treemap**: Hierarchical data, nested comparisons with size relationships
+- **funnel**: Process flows, conversion analysis, sequential steps
+- **radar**: Multi-criteria evaluation, skill assessments, balanced scorecards
+- **table**: Detailed breakdowns, when precision and specifics are needed
 
 === ANALYSIS REQUIREMENTS ===
-Analyze the data and provide recommendations in this EXACT JSON format:
+
+You must analyze this data like a senior business analyst and provide strategic dashboard recommendations in this EXACT JSON format:
 
 {
-  "dataInsights": "Comprehensive analysis of what this data represents, key business patterns discovered, anomalies, trends, and relationships between variables",
-  "executiveSummary": "High-level business summary of the most important insights and recommended actions",
+  "dataInsights": "Deep business analysis: What this data represents, key patterns discovered, trends, correlations, anomalies, and strategic implications for the business",
+  "executiveSummary": "Executive-level summary of the most critical business insights and recommended strategic actions based on the data analysis",
+  "kpis": [
+    {
+      "metric": "descriptive_name_of_key_metric",
+      "value": "calculated_value_with_units"
+    }
+  ],
   "chartSuggestions": [
     {
       "chartType": "exact_chart_type_from_available_list",
-      "title": "Clear, business-focused title that indicates the insight",
-      "description": "What specific business question this chart answers and what actions it enables",
+      "title": "Strategic business-focused title that highlights the key insight",
+      "description": "What critical business question this chart answers and what strategic decisions it enables",
       "xAxis": "exact_column_name_for_x_axis",
-      "yAxis": "exact_column_name_for_y_axis_or_value",
-      "reasoning": "Detailed explanation of why this chart type is optimal for this data relationship and business goal",
+      "yAxis": "exact_column_name_for_y_axis_or_metric",
+      "reasoning": "Detailed business rationale for why this specific chart type and data combination provides maximum strategic value",
       "priority": 1-10,
-      "visualizationGoal": "primary_business_objective (e.g., 'performance_tracking', 'trend_analysis', 'comparison', 'composition', 'correlation')"
+      "visualizationGoal": "specific_business_objective (e.g., 'performance_optimization', 'trend_identification', 'competitive_analysis', 'efficiency_measurement', 'risk_assessment')",
+      "businessInsight": "The key business insight or strategic finding this chart reveals that drives decision-making"
     }
   ],
-  "layoutRecommendations": "Strategic dashboard organization: which charts should be most prominent, suggested grid layout, information hierarchy for maximum business impact"
+  "layoutRecommendations": "Strategic dashboard organization: executive summary placement, chart hierarchy for maximum business impact, suggested grid layout that guides decision-makers through the data story"
 }
 
-=== INTELLIGENT RECOMMENDATIONS CRITERIA ===
+=== STRATEGIC DASHBOARD DESIGN PRINCIPLES ===
 
-**📊 PRIORITY SCORING (1-10):**
-- 10: Critical KPIs, main business drivers, executive-level metrics
-- 8-9: Important trends, key comparisons, performance indicators  
-- 6-7: Supporting analysis, departmental metrics, drill-down views
-- 4-5: Detailed breakdowns, exploratory analysis
-- 1-3: Nice-to-have views, experimental visualizations
+**📊 PRIORITY FRAMEWORK (1-10):**
+- 10: Mission-critical KPIs, executive decision drivers, business-critical metrics
+- 8-9: Strategic performance indicators, key trend analysis, competitive insights
+- 6-7: Operational metrics, departmental performance, efficiency measures  
+- 4-5: Supporting analysis, detailed breakdowns, drill-down capabilities
+- 1-3: Exploratory views, nice-to-have insights, supplementary data
 
-**🎯 CHART SELECTION LOGIC:**
-1. **Start with KPIs**: Identify 2-3 most important metrics as cards/gauges
-2. **Show trends**: Use line/area charts for time-based data
-3. **Enable comparisons**: Use bar/column for categorical analysis
-4. **Reveal relationships**: Use scatter plots for correlations
-5. **Display composition**: Use pie/treemap for part-to-whole
-6. **Track processes**: Use funnel for sequential data
+**🎯 BUSINESS-FIRST CHART STRATEGY:**
+1. **Lead with Impact**: Start with 2-3 most business-critical metrics as cards/gauges
+2. **Show Performance**: Use trend charts for performance over time
+3. **Enable Comparisons**: Use bar/column charts for competitive analysis
+4. **Reveal Relationships**: Use scatter/bubble for correlation insights
+5. **Display Market Position**: Use pie/treemap for market share/composition
+6. **Track Processes**: Use funnel for conversion/process analysis
+7. **Support Decisions**: Ensure every chart answers "So what?" and "What action should we take?"
 
-**📈 BUSINESS STORYTELLING:**
-- Each chart must answer a specific business question
-- Prioritize actionable insights over descriptive statistics
-- Consider the decision-making hierarchy (executive → manager → analyst)
-- Recommend charts that complement each other in telling a complete story
+**📈 BUSINESS STORYTELLING REQUIREMENTS:**
+- Each chart must reveal a specific business insight that drives action
+- Prioritize insights that impact revenue, efficiency, customer satisfaction, or competitive position
+- Consider the business context: Is this sales data? Operations? Marketing? Financial?
+- Think about the decision-maker hierarchy: What does a CEO need vs. a manager vs. an analyst?
+- Identify trends, outliers, correlations, and strategic opportunities
+- Recommend charts that build a coherent narrative together
 
-**🔍 DATA-DRIVEN DECISIONS:**
-- Analyze actual data patterns, not just column types
-- Look for outliers, trends, seasonality, correlations
-- Consider the business domain based on column names and descriptions
-- Recommend filters or drill-downs for deeper analysis
+**🔍 DATA-DRIVEN BUSINESS INTELLIGENCE:**
+- Analyze actual data patterns, not just column names
+- Look for business drivers: What drives performance? What predicts success?
+- Identify optimization opportunities: Where can the business improve?
+- Spot risks and opportunities: What should leadership pay attention to?
+- Consider seasonality, trends, and business cycles in your analysis
+- Make recommendations for deeper analysis or data collection
+
+**CRITICAL**: Every chart recommendation must be justified by actual business value and strategic importance. Focus on insights that drive decisions, optimize performance, or reveal competitive advantages.
 
 Return ONLY valid JSON without markdown formatting or code blocks.
 `;
   }
 
-  private parseGeminiResponse(content: string): GeminiAnalysisResponse {
+  private parseAdvancedGeminiResponse(content: string): GeminiAnalysisResponse {
     try {
       // Clean the response - remove markdown formatting if present
       const cleanContent = content.replace(/```json\s*|\s*```/g, '').trim();
@@ -180,7 +201,8 @@ Return ONLY valid JSON without markdown formatting or code blocks.
 
       return {
         dataInsights: parsed.dataInsights,
-        executiveSummary: parsed.executiveSummary || 'Business summary not provided',
+        executiveSummary: parsed.executiveSummary || 'Executive summary not provided',
+        kpis: parsed.kpis || [],
         chartSuggestions: parsed.chartSuggestions.map((suggestion: any) => ({
           chartType: suggestion.chartType || 'bar',
           title: suggestion.title || 'Chart',
@@ -189,7 +211,8 @@ Return ONLY valid JSON without markdown formatting or code blocks.
           yAxis: suggestion.yAxis || '',
           reasoning: suggestion.reasoning || '',
           priority: suggestion.priority || 5,
-          visualizationGoal: suggestion.visualizationGoal || 'analysis'
+          visualizationGoal: suggestion.visualizationGoal || 'analysis',
+          businessInsight: suggestion.businessInsight || 'Business insight not provided'
         })),
         layoutRecommendations: parsed.layoutRecommendations || 'Standard grid layout'
       };
@@ -201,6 +224,7 @@ Return ONLY valid JSON without markdown formatting or code blocks.
       return {
         dataInsights: 'Unable to analyze data automatically. Using default analysis.',
         executiveSummary: 'Manual review required',
+        kpis: [],
         chartSuggestions: [
           {
             chartType: 'bar',
@@ -210,7 +234,8 @@ Return ONLY valid JSON without markdown formatting or code blocks.
             yAxis: '',
             reasoning: 'Default visualization',
             priority: 5,
-            visualizationGoal: 'overview'
+            visualizationGoal: 'overview',
+            businessInsight: 'Basic data overview'
           }
         ],
         layoutRecommendations: 'Standard grid layout'

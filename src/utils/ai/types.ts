@@ -9,6 +9,12 @@ export interface AIChartSuggestion {
   priority: number;
   reasoning?: string;
   visualizationGoal?: string;
+  businessInsight?: string;
+}
+
+export interface AIKPIMetric {
+  metric: string;
+  value: string;
 }
 
 export const CHART_TYPE_MAP: Record<string, ChartType> = {
