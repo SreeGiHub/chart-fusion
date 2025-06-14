@@ -72,7 +72,7 @@ const DEFAULT_DATASETS = {
   },
   gauge: {
     label: "Dataset 1",
-    data: [75],
+    data: [75, 25],
     backgroundColor: [
       DEFAULT_COLORS[0],
       `${DEFAULT_COLORS[0]}33`,
@@ -89,7 +89,12 @@ const DEFAULT_DATASETS = {
   },
   heatmap: {
     label: "Dataset 1",
-    data: [15, 29, 40, 51, 66, 75, 20, 35, 45, 55, 65, 75, 30, 45, 55, 65],
+    data: [
+      { x: 'Q1', y: 'Product A', v: 65 },
+      { x: 'Q2', y: 'Product A', v: 59 },
+      { x: 'Q3', y: 'Product A', v: 80 },
+      { x: 'Q4', y: 'Product A', v: 81 },
+    ],
     backgroundColor: DEFAULT_COLORS[0],
   },
   treemap: {
@@ -122,6 +127,12 @@ const DEFAULT_DATASETS = {
   sankey: {
     label: "Dataset 1",
     data: [50, 40, 30, 20, 10],
+    backgroundColor: DEFAULT_COLORS,
+    borderWidth: 0,
+  },
+  waterfall: {
+    label: "Dataset 1",
+    data: [100, -20, 30, -10, 15],
     backgroundColor: DEFAULT_COLORS,
     borderWidth: 0,
   },
@@ -532,6 +543,8 @@ export function getDefaultTitle(type: ChartType): string {
       return "Box Plot";
     case "sankey":
       return "Sankey Diagram";
+    case "waterfall":
+      return "Waterfall Chart";
     case "table":
       return "Data Table";
     default:
@@ -546,11 +559,27 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
     plugins: {
       legend: {
         display: type !== "text",
+        position: 'bottom',
+        labels: {
+          padding: 10,
+          usePointStyle: true,
+          font: {
+            size: 11
+          }
+        }
       },
       title: {
         display: false,
       },
     },
+    layout: {
+      padding: {
+        top: 5,
+        bottom: 5,
+        left: 10,
+        right: 10
+      }
+    }
   };
 
   switch (type) {
@@ -560,22 +589,63 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
         scales: {
           y: {
             beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
           },
+          x: {
+            grid: {
+              display: false
+            }
+          }
         },
       };
     case "line":
       return {
         ...common,
-        tension: 0.3,
+        tension: 0.4,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
       };
     case "pie":
       return {
         ...common,
+        plugins: {
+          ...common.plugins,
+          legend: {
+            ...common.plugins.legend,
+            position: 'right'
+          }
+        }
       };
     case "area":
       return {
         ...common,
-        tension: 0.3,
+        tension: 0.4,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
       };
     case "scatter":
       return {
@@ -584,13 +654,28 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
           x: {
             type: "linear",
             position: "bottom",
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
           },
+          y: {
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          }
         },
       };
     case "donut":
       return {
         ...common,
-        cutout: "70%",
+        cutout: "60%",
+        plugins: {
+          ...common.plugins,
+          legend: {
+            ...common.plugins.legend,
+            position: 'right'
+          }
+        }
       };
     case "bubble":
       return {
@@ -599,10 +684,16 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
           x: {
             type: "linear",
             position: "bottom",
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
           },
           y: {
             type: "linear",
             position: "left",
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
           },
         },
       };
@@ -617,11 +708,22 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
           tooltip: {
             enabled: false,
           },
+          legend: {
+            display: false
+          }
         },
       };
     case "radar":
       return {
         ...common,
+        scales: {
+          r: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          }
+        }
       };
     case "heatmap":
       return {
@@ -629,26 +731,58 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
         scales: {
           x: {
             type: "category",
+            grid: {
+              display: false
+            }
           },
           y: {
-            type: "category", 
+            type: "category",
+            grid: {
+              display: false
+            }
           },
         },
       };
     case "treemap":
       return {
         ...common,
+        plugins: {
+          ...common.plugins,
+          legend: {
+            display: false
+          }
+        }
       };
     case "semi-circle":
       return {
         ...common,
         circumference: 180,
         rotation: -90,
+        plugins: {
+          ...common.plugins,
+          legend: {
+            ...common.plugins.legend,
+            position: 'bottom'
+          }
+        }
       };
     case "funnel":
       return {
         ...common,
         indexAxis: 'y',
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            }
+          }
+        }
       };
     case "boxplot":
       return {
@@ -656,12 +790,43 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
         scales: {
           y: {
             beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
           },
+          x: {
+            grid: {
+              display: false
+            }
+          }
         },
       };
     case "sankey":
       return {
         ...common,
+        plugins: {
+          ...common.plugins,
+          legend: {
+            display: false
+          }
+        }
+      };
+    case "waterfall":
+      return {
+        ...common,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
       };
     case "table":
       return {
