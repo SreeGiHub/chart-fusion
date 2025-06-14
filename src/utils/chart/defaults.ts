@@ -1,4 +1,3 @@
-
 import { ChartData, ChartDataPoint, ChartType, HeatmapDataPoint } from "@/types";
 import { DEFAULT_COLORS } from "./types";
 
@@ -139,6 +138,137 @@ export const DEFAULT_DATASETS = {
       col3: '',
       col4: ''
     }))
+  },
+  column: {
+    label: "Dataset 1",
+    data: [65, 59, 80, 81, 56],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  "stacked-bar": {
+    label: "Dataset 1",
+    data: [65, 59, 80, 81, 56],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  "stacked-column": {
+    label: "Dataset 1",
+    data: [65, 59, 80, 81, 56],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  "stacked-area": {
+    label: "Dataset 1",
+    data: [65, 59, 80, 81, 56, 55, 40],
+    borderColor: DEFAULT_COLORS[0],
+    backgroundColor: `${DEFAULT_COLORS[0]}33`,
+    borderWidth: 2,
+    fill: true,
+  },
+  combo: {
+    label: "Dataset 1",
+    data: [65, 59, 80, 81, 56],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  histogram: {
+    label: "Dataset 1",
+    data: [10, 20, 15, 25, 30, 18, 12],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  matrix: {
+    label: "Dataset 1",
+    data: [],
+    tableColumns: [
+      { id: 'row', header: 'Row', accessor: 'row', align: 'left' },
+      { id: 'col1', header: 'Q1', accessor: 'col1', align: 'right' },
+      { id: 'col2', header: 'Q2', accessor: 'col2', align: 'right' },
+      { id: 'col3', header: 'Q3', accessor: 'col3', align: 'right' },
+      { id: 'col4', header: 'Q4', accessor: 'col4', align: 'right' }
+    ],
+    tableRows: [
+      { row: 'Sales', col1: '100K', col2: '120K', col3: '110K', col4: '130K' },
+      { row: 'Marketing', col1: '50K', col2: '60K', col3: '55K', col4: '65K' },
+      { row: 'Support', col1: '30K', col2: '35K', col3: '32K', col4: '38K' }
+    ]
+  },
+  "multi-row-card": {
+    label: "Dataset 1",
+    data: [{ title: "Revenue", value: "$1.2M", change: "+12%" }],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  kpi: {
+    label: "Dataset 1",
+    data: [85, 15],
+    backgroundColor: [DEFAULT_COLORS[0], `${DEFAULT_COLORS[0]}33`],
+    borderWidth: 0,
+  },
+  slicer: {
+    label: "Dataset 1",
+    data: ["Option 1", "Option 2", "Option 3", "Option 4"],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  "decomposition-tree": {
+    label: "Dataset 1",
+    data: [
+      { name: "Total Sales", value: 1000, children: [
+        { name: "Product A", value: 400 },
+        { name: "Product B", value: 300 },
+        { name: "Product C", value: 200 },
+        { name: "Product D", value: 100 }
+      ]}
+    ],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  map: {
+    label: "Dataset 1",
+    data: [
+      { location: "USA", value: 300 },
+      { location: "Canada", value: 200 },
+      { location: "Mexico", value: 150 }
+    ],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  "filled-map": {
+    label: "Dataset 1",
+    data: [
+      { region: "North", value: 300 },
+      { region: "South", value: 200 },
+      { region: "East", value: 250 },
+      { region: "West", value: 180 }
+    ],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  card: {
+    label: "Dataset 1",
+    data: [{ title: "Total Sales", value: "$1,234,567" }],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  "word-cloud": {
+    label: "Dataset 1",
+    data: [
+      { text: "Sales", size: 50 },
+      { text: "Marketing", size: 40 },
+      { text: "Revenue", size: 35 },
+      { text: "Growth", size: 30 },
+      { text: "Customer", size: 25 }
+    ],
+    backgroundColor: DEFAULT_COLORS,
+  },
+  timeline: {
+    label: "Dataset 1",
+    data: [
+      { date: "2024-01-01", event: "Project Start" },
+      { date: "2024-02-15", event: "Milestone 1" },
+      { date: "2024-04-01", event: "Milestone 2" },
+      { date: "2024-06-01", event: "Project End" }
+    ],
+    backgroundColor: DEFAULT_COLORS[0],
+  },
+  gantt: {
+    label: "Dataset 1",
+    data: [
+      { task: "Task 1", start: "2024-01-01", end: "2024-01-15", progress: 100 },
+      { task: "Task 2", start: "2024-01-10", end: "2024-01-25", progress: 75 },
+      { task: "Task 3", start: "2024-01-20", end: "2024-02-05", progress: 50 }
+    ],
+    backgroundColor: DEFAULT_COLORS,
   }
 };
 
@@ -159,7 +289,24 @@ export const DEFAULT_LABELS = {
   boxplot: ["Group 1", "Group 2", "Group 3"],
   sankey: ["Source 1", "Source 2", "Source 3", "Source 4", "Source 5"],
   waterfall: ["Start", "Increase", "Decrease", "Net", "End"],
-  table: []
+  table: [],
+  column: ["Q1", "Q2", "Q3", "Q4", "Q5"],
+  "stacked-bar": ["Category A", "Category B", "Category C", "Category D", "Category E"],
+  "stacked-column": ["Q1", "Q2", "Q3", "Q4", "Q5"],
+  "stacked-area": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+  combo: ["Q1", "Q2", "Q3", "Q4", "Q5"],
+  histogram: ["0-10", "10-20", "20-30", "30-40", "40-50", "50-60", "60+"],
+  matrix: [],
+  "multi-row-card": [],
+  kpi: ["Target"],
+  slicer: [],
+  "decomposition-tree": [],
+  map: [],
+  "filled-map": [],
+  card: [],
+  "word-cloud": [],
+  timeline: [],
+  gantt: []
 };
 
 export function getDefaultTitle(type: ChartType): string {
@@ -200,6 +347,40 @@ export function getDefaultTitle(type: ChartType): string {
       return "Waterfall Chart";
     case "table":
       return "Data Table";
+    case "column":
+      return "Column Chart";
+    case "stacked-bar":
+      return "Stacked Bar Chart";
+    case "stacked-column":
+      return "Stacked Column Chart";
+    case "stacked-area":
+      return "Stacked Area Chart";
+    case "combo":
+      return "Combo Chart";
+    case "histogram":
+      return "Histogram";
+    case "matrix":
+      return "Matrix";
+    case "multi-row-card":
+      return "Multi-row Card";
+    case "kpi":
+      return "KPI Visual";
+    case "slicer":
+      return "Slicer";
+    case "decomposition-tree":
+      return "Decomposition Tree";
+    case "map":
+      return "Map";
+    case "filled-map":
+      return "Filled Map";
+    case "card":
+      return "Card";
+    case "word-cloud":
+      return "Word Cloud";
+    case "timeline":
+      return "Timeline";
+    case "gantt":
+      return "Gantt Chart";
     default:
       return "New Chart";
   }
@@ -491,6 +672,143 @@ export function getDefaultOptions(type: ChartType): Record<string, any> {
         },
       };
     case "text":
+      return {
+        ...common,
+        plugins: {
+          legend: {
+            display: false,
+          },
+        },
+      };
+    case "column":
+      return {
+        ...common,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        },
+      };
+    case "stacked-bar":
+      return {
+        ...common,
+        indexAxis: 'y',
+        scales: {
+          x: {
+            stacked: true,
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          },
+          y: {
+            stacked: true,
+            grid: {
+              display: false
+            }
+          }
+        }
+      };
+    case "stacked-column":
+      return {
+        ...common,
+        scales: {
+          x: {
+            stacked: true,
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          }
+        }
+      };
+    case "stacked-area":
+      return {
+        ...common,
+        tension: 0.4,
+        scales: {
+          x: {
+            stacked: true,
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          }
+        }
+      };
+    case "combo":
+      return {
+        ...common,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      };
+    case "histogram":
+      return {
+        ...common,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Frequency'
+            },
+            grid: {
+              color: 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Value Range'
+            },
+            grid: {
+              display: false
+            }
+          }
+        }
+      };
+    case "matrix":
+    case "multi-row-card":
+    case "kpi":
+    case "slicer":
+    case "decomposition-tree":
+    case "map":
+    case "filled-map":
+    case "card":
+    case "word-cloud":
+    case "timeline":
+    case "gantt":
       return {
         ...common,
         plugins: {

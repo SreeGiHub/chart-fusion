@@ -1,4 +1,3 @@
-
 import { ChartItemType, ChartType, Position } from "@/types";
 import { createNewChartItem } from "./chartUtils";
 import { DataColumn, ProcessedData } from "./dataProcessor";
@@ -13,20 +12,34 @@ export interface ChartSuggestion {
   priority: number;
 }
 
-// PowerBI-style chart configurations
+// Enhanced PowerBI-style chart configurations with new chart types
 const POWERBI_CHART_CONFIGS = [
   { type: 'bar' as ChartType, title: 'Sales by Category', priority: 10 },
+  { type: 'column' as ChartType, title: 'Revenue by Quarter', priority: 10 },
   { type: 'line' as ChartType, title: 'Trend Analysis', priority: 9 },
+  { type: 'area' as ChartType, title: 'Revenue Growth', priority: 8 },
   { type: 'pie' as ChartType, title: 'Market Share', priority: 8 },
-  { type: 'area' as ChartType, title: 'Revenue Growth', priority: 7 },
+  { type: 'stacked-bar' as ChartType, title: 'Category Breakdown', priority: 7 },
+  { type: 'stacked-column' as ChartType, title: 'Quarterly Performance', priority: 7 },
+  { type: 'combo' as ChartType, title: 'Sales & Target Comparison', priority: 7 },
   { type: 'donut' as ChartType, title: 'Customer Segments', priority: 6 },
-  { type: 'scatter' as ChartType, title: 'Correlation Analysis', priority: 5 },
+  { type: 'scatter' as ChartType, title: 'Correlation Analysis', priority: 6 },
+  { type: 'waterfall' as ChartType, title: 'Financial Analysis', priority: 6 },
+  { type: 'funnel' as ChartType, title: 'Sales Funnel', priority: 5 },
+  { type: 'card' as ChartType, title: 'Key Metric', priority: 5 },
+  { type: 'gauge' as ChartType, title: 'Performance Score', priority: 5 },
+  { type: 'kpi' as ChartType, title: 'KPI Dashboard', priority: 5 },
+  { type: 'treemap' as ChartType, title: 'Hierarchical View', priority: 4 },
+  { type: 'heatmap' as ChartType, title: 'Activity Matrix', priority: 4 },
   { type: 'radar' as ChartType, title: 'Performance Metrics', priority: 4 },
-  { type: 'gauge' as ChartType, title: 'KPI Dashboard', priority: 3 },
-  { type: 'heatmap' as ChartType, title: 'Activity Matrix', priority: 2 },
-  { type: 'funnel' as ChartType, title: 'Sales Funnel', priority: 1 },
-  { type: 'treemap' as ChartType, title: 'Hierarchical View', priority: 1 },
-  { type: 'table' as ChartType, title: 'Data Summary', priority: 1 }
+  { type: 'histogram' as ChartType, title: 'Distribution Analysis', priority: 4 },
+  { type: 'bubble' as ChartType, title: 'Multi-dimensional View', priority: 3 },
+  { type: 'stacked-area' as ChartType, title: 'Cumulative Trends', priority: 3 },
+  { type: 'boxplot' as ChartType, title: 'Statistical Summary', priority: 3 },
+  { type: 'table' as ChartType, title: 'Data Summary', priority: 2 },
+  { type: 'matrix' as ChartType, title: 'Cross-tabulation', priority: 2 },
+  { type: 'timeline' as ChartType, title: 'Event Timeline', priority: 2 },
+  { type: 'gantt' as ChartType, title: 'Project Timeline', priority: 2 }
 ];
 
 // Analyze data and suggest appropriate charts
@@ -53,8 +66,8 @@ export function generateChartSuggestions(data: ProcessedData): ChartSuggestion[]
     
     console.log(`Processing chart type: ${config.type}`);
     
-    // Assign appropriate columns based on chart type
-    if (config.type === 'line' || config.type === 'area') {
+    // Enhanced column assignment logic for new chart types
+    if (config.type === 'line' || config.type === 'area' || config.type === 'stacked-area') {
       if (dateColumns.length > 0 && numericColumns.length > 0) {
         columns = [dateColumns[0].name, numericColumns[0].name];
       } else if (categoricalColumns.length > 0 && numericColumns.length > 0) {
@@ -62,7 +75,7 @@ export function generateChartSuggestions(data: ProcessedData): ChartSuggestion[]
       } else {
         columns = ['Category', 'Value'];
       }
-    } else if (config.type === 'scatter') {
+    } else if (config.type === 'scatter' || config.type === 'bubble') {
       if (numericColumns.length >= 2) {
         columns = [numericColumns[0].name, numericColumns[1].name];
       } else if (numericColumns.length === 1) {
@@ -70,16 +83,48 @@ export function generateChartSuggestions(data: ProcessedData): ChartSuggestion[]
       } else {
         columns = ['X Value', 'Y Value'];
       }
-    } else if (config.type === 'pie' || config.type === 'donut' || config.type === 'treemap') {
+    } else if (config.type === 'pie' || config.type === 'donut' || config.type === 'treemap' || config.type === 'funnel') {
       if (categoricalColumns.length > 0 && numericColumns.length > 0) {
         columns = [categoricalColumns[0].name, numericColumns[0].name];
       } else {
         columns = ['Category', 'Value'];
       }
-    } else if (config.type === 'table') {
+    } else if (config.type === 'waterfall') {
+      if (numericColumns.length > 0) {
+        columns = [categoricalColumns.length > 0 ? categoricalColumns[0].name : 'Period', numericColumns[0].name];
+      } else {
+        columns = ['Period', 'Change'];
+      }
+    } else if (config.type === 'card' || config.type === 'kpi' || config.type === 'gauge') {
+      if (numericColumns.length > 0) {
+        columns = [numericColumns[0].name];
+      } else {
+        columns = ['Value'];
+      }
+    } else if (config.type === 'histogram' || config.type === 'boxplot') {
+      if (numericColumns.length > 0) {
+        columns = [numericColumns[0].name];
+      } else {
+        columns = ['Distribution'];
+      }
+    } else if (config.type === 'timeline' || config.type === 'gantt') {
+      if (dateColumns.length > 0) {
+        columns = [dateColumns[0].name, categoricalColumns.length > 0 ? categoricalColumns[0].name : 'Event'];
+      } else {
+        columns = ['Date', 'Event'];
+      }
+    } else if (config.type === 'table' || config.type === 'matrix') {
       columns = data.columns.slice(0, 4).map(c => c.name);
+    } else if (config.type === 'stacked-bar' || config.type === 'stacked-column' || config.type === 'combo') {
+      if (categoricalColumns.length > 0 && numericColumns.length >= 2) {
+        columns = [categoricalColumns[0].name, numericColumns[0].name, numericColumns[1].name];
+      } else if (categoricalColumns.length > 0 && numericColumns.length > 0) {
+        columns = [categoricalColumns[0].name, numericColumns[0].name];
+      } else {
+        columns = ['Category', 'Value1', 'Value2'];
+      }
     } else {
-      // Default for bar, etc.
+      // Default for bar, column, etc.
       if (categoricalColumns.length > 0 && numericColumns.length > 0) {
         columns = [categoricalColumns[0].name, numericColumns[0].name];
       } else if (data.columns.length >= 2) {

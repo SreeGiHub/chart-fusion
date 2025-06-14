@@ -29,7 +29,23 @@ export type ChartType =
   | "sankey"
   | "boxplot"
   | "table"
-  | "waterfall";
+  | "waterfall"
+  | "column"
+  | "stacked-bar"
+  | "stacked-column"
+  | "stacked-area"
+  | "combo"
+  | "histogram"
+  | "matrix"
+  | "multi-row-card"
+  | "kpi"
+  | "slicer"
+  | "decomposition-tree"
+  | "map"
+  | "filled-map"
+  | "word-cloud"
+  | "timeline"
+  | "gantt";
 
 // Defining more specific data point types
 export type SimpleDataPoint = number;

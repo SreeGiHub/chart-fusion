@@ -33,7 +33,20 @@ import {
   ZapOff,
   Palette as PaletteIcon,
   Sparkles,
-  Zap
+  Zap,
+  BarChart3,
+  BarChart4,
+  TrendingUp,
+  Calendar,
+  Clock,
+  Layers,
+  Filter,
+  Target,
+  Hash,
+  MapPin,
+  CloudRain,
+  Calendar1,
+  Kanban
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -240,41 +253,62 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
             <DropdownMenuSeparator />
             
             <DropdownMenuGroup>
+              <DropdownMenuLabel>Bar & Column Charts</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => handleAddItem("bar")}>
                 <BarChart className="mr-2 h-4 w-4" />
                 <span>Bar Chart</span>
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("column")}>
+                <BarChart3 className="mr-2 h-4 w-4" />
+                <span>Column Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("stacked-bar")}>
+                <BarChart4 className="mr-2 h-4 w-4" />
+                <span>Stacked Bar Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("stacked-column")}>
+                <BarChart4 className="mr-2 h-4 w-4" />
+                <span>Stacked Column Chart</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Line & Area Charts</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => handleAddItem("line")}>
                 <LineChart className="mr-2 h-4 w-4" />
                 <span>Line Chart</span>
               </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Area Charts</DropdownMenuLabel>
-            <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => handleAddItem("area")}>
                 <Activity className="mr-2 h-4 w-4" />
                 <span>Area Chart</span>
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("stacked-area")}>
+                <Layers className="mr-2 h-4 w-4" />
+                <span>Stacked Area Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("combo")}>
+                <TrendingUp className="mr-2 h-4 w-4" />
+                <span>Combo Chart (Line + Column)</span>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             
             <DropdownMenuSeparator />
-            <DropdownMenuLabel>Pie & Donut</DropdownMenuLabel>
             <DropdownMenuGroup>
+              <DropdownMenuLabel>Pie & Donut Charts</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => handleAddItem("pie")}>
                 <PieChart className="mr-2 h-4 w-4" />
                 <span>Pie Chart</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAddItem("donut")}>
-                <PieChart className="mr-2 h-4 w-4" />
+                <CircleDot className="mr-2 h-4 w-4" />
                 <span>Donut Chart</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             
             <DropdownMenuSeparator />
-            <DropdownMenuLabel>Scatter & Bubble</DropdownMenuLabel>
             <DropdownMenuGroup>
+              <DropdownMenuLabel>Scatter & Distribution</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => handleAddItem("scatter")}>
                 <ScatterChart className="mr-2 h-4 w-4" />
                 <span>Scatter Plot</span>
@@ -283,31 +317,110 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                 <CircleDot className="mr-2 h-4 w-4" />
                 <span>Bubble Chart</span>
               </DropdownMenuItem>
-            </DropdownMenuGroup>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Gauges</DropdownMenuLabel>
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => handleAddItem("gauge")}>
-                <Gauge className="mr-2 h-4 w-4" />
-                <span>Gauge Chart</span>
+              <DropdownMenuItem onClick={() => handleAddItem("histogram")}>
+                <BarChart className="mr-2 h-4 w-4" />
+                <span>Histogram</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("boxplot")}>
+                <Activity className="mr-2 h-4 w-4" />
+                <span>Box Plot</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             
             <DropdownMenuSeparator />
-            <DropdownMenuLabel>Special Charts</DropdownMenuLabel>
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => handleAddItem("radar")}>
-                <ZapOff className="mr-2 h-4 w-4" />
-                <span>Radar Chart</span>
+              <DropdownMenuLabel>Flow & Hierarchy</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleAddItem("waterfall")}>
+                <Activity className="mr-2 h-4 w-4" />
+                <span>Waterfall Chart</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAddItem("funnel")}>
                 <Activity className="mr-2 h-4 w-4" />
                 <span>Funnel Chart</span>
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("decomposition-tree")}>
+                <LayoutGrid className="mr-2 h-4 w-4" />
+                <span>Decomposition Tree</span>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAddItem("treemap")}>
                 <LayoutGrid className="mr-2 h-4 w-4" />
                 <span>Treemap</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Maps & Geographic</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleAddItem("map")}>
+                <Map className="mr-2 h-4 w-4" />
+                <span>Map</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("filled-map")}>
+                <MapPin className="mr-2 h-4 w-4" />
+                <span>Filled Map</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Cards & KPIs</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleAddItem("card")}>
+                <Hash className="mr-2 h-4 w-4" />
+                <span>Card</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("multi-row-card")}>
+                <Hash className="mr-2 h-4 w-4" />
+                <span>Multi-row Card</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("gauge")}>
+                <Gauge className="mr-2 h-4 w-4" />
+                <span>Gauge</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("kpi")}>
+                <Target className="mr-2 h-4 w-4" />
+                <span>KPI Visual</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Tables & Data</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleAddItem("table")}>
+                <LayoutGrid className="mr-2 h-4 w-4" />
+                <span>Table</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("matrix")}>
+                <LayoutGrid className="mr-2 h-4 w-4" />
+                <span>Matrix</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("slicer")}>
+                <Filter className="mr-2 h-4 w-4" />
+                <span>Slicer/Filter</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Special Visuals</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleAddItem("radar")}>
+                <ZapOff className="mr-2 h-4 w-4" />
+                <span>Radar Chart</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("heatmap")}>
+                <LayoutGrid className="mr-2 h-4 w-4" />
+                <span>Heatmap</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("word-cloud")}>
+                <CloudRain className="mr-2 h-4 w-4" />
+                <span>Word Cloud</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("timeline")}>
+                <Calendar1 className="mr-2 h-4 w-4" />
+                <span>Timeline</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddItem("gantt")}>
+                <Kanban className="mr-2 h-4 w-4" />
+                <span>Gantt Chart</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             
