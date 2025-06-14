@@ -80,9 +80,9 @@ export function processData(text: string): ProcessedData {
   const { headers, rows } = parseTabularData(text);
   const errors: string[] = [];
   
-  // Validation: Check row count
-  if (rows.length > 19) {
-    errors.push(`Too many data rows: ${rows.length}. Maximum allowed is 19 (plus header).`);
+  // Validation: Check row count - updated to allow up to 100 rows
+  if (rows.length > 100) {
+    errors.push(`Too many data rows: ${rows.length}. Maximum allowed is 100 (plus header).`);
   }
   
   // Validation: Check for empty headers
