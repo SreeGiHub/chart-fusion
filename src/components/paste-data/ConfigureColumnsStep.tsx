@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Select,
   SelectContent,
@@ -71,6 +72,36 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
     onColumnUpdate(columnIndex, { name: '', type: 'text', description: '' });
   };
 
+  // Sample descriptions for the preloaded sample data
+  const getSampleDescription = (columnName: string): string => {
+    const sampleDescriptions: Record<string, string> = {
+      'Name': 'Full name of the sales representative',
+      'Age': 'Age of the sales representative in years',
+      'Sales': 'Individual sales amount achieved in USD',
+      'Region': 'Geographic sales region (North, South, East, West)',
+      'Date': 'Date of the sales transaction (YYYY-MM-DD format)',
+      'Product': 'Type of product sold (Laptop, Phone, Tablet, Monitor, etc.)',
+      'Revenue': 'Total revenue generated from the sale in USD',
+      'Units_Sold': 'Number of units sold in the transaction',
+      'Customer_Rating': 'Customer satisfaction rating on a scale of 1-5',
+      'Market_Share': 'Market share percentage for the product category'
+    };
+    
+    return sampleDescriptions[columnName] || `Description for ${columnName} column`;
+  };
+
+  // Auto-populate descriptions if they're empty (for sample data)
+  React.useEffect(() => {
+    processedData.columns.forEach((column, index) => {
+      if (!column.description) {
+        const sampleDesc = getSampleDescription(column.name);
+        if (sampleDesc !== `Description for ${column.name} column`) {
+          onColumnUpdate(index, { description: sampleDesc });
+        }
+      }
+    });
+  }, []);
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden space-y-6">
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
@@ -109,8 +140,8 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
         </Alert>
       )}
 
-      <div className="flex-1 overflow-auto">
-        <div className="space-y-4">
+      <div className="flex-1 overflow-hidden">
+        <div className="space-y-4 h-full">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Column Configuration</h3>
             <div className="flex items-center gap-3">
@@ -136,81 +167,83 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
             </AlertDescription>
           </Alert>
           
-          <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead className="font-semibold w-[250px]">Column Name</TableHead>
-                  <TableHead className="font-semibold w-[180px]">Data Type</TableHead>
-                  <TableHead className="font-semibold">Description (AI Context)</TableHead>
-                  <TableHead className="font-semibold w-[100px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {processedData.columns.map((column, index) => (
-                  <TableRow key={index} className="hover:bg-gray-50">
-                    <TableCell>
-                      <Input
-                        value={column.name}
-                        onChange={(e) => onColumnUpdate(index, { name: e.target.value })}
-                        className="w-full"
-                        placeholder="Enter column name"
-                      />
-                    </TableCell>
-                    
-                    <TableCell>
-                      <Select
-                        value={column.type}
-                        onValueChange={(value) => onColumnUpdate(index, { type: value as DataColumn['type'] })}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-                          <SelectItem value="text">Text</SelectItem>
-                          <SelectItem value="number">Number</SelectItem>
-                          <SelectItem value="date">Date</SelectItem>
-                          <SelectItem value="boolean">Boolean</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <Input
-                        placeholder="e.g., 'Monthly sales revenue in USD', 'Customer satisfaction score 1-5'"
-                        value={column.description || ''}
-                        onChange={(e) => onColumnUpdate(index, { description: e.target.value })}
-                        className="w-full"
-                      />
-                    </TableCell>
-                    
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {column.hasErrors ? (
-                          <div className="relative group">
-                            <AlertTriangle className="h-4 w-4 text-amber-500" />
-                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                              {column.errorMessage}
-                            </div>
-                          </div>
-                        ) : (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        )}
-                        
-                        <Button
-                          onClick={() => handleDeleteColumn(index)}
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          <div className="flex-1 border rounded-lg overflow-hidden">
+            <ScrollArea className="h-[400px] w-full">
+              <Table>
+                <TableHeader className="sticky top-0 bg-white z-10">
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="font-semibold min-w-[200px]">Column Name</TableHead>
+                    <TableHead className="font-semibold min-w-[150px]">Data Type</TableHead>
+                    <TableHead className="font-semibold min-w-[300px]">Description (AI Context)</TableHead>
+                    <TableHead className="font-semibold w-[100px]">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {processedData.columns.map((column, index) => (
+                    <TableRow key={index} className="hover:bg-gray-50">
+                      <TableCell className="min-w-[200px]">
+                        <Input
+                          value={column.name}
+                          onChange={(e) => onColumnUpdate(index, { name: e.target.value })}
+                          className="w-full"
+                          placeholder="Enter column name"
+                        />
+                      </TableCell>
+                      
+                      <TableCell className="min-w-[150px]">
+                        <Select
+                          value={column.type}
+                          onValueChange={(value) => onColumnUpdate(index, { type: value as DataColumn['type'] })}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                            <SelectItem value="text">Text</SelectItem>
+                            <SelectItem value="number">Number</SelectItem>
+                            <SelectItem value="date">Date</SelectItem>
+                            <SelectItem value="boolean">Boolean</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      
+                      <TableCell className="min-w-[300px]">
+                        <Input
+                          placeholder="e.g., 'Monthly sales revenue in USD', 'Customer satisfaction score 1-5'"
+                          value={column.description || ''}
+                          onChange={(e) => onColumnUpdate(index, { description: e.target.value })}
+                          className="w-full"
+                        />
+                      </TableCell>
+                      
+                      <TableCell className="w-[100px]">
+                        <div className="flex items-center gap-2">
+                          {column.hasErrors ? (
+                            <div className="relative group">
+                              <AlertTriangle className="h-4 w-4 text-amber-500" />
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                {column.errorMessage}
+                              </div>
+                            </div>
+                          ) : (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          )}
+                          
+                          <Button
+                            onClick={() => handleDeleteColumn(index)}
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
           </div>
           
           {processedData.rows.length > 0 && (

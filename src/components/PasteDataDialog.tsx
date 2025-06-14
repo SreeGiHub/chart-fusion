@@ -144,7 +144,7 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
   const handleTrySampleData = () => {
     setPastedData(sampleData);
     
-    // Process the data and set default descriptions
+    // Process the data and set default descriptions and correct types
     const processed = processData(sampleData);
     if (processed.isValid) {
       const columnsWithDescriptions = processed.columns.map(col => {
@@ -153,8 +153,8 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
           'Age': 'Age of the sales representative in years',
           'Sales': 'Individual sales amount achieved in USD',
           'Region': 'Geographic sales region (North, South, East, West)',
-          'Date': 'Date of the sales transaction',
-          'Product': 'Type of product sold (Laptop, Phone, Tablet, etc.)',
+          'Date': 'Date of the sales transaction (YYYY-MM-DD format)',
+          'Product': 'Type of product sold (Laptop, Phone, Tablet, Monitor, etc.)',
           'Revenue': 'Total revenue generated from the sale in USD',
           'Units_Sold': 'Number of units sold in the transaction',
           'Customer_Rating': 'Customer satisfaction rating on a scale of 1-5',
