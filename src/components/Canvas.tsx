@@ -3,8 +3,8 @@ import { useRef } from "react";
 import { useDashboard } from "@/context/DashboardContext";
 import ChartItem from "./ChartItem";
 import { useCanvasTransform } from "@/hooks/useCanvasTransform";
-import CanvasNavigation from "./canvas/CanvasNavigation";
-import CanvasDropZone from "./canvas/CanvasDropZone";
+import { useCanvasNavigation } from "@/hooks/useCanvasNavigation";
+import { useCanvasDropZone } from "@/hooks/useCanvasDropZone";
 
 const Canvas: React.FC = () => {
   const { state, dispatch } = useDashboard();
@@ -19,7 +19,7 @@ const Canvas: React.FC = () => {
     setLastPanPoint
   } = useCanvasTransform();
 
-  const navigation = CanvasNavigation({
+  const { handleMouseDown, handleWheel } = useCanvasNavigation({
     transform,
     setTransform,
     setIsPanning,
@@ -27,7 +27,7 @@ const Canvas: React.FC = () => {
     canvasRef
   });
 
-  const dropZone = CanvasDropZone({
+  const { handleDrop, handleDragOver } = useCanvasDropZone({
     transform,
     canvasRef
   });
@@ -43,7 +43,7 @@ const Canvas: React.FC = () => {
     <div 
       ref={containerRef}
       className="relative w-full h-[calc(100vh-56px)] overflow-hidden bg-gray-50"
-      onWheel={navigation.handleWheel}
+      onWheel={handleWheel}
     >
       <div 
         ref={canvasRef}
@@ -58,9 +58,9 @@ const Canvas: React.FC = () => {
           cursor: isPanning ? 'grabbing' : 'grab'
         }}
         onClick={handleCanvasClick}
-        onMouseDown={navigation.handleMouseDown}
-        onDrop={dropZone.handleDrop}
-        onDragOver={dropZone.handleDragOver}
+        onMouseDown={handleMouseDown}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
       >
         {state.items.map((item) => (
           <ChartItem key={item.id} item={item} />
