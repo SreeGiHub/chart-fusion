@@ -23,7 +23,13 @@ export interface BoxPlotDataPoint {
   max: number;
 }
 
-export type ChartDataPoint = number | ComplexDataPoint | BoxPlotDataPoint;
+export interface HeatmapDataPoint {
+  x: string;
+  y: string;
+  v: number;
+}
+
+export type ChartDataPoint = number | ComplexDataPoint | BoxPlotDataPoint | HeatmapDataPoint;
 
 export interface ChartDataset {
   label: string;
@@ -61,7 +67,8 @@ export type ChartType =
   | "sankey"
   | "boxplot"
   | "table"
-  | "text";
+  | "text"
+  | "waterfall";
 
 export interface ChartItemType {
   id: string;

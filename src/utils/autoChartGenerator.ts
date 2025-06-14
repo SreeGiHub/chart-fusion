@@ -1,5 +1,5 @@
 
-import { ChartItemType, ChartType, Position } from "@/types";
+import { ChartItemType, ChartType, Position, HeatmapDataPoint } from "@/types";
 import { createNewChartItem } from "./chartUtils";
 import { DataColumn, ProcessedData } from "./dataProcessor";
 import { v4 as uuidv4 } from "uuid";
@@ -205,9 +205,9 @@ function prepareChartData(data: ProcessedData, suggestion: ChartSuggestion) {
     }
   }
   
-  // Enhanced heatmap
+  // Enhanced heatmap with proper typing
   if (suggestion.type === 'heatmap') {
-    const sampleData = [
+    const sampleData: HeatmapDataPoint[] = [
       { x: 'Q1', y: 'Product A', v: 65 },
       { x: 'Q2', y: 'Product A', v: 59 },
       { x: 'Q3', y: 'Product A', v: 80 },

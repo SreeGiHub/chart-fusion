@@ -1,4 +1,5 @@
-import { ChartData, ChartDataPoint, ChartItemType, ChartType, Position, Size } from "../types";
+
+import { ChartData, ChartDataPoint, ChartItemType, ChartType, Position, Size, HeatmapDataPoint } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
 const DEFAULT_CHART_SIZE: Size = {
@@ -94,7 +95,7 @@ const DEFAULT_DATASETS = {
       { x: 'Q2', y: 'Product A', v: 59 },
       { x: 'Q3', y: 'Product A', v: 80 },
       { x: 'Q4', y: 'Product A', v: 81 },
-    ],
+    ] as HeatmapDataPoint[],
     backgroundColor: DEFAULT_COLORS[0],
   },
   treemap: {
@@ -170,6 +171,7 @@ const DEFAULT_LABELS = {
   funnel: ["Prospects", "Leads", "Opportunities", "Proposals", "Customers"],
   boxplot: ["Group 1", "Group 2", "Group 3"],
   sankey: ["Source 1", "Source 2", "Source 3", "Source 4", "Source 5"],
+  waterfall: ["Start", "Increase", "Decrease", "Net", "End"],
   table: []
 };
 
