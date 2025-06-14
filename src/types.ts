@@ -68,7 +68,23 @@ export type ChartType =
   | "boxplot"
   | "table"
   | "text"
-  | "waterfall";
+  | "waterfall"
+  | "column"
+  | "stacked-bar"
+  | "stacked-column"
+  | "stacked-area"
+  | "combo"
+  | "histogram"
+  | "matrix"
+  | "multi-row-card"
+  | "kpi"
+  | "slicer"
+  | "decomposition-tree"
+  | "map"
+  | "filled-map"
+  | "word-cloud"
+  | "timeline"
+  | "gantt";
 
 export interface ChartItemType {
   id: string;
