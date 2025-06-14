@@ -6,7 +6,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDashboard } from "@/context/DashboardContext";
-import { ChevronDown, Plus } from "lucide-react";
+import { 
+  ChevronDown, 
+  Plus, 
+  BarChart3, 
+  LineChart, 
+  PieChart, 
+  AreaChart,
+  Scatter,
+  Target,
+  Table,
+  FileText,
+  Activity
+} from "lucide-react";
 import { ChartData } from "@/types";
 
 interface ChartCategoriesDropdownProps {
@@ -69,10 +81,8 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
       color: "bg-orange-100 border-orange-200",
       textColor: "text-orange-600",
       charts: [
-        { type: "bar", label: "Bar Chart" },
-        { type: "column", label: "Column Chart" },
-        { type: "stacked-bar", label: "Stacked Bar" },
-        { type: "stacked-column", label: "Stacked Column" },
+        { type: "bar", label: "Bar Chart", icon: BarChart3 },
+        { type: "column", label: "Column Chart", icon: BarChart3 },
       ]
     },
     {
@@ -80,10 +90,9 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
       color: "bg-blue-100 border-blue-200",
       textColor: "text-blue-600",
       charts: [
-        { type: "line", label: "Line Chart" },
-        { type: "area", label: "Area Chart" },
-        { type: "stacked-area", label: "Stacked Area" },
-        { type: "combo", label: "Combo Chart" },
+        { type: "line", label: "Line Chart", icon: LineChart },
+        { type: "area", label: "Area Chart", icon: AreaChart },
+        { type: "combo", label: "Combo Chart", icon: Activity },
       ]
     },
     {
@@ -91,10 +100,10 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
       color: "bg-purple-100 border-purple-200",
       textColor: "text-purple-600",
       charts: [
-        { type: "pie", label: "Pie Chart" },
-        { type: "donut", label: "Donut Chart" },
-        { type: "treemap", label: "Treemap" },
-        { type: "funnel", label: "Funnel Chart" },
+        { type: "pie", label: "Pie Chart", icon: PieChart },
+        { type: "donut", label: "Donut Chart", icon: PieChart },
+        { type: "treemap", label: "Treemap", icon: Target },
+        { type: "funnel", label: "Funnel Chart", icon: Target },
       ]
     },
     {
@@ -102,10 +111,10 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
       color: "bg-green-100 border-green-200",
       textColor: "text-green-600",
       charts: [
-        { type: "scatter", label: "Scatter Plot" },
-        { type: "bubble", label: "Bubble Chart" },
-        { type: "radar", label: "Radar Chart" },
-        { type: "gauge", label: "Gauge" },
+        { type: "scatter", label: "Scatter Plot", icon: Scatter },
+        { type: "bubble", label: "Bubble Chart", icon: Scatter },
+        { type: "radar", label: "Radar Chart", icon: Target },
+        { type: "gauge", label: "Gauge", icon: Target },
       ]
     },
     {
@@ -113,21 +122,8 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
       color: "bg-pink-100 border-pink-200",
       textColor: "text-pink-600",
       charts: [
-        { type: "table", label: "Table" },
-        { type: "card", label: "Card" },
-        { type: "multi-row-card", label: "Multi-row Card" },
-        { type: "kpi", label: "KPI Visual" },
-      ]
-    },
-    {
-      name: "Advanced",
-      color: "bg-yellow-100 border-yellow-200",
-      textColor: "text-yellow-600",
-      charts: [
-        { type: "heatmap", label: "Heatmap" },
-        { type: "waterfall", label: "Waterfall" },
-        { type: "matrix", label: "Matrix" },
-        { type: "timeline", label: "Timeline" },
+        { type: "table", label: "Table", icon: Table },
+        { type: "card", label: "Card", icon: FileText },
       ]
     }
   ];
@@ -156,8 +152,9 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
                   <button
                     key={chart.type}
                     onClick={() => addChart(chart.type)}
-                    className="w-full text-left text-sm px-3 py-2 rounded hover:bg-white/50 transition-colors text-gray-700 hover:text-gray-900"
+                    className="w-full text-left text-sm px-3 py-2 rounded hover:bg-white/50 transition-colors text-gray-700 hover:text-gray-900 flex items-center gap-2"
                   >
+                    <chart.icon className="h-4 w-4" />
                     {chart.label}
                   </button>
                 ))}

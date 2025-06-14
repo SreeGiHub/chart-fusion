@@ -500,6 +500,7 @@ const Sidebar: React.FC = () => {
                   });
                 }}
                 className="h-6 text-xs flex-1"
+                placeholder="Color code"
               />
             </div>
           </div>
@@ -522,10 +523,9 @@ const Sidebar: React.FC = () => {
       </div>
 
       <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 mb-4">
+        <TabsList className="grid grid-cols-2 mb-4">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="data">Data</TabsTrigger>
-          <TabsTrigger value="style">Style</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-4">
@@ -540,7 +540,7 @@ const Sidebar: React.FC = () => {
 
           {!isTextChartType(selectedItem.type) && selectedItem.type !== "table" && (
             <div className="space-y-2">
-              <Label>Chart Type</Label>
+              <Label>Change Chart Type</Label>
               <div className="grid grid-cols-3 gap-2">
                 <Button
                   variant={selectedItem.type === "bar" ? "default" : "outline"}
@@ -943,90 +943,6 @@ const Sidebar: React.FC = () => {
                 </div>
               </div>
             </ScrollArea>
-          )}
-        </TabsContent>
-
-        <TabsContent value="style" className="space-y-4">
-          {renderColorPickers()}
-          
-          {/* Additional style options */}
-          {selectedItem.type !== "text" && selectedItem.type !== "pie" && selectedItem.type !== "donut" && selectedItem.type !== "table" && (
-            <div className="space-y-4 mt-4">
-              <h3 className="text-sm font-medium">Chart Options</h3>
-              
-              {/* Border width option */}
-              <div className="space-y-2">
-                <Label htmlFor="border-width" className="text-xs">
-                  Border Width
-                </Label>
-                <Input
-                  id="border-width"
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={selectedItem.data.datasets[0]?.borderWidth || 1}
-                  onChange={(e) => {
-                    const newDatasets = [...selectedItem.data.datasets];
-                    newDatasets.forEach((dataset, index) => {
-                      newDatasets[index] = {
-                        ...dataset,
-                        borderWidth: Number(e.target.value),
-                      };
-                    });
-
-                    dispatch({
-                      type: "UPDATE_ITEM",
-                      payload: {
-                        id: selectedItem.id,
-                        updates: {
-                          data: {
-                            ...selectedItem.data,
-                            datasets: newDatasets,
-                          },
-                        },
-                      },
-                    });
-                  }}
-                />
-              </div>
-              
-              {/* Fill option for area and line charts */}
-              {(selectedItem.type === "area" || selectedItem.type === "line") && (
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="fill-area"
-                    checked={selectedItem.data.datasets[0]?.fill || false}
-                    onChange={(e) => {
-                      const newDatasets = [...selectedItem.data.datasets];
-                      newDatasets.forEach((dataset, index) => {
-                        newDatasets[index] = {
-                          ...dataset,
-                          fill: e.target.checked,
-                        };
-                      });
-
-                      dispatch({
-                        type: "UPDATE_ITEM",
-                        payload: {
-                          id: selectedItem.id,
-                          updates: {
-                            data: {
-                              ...selectedItem.data,
-                              datasets: newDatasets,
-                            },
-                          },
-                        },
-                      });
-                    }}
-                    className="h-4 w-4"
-                  />
-                  <Label htmlFor="fill-area" className="text-sm">
-                    Fill Area
-                  </Label>
-                </div>
-              )}
-            </div>
           )}
         </TabsContent>
       </Tabs>
