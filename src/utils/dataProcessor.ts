@@ -34,8 +34,12 @@ export function processData(rawData: string): ProcessedData {
     };
   }
 
-  const headers = rows[0].split(',').map(header => header.trim());
-  const dataRows = rows.slice(1).map(row => row.split(',').map(cell => cell.trim()));
+  // Detect delimiter - check if first row has tabs or commas
+  const firstRow = rows[0];
+  const delimiter = firstRow.includes('\t') ? '\t' : ',';
+  
+  const headers = firstRow.split(delimiter).map(header => header.trim());
+  const dataRows = rows.slice(1).map(row => row.split(delimiter).map(cell => cell.trim()));
 
   const columns: DataColumn[] = headers.map(header => ({
     name: header,
@@ -46,7 +50,9 @@ export function processData(rawData: string): ProcessedData {
   const processedRows: DataRow[] = dataRows.map(row => {
     const rowData: DataRow = {};
     row.forEach((cell, index) => {
-      rowData[headers[index]] = cell;
+      if (index < headers.length) {
+        rowData[headers[index]] = cell;
+      }
     });
     return rowData;
   });
