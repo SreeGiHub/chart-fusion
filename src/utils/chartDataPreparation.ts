@@ -1,5 +1,5 @@
 
-import { ChartData, HeatmapDataPoint, ChartType } from "@/types";
+import { ChartData, HeatmapDataPoint } from "@/types";
 import { ProcessedData } from "./dataProcessor";
 import { ChartSuggestion } from "./autoChartGenerator";
 
@@ -160,7 +160,8 @@ function prepareDefaultChartData(data: ProcessedData, suggestion: ChartSuggestio
     };
   }
   
-  if (suggestion.type === 'line' || suggestion.type === 'area') {
+  // Handle line and area charts
+  if (['line', 'area'].includes(suggestion.type)) {
     const dateCol = relevantColumns[0];
     const valueCol = relevantColumns[1];
     
@@ -225,11 +226,11 @@ function prepareDefaultChartData(data: ProcessedData, suggestion: ChartSuggestio
     datasets: [{
       label: valueCol || 'Value',
       data: values,
-      backgroundColor: suggestion.type === 'pie' || suggestion.type === 'donut' || suggestion.type === 'treemap'
+      backgroundColor: ['pie', 'donut', 'treemap'].includes(suggestion.type)
         ? colors.slice(0, labels.length)
         : colors[0],
       borderColor: suggestion.type === 'line' ? colors[0] : undefined,
-      borderWidth: suggestion.type === 'pie' || suggestion.type === 'donut' ? 2 : undefined
+      borderWidth: ['pie', 'donut'].includes(suggestion.type) ? 2 : undefined
     }]
   };
 }
