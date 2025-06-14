@@ -25,6 +25,16 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
   onColumnUpdate,
   onNext,
 }) => {
+  const handleContinue = () => {
+    console.log('Continue button clicked, validation:', validation);
+    if (validation && !validation.isValid) {
+      console.log('Validation failed, cannot continue');
+      return;
+    }
+    console.log('Proceeding to next step');
+    onNext();
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden space-y-6">
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
@@ -115,11 +125,12 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
 
       <div className="flex justify-end pt-4 border-t">
         <Button 
-          onClick={onNext}
+          onClick={handleContinue}
+          disabled={validation && !validation.isValid}
           className="min-w-32 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
         >
           <ArrowRight className="h-4 w-4 mr-2" />
-          Next: Preview Data
+          Continue
         </Button>
       </div>
     </div>

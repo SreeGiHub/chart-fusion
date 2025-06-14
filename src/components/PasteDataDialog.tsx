@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -149,9 +148,11 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
       return;
     }
 
+    console.log('Processing pasted data...');
     setIsProcessing(true);
     try {
       const processed = processData(pastedData);
+      console.log('Processed data:', processed);
       setProcessedData(processed);
       
       if (processed.isValid) {
@@ -175,19 +176,26 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
   const handleColumnUpdate = (columnIndex: number, updates: Partial<DataColumn>) => {
     if (!processedData) return;
     
+    console.log('Updating column:', columnIndex, updates);
     const updatedColumns = [...processedData.columns];
     updatedColumns[columnIndex] = { ...updatedColumns[columnIndex], ...updates };
     
-    setProcessedData({
+    const updatedProcessedData = {
       ...processedData,
       columns: updatedColumns
-    });
+    };
+    
+    console.log('Updated processed data:', updatedProcessedData);
+    setProcessedData(updatedProcessedData);
   };
 
   const handleConfigureNext = () => {
     if (!processedData) return;
     
+    console.log('Moving to preview step with data:', processedData);
     const validation = validateData(processedData);
+    console.log('Validation result:', validation);
+    
     if (!validation.isValid) {
       toast.error("Please fix data errors before proceeding");
       return;
@@ -198,35 +206,66 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
   };
 
   const handleGenerateCharts = () => {
-    if (!processedData) return;
+    if (!processedData) {
+      console.error('No processed data available');
+      return;
+    }
 
+    console.log('Starting chart generation with data:', processedData);
+    
     const validation = validateData(processedData);
     if (!validation.isValid) {
+      console.error('Validation failed:', validation);
       toast.error("Please fix data errors before generating charts");
       return;
     }
 
     setIsGenerating(true);
     try {
+      console.log('Generating chart suggestions...');
       const suggestions = generateChartSuggestions(processedData);
-      if (suggestions.length === 0) {
-        toast.info("No suitable chart suggestions found for this data");
-        return;
-      }
-
-      const charts = createChartsFromData(processedData, suggestions);
+      console.log('Generated suggestions:', suggestions);
       
-      // Add charts to dashboard
-      charts.forEach(chart => {
-        dispatch({ type: "ADD_ITEM", payload: chart });
-      });
+      if (suggestions.length === 0) {
+        console.log('No suggestions found, creating default charts');
+        // Create at least one default chart
+        const defaultSuggestions = [
+          {
+            type: 'bar' as const,
+            columns: processedData.columns.slice(0, 2).map(col => col.name),
+            title: 'Data Overview',
+            description: 'Bar chart showing your data'
+          }
+        ];
+        
+        const charts = createChartsFromData(processedData, defaultSuggestions);
+        console.log('Created default charts:', charts);
+        
+        charts.forEach(chart => {
+          console.log('Adding chart to dashboard:', chart);
+          dispatch({ type: "ADD_ITEM", payload: chart });
+        });
+        
+        toast.success("Generated 1 chart from your data! 🎉");
+      } else {
+        console.log('Creating charts from suggestions...');
+        const charts = createChartsFromData(processedData, suggestions);
+        console.log('Created charts:', charts);
+        
+        // Add charts to dashboard
+        charts.forEach(chart => {
+          console.log('Adding chart to dashboard:', chart);
+          dispatch({ type: "ADD_ITEM", payload: chart });
+        });
 
-      toast.success(
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-blue-500" />
-          <span>Generated {charts.length} charts from your data! 🎉</span>
-        </div>
-      );
+        toast.success(
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-blue-500" />
+            <span>Generated {charts.length} charts from your data! 🎉</span>
+          </div>
+        );
+      }
+      
       onOpenChange(false);
       
       // Reset state
