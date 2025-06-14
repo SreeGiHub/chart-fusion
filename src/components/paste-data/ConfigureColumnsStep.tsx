@@ -98,13 +98,20 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
             </Badge>
           </div>
           
+          <Alert className="bg-blue-50 border-blue-200">
+            <Info className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-700">
+              <strong>💡 AI Enhancement Tip:</strong> Add descriptions to help our AI understand your data better and generate more relevant chart suggestions.
+            </AlertDescription>
+          </Alert>
+          
           <div className="border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50">
                   <TableHead className="font-semibold">Column Name</TableHead>
                   <TableHead className="font-semibold">Data Type</TableHead>
-                  <TableHead className="font-semibold">Description</TableHead>
+                  <TableHead className="font-semibold">Description (AI Context)</TableHead>
                   <TableHead className="font-semibold w-20">Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -139,9 +146,10 @@ const ConfigureColumnsStep: React.FC<ConfigureColumnsStepProps> = ({
                     
                     <TableCell>
                       <Input
-                        placeholder="Add description (optional)"
-                        className="min-w-[200px]"
-                        disabled
+                        placeholder="e.g., 'Monthly sales revenue in USD', 'Customer satisfaction score 1-5'"
+                        value={column.description || ''}
+                        onChange={(e) => onColumnUpdate(index, { description: e.target.value })}
+                        className="min-w-[250px]"
                       />
                     </TableCell>
                     

@@ -4,6 +4,7 @@ interface GeminiAnalysisRequest {
   columns: Array<{
     name: string;
     type: 'number' | 'date' | 'text' | 'boolean';
+    description?: string;
   }>;
 }
 
@@ -90,95 +91,120 @@ Lovable is a modern dashboard platform that creates beautiful, interactive chart
 - Switch between different chart types instantly
 - Edit data mappings and filters
 
-=== AVAILABLE CHART TYPES ===
-**Basic Charts:**
-- bar: Vertical bars, great for category comparisons
-- column: Horizontal bars, good for long category names
-- line: Connected points, perfect for trends over time
-- area: Filled line chart, shows volume and trends
-- pie: Circular segments, ideal for part-to-whole relationships
-- donut: Pie chart with center hole, modern alternative to pie
+=== COMPREHENSIVE CHART TYPES & USE CASES ===
 
-**Advanced Charts:**
-- scatter: X/Y plots, excellent for correlations and outliers
-- bubble: Scatter with size dimension, shows 3 variables
-- combo: Mixed line + bar, compares different metrics
-- stacked-bar: Segmented bars, shows composition over categories
-- stacked-column: Horizontal stacked bars
-- stacked-area: Layered areas, shows cumulative trends
+**📊 COMPARISON CHARTS:**
+- bar: Vertical bars - Compare categories, sales by product, scores by team
+- column: Horizontal bars - Long category names, survey responses, rankings
+- stacked-bar: Segmented vertical bars - Revenue breakdown by category over time
+- stacked-column: Segmented horizontal bars - Survey responses by demographics
 
-**Business Intelligence:**
-- card: Single metric display with formatting
-- gauge: Speedometer style, shows progress to goal
-- funnel: Conversion steps, perfect for sales/marketing funnels
-- treemap: Hierarchical rectangles, shows proportional data
-- waterfall: Shows positive/negative changes step by step
+**📈 TREND & TIME SERIES:**
+- line: Connected points - Stock prices, website traffic, temperature over time
+- area: Filled line chart - Revenue growth, user acquisition, cumulative metrics
+- stacked-area: Layered areas - Market share evolution, budget allocation over time
+- combo: Line + Bar mix - Revenue (bars) vs profit margin (line)
 
-**Specialized:**
-- radar: Multi-dimensional comparison
-- heatmap: Color-coded matrix for patterns
-- histogram: Distribution of continuous data
-- boxplot: Statistical summary with quartiles
-- table: Raw data display with sorting/filtering
+**🥧 COMPOSITION & PARTS:**
+- pie: Circular segments - Market share, budget allocation, survey results
+- donut: Pie with center hole - Same as pie but more modern, can show total in center
+- treemap: Hierarchical rectangles - File sizes, revenue by product hierarchy
+- funnel: Conversion steps - Sales pipeline, website conversion, process flow
 
-=== USER CAPABILITIES ===
-After generation, users can:
-1. **Chart Type**: Switch any chart to a different type instantly
-2. **Data Mapping**: Change which columns map to X/Y axes
-3. **Styling**: Modify colors, fonts, backgrounds
-4. **Titles**: Edit chart and axis titles
-5. **Filters**: Add data filters and date ranges
-6. **Layout**: Drag, resize, and reposition charts
-7. **Export**: Save as PNG, PDF, or share online
+**📍 CORRELATION & DISTRIBUTION:**
+- scatter: X/Y plots - Height vs weight, price vs quality, performance correlation
+- bubble: Scatter + size - Sales (x) vs profit (y) with market size (bubble)
+- heatmap: Color matrix - Website clicks, correlation matrix, geographic data
+- histogram: Distribution bars - Age distribution, salary ranges, test scores
+- boxplot: Statistical summary - Performance quartiles, salary ranges by role
+
+**🎯 BUSINESS INTELLIGENCE:**
+- card: Single metric KPI - Total revenue, conversion rate, active users
+- gauge: Progress meter - Goal completion, satisfaction score, performance rating
+- waterfall: Step changes - Budget vs actual, profit/loss breakdown
+- radar: Multi-dimension - Employee skills, product features comparison
+
+**📋 DATA DISPLAY:**
+- table: Raw data grid - Customer lists, transaction details, inventory
+- matrix: Cross-tabulation - Sales by region/product, survey crosstab
+
+**🎨 VISUAL IMPACT:**
+- Timeline charts show progression and milestones
+- Geographic maps show location-based data
+- Sankey diagrams show flow between categories
+
+=== USER CAPABILITIES AFTER GENERATION ===
+Users can modify charts in real-time:
+1. **Chart Type Switching**: Instantly change any chart to different type
+2. **Data Mapping**: Reassign columns to X/Y axes, categories, values
+3. **Visual Styling**: Colors, fonts, backgrounds, themes
+4. **Interactive Features**: Filters, drill-downs, tooltips
+5. **Layout Control**: Drag, resize, reposition on canvas
+6. **Export Options**: PNG, PDF, online sharing
 
 === DATASET TO ANALYZE ===
-Columns: ${columns.map(col => `${col.name} (${col.type})`).join(', ')}
+Columns with descriptions:
+${columns.map(col => `${col.name} (${col.type})${col.description ? `: ${col.description}` : ''}`).join('\n')}
 
-Sample Data (first 5 rows):
+Sample Data (first 5 rows showing actual patterns):
 ${JSON.stringify(sampleData, null, 2)}
 
-=== YOUR TASK ===
+=== INTELLIGENT ANALYSIS REQUIREMENTS ===
 Provide analysis in this EXACT JSON format:
 {
-  "dataInsights": "Brief description of what this data represents, key patterns, and business context",
+  "dataInsights": "Detailed business context: What domain is this? What decisions can be made? Key patterns and relationships discovered.",
   "chartSuggestions": [
     {
       "chartType": "exact_chart_type_from_list_above",
-      "title": "Descriptive and engaging chart title",
-      "description": "Why this specific chart type tells the data story best",
+      "title": "Business-focused title that tells a story",
+      "description": "Why this chart type reveals specific insights and drives decisions",
       "xAxis": "exact_column_name_for_x_axis",
       "yAxis": "exact_column_name_for_y_axis", 
-      "reasoning": "Detailed explanation of visualization choice and business value",
+      "reasoning": "Detailed business rationale: What insight does this reveal? What actions can users take?",
       "priority": 1-10
     }
   ],
-  "layoutRecommendations": "Suggestions for dashboard organization, which charts to place prominently, and how to tell a cohesive data story"
+  "layoutRecommendations": "Strategic dashboard organization: Which charts should be prominent? How to create a narrative flow? What story should the dashboard tell?"
 }
 
-=== ANALYSIS GUIDELINES ===
-1. **Context First**: Understand what business/domain this data represents
-2. **Diverse Charts**: Suggest 4-8 different chart types that each tell a unique story
-3. **Prioritize Value**: Rank charts by business impact and insight value
-4. **Consider Users**: Think about what decisions this dashboard should enable
-5. **Be Specific**: Use exact column names and chart types from our supported list
-6. **Tell Stories**: Each chart should reveal a specific insight or pattern
+=== ADVANCED ANALYSIS GUIDELINES ===
 
-**Chart Selection Strategy:**
-- Start with most important business metrics (cards/gauges for KPIs)
-- Add trend analysis (line/area charts for time series)
-- Include comparisons (bar/column for categories)
-- Show relationships (scatter/bubble for correlations)
-- Reveal composition (pie/treemap for part-to-whole)
-- Highlight processes (funnel/waterfall for flows)
+**🎯 STRATEGIC CHART SELECTION:**
+1. **Executive Summary**: Start with 2-3 KPI cards showing most critical metrics
+2. **Trend Analysis**: Include time-series charts for performance tracking
+3. **Comparative Analysis**: Bar/column charts for category comparisons
+4. **Relationship Discovery**: Scatter plots for correlation insights
+5. **Composition Breakdown**: Pie/treemap for part-to-whole understanding
+6. **Process Flow**: Funnel/waterfall for step-by-step analysis
 
-**Column Mapping Rules:**
-- Time/date columns → X-axis for temporal charts
-- Categories → X-axis for comparison charts  
-- Numeric measures → Y-axis values
-- For cards/gauges → use single most important metric
-- For scatter → use two related numeric columns
+**📊 SMART COLUMN MAPPING:**
+- **Temporal Data**: Date/time columns → X-axis for trend charts
+- **Categories**: Text columns → X-axis for comparison charts, pie slices
+- **Metrics**: Numeric columns → Y-axis values, card displays, gauge targets
+- **Identifiers**: ID columns → Filters, not primary visualization axes
+- **Hierarchical**: Parent-child relationships → Treemap, funnel stages
 
-Return only valid JSON without any markdown formatting or code blocks.
+**🚀 BUSINESS VALUE PRIORITIZATION:**
+- Priority 9-10: Critical KPIs, main trends, primary comparisons
+- Priority 7-8: Supporting analysis, secondary metrics, correlations
+- Priority 5-6: Detailed breakdowns, niche insights, exploratory views
+- Priority 1-4: Nice-to-have views, experimental visualizations
+
+**📈 INSIGHT-DRIVEN RECOMMENDATIONS:**
+- Each chart must answer a specific business question
+- Titles should indicate the insight, not just the data
+- Consider seasonality, outliers, and business cycles
+- Suggest alerts for anomalies or threshold breaches
+- Recommend drill-down capabilities for deeper analysis
+
+**🎨 DASHBOARD STORYTELLING:**
+- Top row: Most important KPIs and trends
+- Middle section: Comparative and correlation analysis  
+- Bottom section: Detailed breakdowns and supporting data
+- Left-to-right flow: Problem → Analysis → Solution
+- Use consistent color schemes across related charts
+
+Return only valid JSON without markdown formatting or code blocks.
 `;
   }
 

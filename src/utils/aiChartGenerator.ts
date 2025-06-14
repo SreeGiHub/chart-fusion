@@ -33,11 +33,12 @@ export async function generateAIChartSuggestions(
       data: data.rows,
       columns: data.columns.map(col => ({
         name: col.name,
-        type: col.type
+        type: col.type,
+        description: col.description
       }))
     };
 
-    console.log('Sending data to Gemini for analysis...');
+    console.log('Sending data with descriptions to Gemini for analysis...');
     const aiAnalysis = await geminiService.analyzeDataForCharts(analysisRequest);
     console.log('Gemini analysis received:', aiAnalysis);
 
