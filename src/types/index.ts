@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 
 export type Position = {
@@ -28,9 +27,9 @@ export type ChartType =
   | "treemap"
   | "funnel"
   | "sankey"
-  | "radar"
   | "boxplot"
-  | "table";
+  | "table"
+  | "waterfall";
 
 // Defining more specific data point types
 export type SimpleDataPoint = number;

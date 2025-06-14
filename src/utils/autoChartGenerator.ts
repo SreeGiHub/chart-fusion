@@ -31,30 +31,44 @@ const POWERBI_CHART_CONFIGS = [
 
 // Analyze data and suggest appropriate charts
 export function generateChartSuggestions(data: ProcessedData): ChartSuggestion[] {
-  console.log('Generating chart suggestions for data:', data);
+  console.log('=== CHART SUGGESTION GENERATION START ===');
+  console.log('Input data:', data);
+  console.log('Data columns:', data.columns);
+  console.log('Data rows count:', data.rows.length);
+  console.log('Sample rows:', data.rows.slice(0, 3));
   
   const suggestions: ChartSuggestion[] = [];
   const numericColumns = data.columns.filter(col => col.type === 'number');
   const categoricalColumns = data.columns.filter(col => col.type === 'text');
   const dateColumns = data.columns.filter(col => col.type === 'date');
   
-  console.log('Column analysis:', { numericColumns, categoricalColumns, dateColumns });
+  console.log('Column analysis:', { 
+    numericColumns: numericColumns.map(c => c.name), 
+    categoricalColumns: categoricalColumns.map(c => c.name), 
+    dateColumns: dateColumns.map(c => c.name) 
+  });
   
   POWERBI_CHART_CONFIGS.forEach(config => {
     let columns: string[] = [];
+    
+    console.log(`Processing chart type: ${config.type}`);
     
     // Assign appropriate columns based on chart type
     if (config.type === 'line' || config.type === 'area') {
       if (dateColumns.length > 0 && numericColumns.length > 0) {
         columns = [dateColumns[0].name, numericColumns[0].name];
+      } else if (categoricalColumns.length > 0 && numericColumns.length > 0) {
+        columns = [categoricalColumns[0].name, numericColumns[0].name];
       } else {
-        columns = categoricalColumns.slice(0, 1).concat(numericColumns.slice(0, 1)).map(c => c.name);
+        columns = ['Category', 'Value'];
       }
     } else if (config.type === 'scatter') {
       if (numericColumns.length >= 2) {
         columns = [numericColumns[0].name, numericColumns[1].name];
+      } else if (numericColumns.length === 1) {
+        columns = [numericColumns[0].name, numericColumns[0].name];
       } else {
-        columns = numericColumns.slice(0, 1).map(c => c.name);
+        columns = ['X Value', 'Y Value'];
       }
     } else if (config.type === 'pie' || config.type === 'donut' || config.type === 'treemap') {
       if (categoricalColumns.length > 0 && numericColumns.length > 0) {
@@ -65,23 +79,34 @@ export function generateChartSuggestions(data: ProcessedData): ChartSuggestion[]
     } else if (config.type === 'table') {
       columns = data.columns.slice(0, 4).map(c => c.name);
     } else {
+      // Default for bar, etc.
       if (categoricalColumns.length > 0 && numericColumns.length > 0) {
         columns = [categoricalColumns[0].name, numericColumns[0].name];
-      } else {
+      } else if (data.columns.length >= 2) {
         columns = data.columns.slice(0, 2).map(c => c.name);
+      } else {
+        columns = ['Category', 'Value'];
       }
     }
     
-    suggestions.push({
+    console.log(`Chart ${config.type} assigned columns:`, columns);
+    
+    const suggestion = {
       type: config.type,
       title: config.title,
       description: `Professional ${config.type} chart for data analysis`,
       columns,
       priority: config.priority
-    });
+    };
+    
+    suggestions.push(suggestion);
+    console.log(`Added suggestion:`, suggestion);
   });
   
-  console.log('Generated suggestions:', suggestions);
+  console.log('=== FINAL SUGGESTIONS ===');
+  console.log('Total suggestions:', suggestions.length);
+  suggestions.forEach((s, i) => console.log(`${i + 1}. ${s.type}: ${s.title} [${s.columns.join(', ')}]`));
+  
   return suggestions.sort((a, b) => b.priority - a.priority);
 }
 
@@ -91,7 +116,10 @@ export function createChartsFromData(
   suggestions: ChartSuggestion[], 
   startPosition: Position = { x: 20, y: 20 }
 ): ChartItemType[] {
-  console.log('Creating charts from data with suggestions:', suggestions);
+  console.log('=== CHART CREATION START ===');
+  console.log('Input data:', data);
+  console.log('Suggestions to process:', suggestions.length);
+  console.log('Start position:', startPosition);
   
   const charts: ChartItemType[] = [];
   
@@ -103,7 +131,7 @@ export function createChartsFromData(
   const verticalGap = 10;
   
   suggestions.slice(0, 12).forEach((suggestion, index) => {
-    console.log(`Creating chart ${index + 1}: ${suggestion.type}`);
+    console.log(`=== Creating chart ${index + 1}: ${suggestion.type} ===`);
     
     const col = index % gridCols;
     const row = Math.floor(index / gridCols);
@@ -113,9 +141,16 @@ export function createChartsFromData(
       y: startPosition.y + (row * (chartHeight + verticalGap))
     };
     
+    console.log(`Chart position: col=${col}, row=${row}, position=`, position);
+    
     try {
+      console.log('Preparing chart data...');
       const chartData = prepareChartData(data, suggestion);
+      console.log('Chart data prepared:', chartData);
+      
+      console.log('Creating new chart item...');
       const chart = createNewChartItem(suggestion.type, position);
+      console.log('Base chart item created:', chart);
       
       // PowerBI-style sizing
       chart.size = { width: chartWidth, height: chartHeight };
@@ -123,13 +158,20 @@ export function createChartsFromData(
       chart.data = chartData;
       chart.id = uuidv4();
       
-      console.log(`Successfully created chart: ${chart.title}`);
+      console.log(`Successfully created chart: ${chart.title} (${chart.id})`);
+      console.log('Final chart object:', chart);
       charts.push(chart);
     } catch (error) {
       console.error(`Error creating chart ${suggestion.type}:`, error);
+      console.error('Error details:', error.message, error.stack);
     }
   });
   
+  console.log('=== CHART CREATION COMPLETE ===');
   console.log(`Created ${charts.length} charts total`);
+  charts.forEach((chart, i) => {
+    console.log(`Chart ${i + 1}: ${chart.type} - ${chart.title} at (${chart.position.x}, ${chart.position.y})`);
+  });
+  
   return charts;
 }
