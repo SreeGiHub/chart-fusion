@@ -143,7 +143,55 @@ Vale Halls	29	1900	West	2024-04-20	Webcam	8000	80	4.1	8.3`;
 
   const handleTrySampleData = () => {
     setPastedData(sampleData);
-    toast.success("Sample data loaded! Click 'Process Data' to continue.");
+    
+    // Process the data and set default descriptions
+    const processed = processData(sampleData);
+    if (processed.isValid) {
+      const columnsWithDescriptions = processed.columns.map(col => {
+        const descriptions: Record<string, string> = {
+          'Name': 'Full name of the sales representative',
+          'Age': 'Age of the sales representative in years',
+          'Sales': 'Individual sales amount achieved in USD',
+          'Region': 'Geographic sales region (North, South, East, West)',
+          'Date': 'Date of the sales transaction',
+          'Product': 'Type of product sold (Laptop, Phone, Tablet, etc.)',
+          'Revenue': 'Total revenue generated from the sale in USD',
+          'Units_Sold': 'Number of units sold in the transaction',
+          'Customer_Rating': 'Customer satisfaction rating on a scale of 1-5',
+          'Market_Share': 'Market share percentage for the product category'
+        };
+        
+        return {
+          ...col,
+          description: descriptions[col.name] || '',
+          type: getColumnType(col.name)
+        };
+      });
+      
+      setProcessedData({
+        ...processed,
+        columns: columnsWithDescriptions
+      });
+    }
+    
+    toast.success("Sample data loaded with descriptions! Click 'Continue to Preview' to proceed.");
+  };
+
+  const getColumnType = (columnName: string): DataColumn['type'] => {
+    const typeMap: Record<string, DataColumn['type']> = {
+      'Name': 'text',
+      'Age': 'number',
+      'Sales': 'number',
+      'Region': 'text',
+      'Date': 'date',
+      'Product': 'text',
+      'Revenue': 'number',
+      'Units_Sold': 'number',
+      'Customer_Rating': 'number',
+      'Market_Share': 'number'
+    };
+    
+    return typeMap[columnName] || 'text';
   };
 
   const handlePasteData = () => {

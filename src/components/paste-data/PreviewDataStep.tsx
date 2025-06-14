@@ -1,14 +1,8 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  Eye,
-  AlertTriangle,
-  RefreshCw,
-  Play
-} from "lucide-react";
-import { ProcessedData, DataValidationResult } from "@/utils/dataProcessor";
 import {
   Table,
   TableBody,
@@ -17,7 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Sparkles,
+  AlertTriangle,
+  ArrowRight,
+  Database
+} from "lucide-react";
+import { ProcessedData, DataValidationResult } from "@/utils/dataProcessor";
 
 interface PreviewDataStepProps {
   processedData: ProcessedData;
@@ -32,33 +32,40 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
   isGenerating,
   onGenerateCharts,
 }) => {
+  const handleGenerate = () => {
+    console.log('Generate button clicked, validation:', validation);
+    if (validation && !validation.isValid) {
+      console.log('Validation failed, cannot generate');
+      return;
+    }
+    console.log('Proceeding to generate charts');
+    onGenerateCharts();
+  };
+
+  // Show first 10 rows for preview
+  const previewRows = processedData.rows.slice(0, 10);
+
   return (
-    <div className="flex-1 flex flex-col space-y-6 overflow-hidden">
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
-        <div className="flex items-start gap-3">
-          <Eye className="h-5 w-5 text-purple-600 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-medium text-gray-900">Preview Your Data</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Review your processed data and generate your dashboard with multiple chart types.
-            </p>
+    <div className="flex-1 flex flex-col overflow-hidden space-y-6">
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <Database className="h-5 w-5 text-green-600 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-gray-900">Preview Your Data</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Review your data structure and generate AI-powered dashboard charts.
+              </p>
+            </div>
           </div>
           <Button 
-            onClick={onGenerateCharts}
-            disabled={!validation?.isValid || isGenerating}
-            className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white"
+            onClick={handleGenerate}
+            disabled={validation && !validation.isValid}
+            className="min-w-48 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+            loading={isGenerating}
           >
-            {isGenerating ? (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                Visualizing...
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4 mr-2" />
-                Visualize
-              </>
-            )}
+            <Sparkles className="h-4 w-4 mr-2" />
+            {isGenerating ? 'Generating Charts...' : 'Generate AI Dashboard'}
           </Button>
         </div>
       </div>
@@ -79,43 +86,73 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
 
       <div className="flex-1 overflow-auto">
         <div className="space-y-4">
-          <h3 className="text-sm font-medium">Data Preview ({processedData.rows.length} rows)</h3>
-          <ScrollArea className="h-96 w-full border rounded-lg">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Data Preview</h3>
+            <div className="flex gap-2">
+              <Badge variant="outline" className="text-sm">
+                {processedData.columns.length} columns
+              </Badge>
+              <Badge variant="outline" className="text-sm">
+                {processedData.rows.length} rows
+              </Badge>
+            </div>
+          </div>
+
+          <div className="border rounded-lg overflow-auto max-h-96">
             <Table>
-              <TableHeader className="sticky top-0 bg-muted">
-                <TableRow>
-                  <TableHead className="w-12">#</TableHead>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
                   {processedData.columns.map((column, index) => (
-                    <TableHead key={index} className="min-w-24">
-                      <div className="flex items-center gap-1">
-                        <span>{column.name}</span>
-                        {column.hasErrors && (
-                          <AlertTriangle className="h-3 w-3 text-amber-500" />
-                        )}
+                    <TableHead key={index} className="font-semibold min-w-[120px]">
+                      <div className="space-y-1">
+                        <div>{column.name}</div>
+                        <div className="text-xs text-gray-500 font-normal">
+                          {column.type}
+                        </div>
                       </div>
                     </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {processedData.rows.map((row, rowIndex) => (
-                  <TableRow key={rowIndex}>
-                    <TableCell className="text-muted-foreground font-mono">{rowIndex + 1}</TableCell>
+                {previewRows.map((row, rowIndex) => (
+                  <TableRow key={rowIndex} className="hover:bg-gray-50">
                     {processedData.columns.map((column, colIndex) => (
-                      <TableCell key={colIndex}>
-                        <span className="truncate block max-w-32" title={String(row[column.name])}>
-                          {row[column.name] !== undefined && row[column.name] !== null
-                            ? String(row[column.name])
-                            : '-'
-                          }
-                        </span>
+                      <TableCell key={colIndex} className="min-w-[120px]">
+                        {row[column.name] || '-'}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </ScrollArea>
+          </div>
+
+          {processedData.rows.length > 10 && (
+            <div className="text-sm text-gray-600 text-center">
+              Showing first 10 rows of {processedData.rows.length} total rows
+            </div>
+          )}
+
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h4 className="font-medium text-blue-900 mb-2">Column Descriptions for AI:</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {processedData.columns.map((column, index) => (
+                <div key={index} className="text-sm">
+                  <span className="font-medium text-blue-800">{column.name}:</span>{' '}
+                  <span className="text-blue-700">
+                    {column.description || 'No description provided'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center pt-4 border-t bg-white">
+        <div className="text-sm text-gray-500">
+          Step 3 of 3: Review data and generate your dashboard
         </div>
       </div>
     </div>
