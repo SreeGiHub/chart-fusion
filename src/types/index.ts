@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 
 export type Position = {
@@ -23,29 +24,16 @@ export type ChartType =
   | "gauge"
   | "semi-circle"
   | "radar"
-  | "heatmap"
   | "treemap"
   | "funnel"
-  | "sankey"
   | "boxplot"
   | "table"
-  | "waterfall"
   | "column"
   | "stacked-bar"
-  | "stacked-column"
   | "stacked-area"
   | "combo"
   | "histogram"
-  | "matrix"
-  | "multi-row-card"
-  | "kpi"
-  | "slicer"
-  | "decomposition-tree"
-  | "map"
-  | "filled-map"
-  | "word-cloud"
-  | "timeline"
-  | "gantt";
+  | "multi-row-card";
 
 // Defining more specific data point types
 export type SimpleDataPoint = number;
@@ -114,6 +102,7 @@ export type DashboardState = {
     future: DashboardHistoryState[];
   };
   previewMode: boolean;
+  canvasColor?: string;
 };
 
 export type DashboardHistoryState = {
@@ -135,6 +124,7 @@ export type DashboardAction =
   | { type: "UNDO" }
   | { type: "REDO" }
   | { type: "TOGGLE_PREVIEW_MODE"; payload?: boolean }
+  | { type: "SET_CANVAS_COLOR"; payload: string }
   | { type: "IMPORT_DASHBOARD"; payload: DashboardState };
 
 export type DashboardContextType = {

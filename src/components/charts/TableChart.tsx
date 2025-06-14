@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { ChartData, TableColumnConfig, TableRowData } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, Database } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 interface TableChartProps {
   data: ChartData;
@@ -46,20 +47,6 @@ const TableChart: React.FC<TableChartProps> = ({ data, onDataUpdate }) => {
     setEditingHeader(null);
   };
 
-  const addRow = () => {
-    if (!onDataUpdate) return;
-
-    const newRow: TableRowData = {};
-    columns.forEach(col => {
-      newRow[col.id] = '';
-    });
-
-    onDataUpdate({
-      ...data,
-      tableRows: [...rows, newRow]
-    });
-  };
-
   const addColumn = () => {
     if (!onDataUpdate) return;
 
@@ -92,11 +79,13 @@ const TableChart: React.FC<TableChartProps> = ({ data, onDataUpdate }) => {
 
   return (
     <div className="w-full h-full overflow-auto p-4">
-      <div className="mb-4 flex gap-2">
-        <Button onClick={addRow} size="sm" variant="outline">
-          <Plus className="w-4 h-4 mr-1" />
-          Add Row
-        </Button>
+      {/* Data Management Section */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Database className="w-4 h-4" />
+          <h4 className="text-sm font-medium">Data</h4>
+        </div>
+        <Separator className="mb-3" />
         <Button onClick={addColumn} size="sm" variant="outline">
           <Plus className="w-4 h-4 mr-1" />
           Add Column

@@ -27,26 +27,15 @@ import {
   Wand2,
   ScatterChart,
   Gauge,
-  Map,
   LayoutGrid,
   CircleDot,
-  ZapOff,
-  Palette as PaletteIcon,
+  PaletteIcon,
   Sparkles,
-  Zap,
   BarChart3,
-  BarChart4,
   TrendingUp,
-  Calendar,
-  Clock,
   Layers,
-  Filter,
   Target,
-  Hash,
-  MapPin,
-  CloudRain,
-  Calendar1,
-  Kanban
+  Hash
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -57,11 +46,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuGroup,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -103,19 +87,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTextToChartOpen, setIsTextToChartOpen] = useState(false);
   const [isPasteDataOpen, setIsPasteDataOpen] = useState(false);
-
-  const canvasColors = [
-    { name: "White", value: "#FFFFFF" },
-    { name: "Light Gray", value: "#F8F9FA" },
-    { name: "Dark Gray", value: "#E9ECEF" },
-    { name: "Light Blue", value: "#E3F2FD" },
-    { name: "Light Green", value: "#E8F5E8" },
-    { name: "Light Yellow", value: "#FFF9E6" },
-    { name: "Light Pink", value: "#FDE2E7" },
-    { name: "Light Purple", value: "#F3E8FF" },
-    { name: "Cream", value: "#FDF6E3" },
-    { name: "Mint", value: "#F0FDFA" },
-  ];
 
   const handleAddItem = (type: ChartType) => {
     const canvasElement = document.getElementById("dashboard-canvas");
@@ -248,10 +219,10 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
               <span className="sm:hidden">+</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[800px] p-4" align="start">
+          <DropdownMenuContent className="w-[600px] p-4" align="start">
             <DropdownMenuLabel className="text-lg font-semibold mb-4">Chart Types</DropdownMenuLabel>
             
-            <div className="grid grid-cols-6 gap-6">
+            <div className="grid grid-cols-4 gap-6">
               {/* Bar & Column Charts Column */}
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-muted-foreground mb-3">Bar & Column Charts</h3>
@@ -274,15 +245,15 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                     onClick={() => handleAddItem("stacked-bar")}
                     className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
                   >
-                    <BarChart4 className="h-4 w-4" />
+                    <BarChart className="h-4 w-4" />
                     <span>Stacked Bar</span>
                   </button>
                   <button
-                    onClick={() => handleAddItem("stacked-column")}
+                    onClick={() => handleAddItem("histogram")}
                     className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
                   >
-                    <BarChart4 className="h-4 w-4" />
-                    <span>Stacked Column</span>
+                    <BarChart className="h-4 w-4" />
+                    <span>Histogram</span>
                   </button>
                 </div>
               </div>
@@ -355,13 +326,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                     <span>Bubble Chart</span>
                   </button>
                   <button
-                    onClick={() => handleAddItem("histogram")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <BarChart className="h-4 w-4" />
-                    <span>Histogram</span>
-                  </button>
-                  <button
                     onClick={() => handleAddItem("boxplot")}
                     className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
                   >
@@ -371,44 +335,9 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                 </div>
               </div>
 
-              {/* Flow & Hierarchy Column */}
+              {/* Cards & More Column */}
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Flow & Hierarchy</h3>
-                <div className="space-y-1">
-                  <button
-                    onClick={() => handleAddItem("waterfall")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <Activity className="h-4 w-4" />
-                    <span>Waterfall</span>
-                  </button>
-                  <button
-                    onClick={() => handleAddItem("funnel")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <Activity className="h-4 w-4" />
-                    <span>Funnel Chart</span>
-                  </button>
-                  <button
-                    onClick={() => handleAddItem("decomposition-tree")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                    <span>Decomposition Tree</span>
-                  </button>
-                  <button
-                    onClick={() => handleAddItem("treemap")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                    <span>Treemap</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Cards & KPIs Column */}
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Cards & KPIs</h3>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Cards & Others</h3>
                 <div className="space-y-1">
                   <button
                     onClick={() => handleAddItem("card")}
@@ -432,20 +361,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                     <span>Gauge</span>
                   </button>
                   <button
-                    onClick={() => handleAddItem("kpi")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <Target className="h-4 w-4" />
-                    <span>KPI Visual</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Tables & More Column */}
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Tables & More</h3>
-                <div className="space-y-1">
-                  <button
                     onClick={() => handleAddItem("table")}
                     className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
                   >
@@ -453,67 +368,25 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
                     <span>Table</span>
                   </button>
                   <button
-                    onClick={() => handleAddItem("matrix")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                    <span>Matrix</span>
-                  </button>
-                  <button
-                    onClick={() => handleAddItem("slicer")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <Filter className="h-4 w-4" />
-                    <span>Slicer/Filter</span>
-                  </button>
-                  <button
-                    onClick={() => handleAddItem("map")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <Map className="h-4 w-4" />
-                    <span>Map</span>
-                  </button>
-                  <button
-                    onClick={() => handleAddItem("filled-map")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <MapPin className="h-4 w-4" />
-                    <span>Filled Map</span>
-                  </button>
-                  <button
                     onClick={() => handleAddItem("radar")}
                     className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
                   >
-                    <ZapOff className="h-4 w-4" />
+                    <Target className="h-4 w-4" />
                     <span>Radar Chart</span>
                   </button>
                   <button
-                    onClick={() => handleAddItem("heatmap")}
+                    onClick={() => handleAddItem("treemap")}
                     className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
                   >
                     <LayoutGrid className="h-4 w-4" />
-                    <span>Heatmap</span>
+                    <span>Treemap</span>
                   </button>
                   <button
-                    onClick={() => handleAddItem("word-cloud")}
+                    onClick={() => handleAddItem("funnel")}
                     className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
                   >
-                    <CloudRain className="h-4 w-4" />
-                    <span>Word Cloud</span>
-                  </button>
-                  <button
-                    onClick={() => handleAddItem("timeline")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <Calendar1 className="h-4 w-4" />
-                    <span>Timeline</span>
-                  </button>
-                  <button
-                    onClick={() => handleAddItem("gantt")}
-                    className="w-full flex items-center gap-2 p-2 text-sm hover:bg-accent rounded-md transition-colors"
-                  >
-                    <Kanban className="h-4 w-4" />
-                    <span>Gantt Chart</span>
+                    <Activity className="h-4 w-4" />
+                    <span>Funnel Chart</span>
                   </button>
                   <button
                     onClick={() => handleAddItem("text")}

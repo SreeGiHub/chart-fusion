@@ -12,12 +12,9 @@ import RadarChart from './RadarChart';
 import TreemapChart from './TreemapChart';
 import FunnelChart from './FunnelChart';
 import GaugeChart from './GaugeChart';
-import KPIChart from './KPIChart';
 import BoxPlotChart from './BoxPlotChart';
 import TextChart from './TextChart';
 import TableChart from './TableChart';
-import MapChart from './MapChart';
-import PlaceholderChart from './PlaceholderChart';
 import { useDashboard } from '@/context/DashboardContext';
 
 interface ChartRendererProps {
@@ -32,9 +29,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({ item }) => {
     case "bar":
     case "column":
     case "stacked-bar":
-    case "stacked-column":
     case "histogram":
-    case "waterfall":
       return <BarChart item={item} />;
       
     case "line":
@@ -63,7 +58,6 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({ item }) => {
       return <RadarChart item={item} />;
       
     case "treemap":
-    case "decomposition-tree":
       return <TreemapChart item={item} />;
       
     case "funnel":
@@ -72,9 +66,6 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({ item }) => {
     case "gauge":
     case "semi-circle":
       return <GaugeChart item={item} />;
-      
-    case "kpi":
-      return <KPIChart item={item} />;
       
     case "boxplot":
       return <BoxPlotChart item={item} />;
@@ -97,18 +88,6 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({ item }) => {
           }}
         />
       );
-
-    case "map":
-      return <MapChart data={item.data} />;
-
-    case "gantt":
-    case "matrix":
-    case "slicer":
-    case "filled-map":
-    case "heatmap":
-    case "word-cloud":
-    case "timeline":
-      return <PlaceholderChart type={item.type} title={item.title} />;
 
     default:
       return (
