@@ -16,17 +16,7 @@ interface FunnelChartProps {
 }
 
 const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
-  // Transform data for funnel chart with proper structure
-  const processedData = item.data.labels.map((label, index) => {
-    const value = item.data.datasets[0]?.data[index] || 0;
-    return {
-      name: label,
-      value: typeof value === 'number' ? value : 0,
-      fill: getLabelColor(index),
-    };
-  });
-
-  // Get color for each label/segment
+  // Get color for each label/segment - MOVED BEFORE processedData
   const getLabelColor = (index: number) => {
     const dataset = item.data.datasets[0];
     if (!dataset) return "#8B5CF6";
@@ -44,6 +34,16 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ item }) => {
     // Default color if nothing else
     return dataset.backgroundColor as string || "#8B5CF6";
   };
+
+  // Transform data for funnel chart with proper structure
+  const processedData = item.data.labels.map((label, index) => {
+    const value = item.data.datasets[0]?.data[index] || 0;
+    return {
+      name: label,
+      value: typeof value === 'number' ? value : 0,
+      fill: getLabelColor(index),
+    };
+  });
   
   const chartStyle = {
     fontSize: '12px',
