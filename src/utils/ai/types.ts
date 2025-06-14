@@ -8,6 +8,7 @@ export interface AIChartSuggestion {
   columns: string[];
   priority: number;
   reasoning?: string;
+  visualizationGoal?: string;
 }
 
 export const CHART_TYPE_MAP: Record<string, ChartType> = {
