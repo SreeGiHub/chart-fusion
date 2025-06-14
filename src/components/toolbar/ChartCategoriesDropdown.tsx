@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useDashboard } from "@/context/DashboardContext";
 import { ChevronDown, Plus } from "lucide-react";
+import { ChartData } from "@/types";
 
 interface ChartCategoriesDropdownProps {
   onTextToChartOpen: () => void;
@@ -16,28 +17,10 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
   const { dispatch } = useDashboard();
 
   const addChart = (type: string) => {
-    const newItem = {
-      id: `chart-${Date.now()}`,
-      type: type as any,
-      title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
-      position: { x: 100, y: 100 },
-      size: { width: 400, height: 300 },
-      data: {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May"],
-        datasets: [
-          {
-            label: "Dataset 1",
-            data: [65, 59, 80, 81, 56],
-            backgroundColor: "#8884d8",
-            borderColor: "#8884d8",
-            borderWidth: 2,
-          },
-        ],
-      },
-    };
+    let chartData: ChartData;
 
     if (type === "table") {
-      newItem.data = {
+      chartData = {
         labels: [],
         datasets: [],
         tableColumns: [
@@ -53,7 +36,29 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
           { col1: "Row 5 Col 1", col2: "Row 5 Col 2", col3: "Row 5 Col 3" },
         ],
       };
+    } else {
+      chartData = {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+        datasets: [
+          {
+            label: "Dataset 1",
+            data: [65, 59, 80, 81, 56],
+            backgroundColor: "#8884d8",
+            borderColor: "#8884d8",
+            borderWidth: 2,
+          },
+        ],
+      };
     }
+
+    const newItem = {
+      id: `chart-${Date.now()}`,
+      type: type as any,
+      title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
+      position: { x: 100, y: 100 },
+      size: { width: 400, height: 300 },
+      data: chartData,
+    };
 
     dispatch({ type: "ADD_ITEM", payload: newItem });
   };
