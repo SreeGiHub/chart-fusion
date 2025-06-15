@@ -1,4 +1,3 @@
-
 import { ChartData } from "@/types";
 import { ProcessedData } from "../dataProcessor";
 import { ChartSuggestion } from "../autoChartGenerator";
@@ -92,8 +91,7 @@ export function prepareEnhancedChartData(data: ProcessedData, suggestion: ChartS
         label: `${xCol} vs ${yCol}`,
         data: scatterData,
         backgroundColor: '#4F46E5',
-        borderColor: '#4F46E5',
-        pointRadius: 4
+        borderColor: '#4F46E5'
       }]
     };
   }
