@@ -78,6 +78,13 @@ Mike	28	1800	East`;
   };
 
   const handleGenerateCharts = () => {
+    console.log('🚀 Starting chart generation with data:', {
+      processedData: !!processedData,
+      geminiApiKey: !!geminiApiKey,
+      dataRows: processedData?.rows.length,
+      dataColumns: processedData?.columns.length
+    });
+    
     setIsGenerating(true);
     // Close dialog first
     onOpenChange(false);
@@ -151,6 +158,8 @@ Mike	28	1800	East`;
                 processedData={processedData}
                 validation={validation}
                 isGenerating={isGenerating}
+                geminiApiKey={geminiApiKey}
+                setGeminiApiKey={setGeminiApiKey}
                 onGenerateCharts={handleGenerateCharts}
                 onRegenerateCharts={handleGenerateCharts}
               />

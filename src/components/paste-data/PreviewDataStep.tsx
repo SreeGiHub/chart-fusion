@@ -1,13 +1,16 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, RefreshCw, AlertTriangle, ArrowRight } from "lucide-react";
 import { ProcessedData, DataValidationResult } from "@/utils/dataProcessor";
+import GeminiApiKeyInput from "./GeminiApiKeyInput";
 
 interface PreviewDataStepProps {
   processedData: ProcessedData;
   validation: DataValidationResult | null;
   isGenerating: boolean;
+  geminiApiKey: string;
+  setGeminiApiKey: (key: string) => void;
   onGenerateCharts: () => void;
   onRegenerateCharts?: () => void;
 }
@@ -16,9 +19,12 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
   processedData,
   validation,
   isGenerating,
+  geminiApiKey,
+  setGeminiApiKey,
   onGenerateCharts,
   onRegenerateCharts,
 }) => {
+  const [showKey, setShowKey] = useState(false);
   const hasValidData = validation?.isValid !== false;
 
   return (
@@ -37,6 +43,14 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
           </ul>
         </div>
       )}
+
+      {/* Gemini API Key Input */}
+      <GeminiApiKeyInput
+        apiKey={geminiApiKey}
+        setApiKey={setGeminiApiKey}
+        showKey={showKey}
+        setShowKey={setShowKey}
+      />
 
       {/* Data Preview Table */}
       <div>
