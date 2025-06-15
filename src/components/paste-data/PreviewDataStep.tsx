@@ -107,8 +107,8 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
         </div>
       )}
 
-      {/* Generation Controls */}
-      <div className="flex items-center justify-between pt-4 border-t">
+      {/* Generation Controls - Fixed to always show */}
+      <div className="flex items-center justify-between pt-6 border-t bg-background sticky bottom-0">
         <div className="text-sm text-muted-foreground">
           {hasValidData 
             ? "Ready to generate your AI-powered dashboard!" 
@@ -133,9 +133,10 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
             onClick={onGenerateCharts}
             disabled={!hasValidData || isGenerating}
             className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"
+            size="lg"
           >
             <Sparkles className="h-4 w-4" />
-            {isGenerating ? "Generating..." : "Generate Dashboard"}
+            {isGenerating ? "Generating Dashboard..." : "Generate Dashboard"}
           </Button>
         </div>
       </div>
