@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { 
   BarChart, 
   LineChart, 
@@ -32,8 +33,25 @@ import {
   ScatterChart,
   Scatter
 } from "recharts";
+import PasteDataDialog from "@/components/PasteDataDialog";
+import { useNavigate } from "react-router-dom";
 
 const LandingPage = () => {
+  const [isPasteDataOpen, setIsPasteDataOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleVisualizeClick = () => {
+    setIsPasteDataOpen(true);
+  };
+
+  const handlePasteDataClose = (open: boolean) => {
+    setIsPasteDataOpen(open);
+    if (!open) {
+      // Navigate to dashboard after dialog is closed
+      navigate("/dashboard");
+    }
+  };
+
   // Enhanced sample data for better visualization
   const lineData = [
     { name: 'Jan', value: 65, growth: 12 },
@@ -109,15 +127,17 @@ const LandingPage = () => {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             {/* Visualize Button with Sample Data */}
             <div className="flex flex-col items-center gap-3">
-              <Button asChild size="lg" className="px-12 py-6 text-lg rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200">
-                <Link to="/dashboard?loadSample=true" className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5" />
-                  Visualize
-                </Link>
+              <Button 
+                size="lg" 
+                className="px-12 py-6 text-lg rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                onClick={handleVisualizeClick}
+              >
+                <Sparkles className="h-5 w-5" />
+                Visualize
               </Button>
               <div className="text-center max-w-xs">
-                <p className="text-sm font-medium text-gray-700 mb-1">Auto-loads sample data</p>
-                <p className="text-xs text-gray-500">Start with example charts and data to explore features instantly</p>
+                <p className="text-sm font-medium text-gray-700 mb-1">Paste your data & visualize</p>
+                <p className="text-xs text-gray-500">Upload your data and instantly create beautiful charts</p>
               </div>
             </div>
 
@@ -600,6 +620,12 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Paste Data Dialog */}
+      <PasteDataDialog 
+        open={isPasteDataOpen} 
+        onOpenChange={handlePasteDataClose} 
+      />
     </div>
   );
 };
