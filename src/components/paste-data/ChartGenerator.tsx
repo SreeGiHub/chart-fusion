@@ -15,21 +15,6 @@ interface ChartGeneratorProps {
 export const useChartGenerator = () => {
   const { state, dispatch } = useDashboard();
 
-  const getNextPosition = (index: number) => {
-    const existingItems = state.items;
-    const totalItems = existingItems.length + index;
-    
-    // Create a grid layout to avoid overlapping
-    const gridSize = 450; // Chart width + spacing
-    const row = Math.floor(totalItems / 3);
-    const col = totalItems % 3;
-    
-    return {
-      x: 50 + (col * gridSize),
-      y: 50 + (row * 350) // Chart height + spacing
-    };
-  };
-
   const generateCharts = async (
     processedData: ProcessedData, 
     geminiApiKey: string, 
@@ -90,10 +75,8 @@ export const useChartGenerator = () => {
         
         const charts = createAIChartsFromData(processedData, defaultSuggestions);
         
-        charts.forEach((chart, index) => {
-          const position = getNextPosition(index);
-          const chartWithPosition = { ...chart, position };
-          dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
+        charts.forEach((chart) => {
+          dispatch({ type: "ADD_ITEM", payload: chart });
         });
         
         toast.success("Generated 1 fallback chart from your data! 🎉");
@@ -101,24 +84,16 @@ export const useChartGenerator = () => {
         console.log('🏗️ Creating charts from AI suggestions...');
         const charts = createAIChartsFromData(processedData, suggestions);
         console.log('✅ Successfully created charts:', charts.length);
-        console.log('📊 Charts created with data:', charts.map(chart => ({
-          title: chart.title,
-          type: chart.type,
-          dataLabels: chart.data.labels?.slice(0, 3),
-          dataPoints: chart.data.datasets?.[0]?.data?.slice(0, 3)
-        })));
         
-        // Add charts to dashboard with proper positioning
-        charts.forEach((chart, index) => {
-          const position = getNextPosition(index);
-          const chartWithPosition = { ...chart, position };
-          console.log(`📍 Adding chart ${index + 1} at position:`, position);
-          dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
+        // Add charts to dashboard (they already have proper positioning)
+        charts.forEach((chart) => {
+          console.log(`📍 Adding chart: ${chart.title} at position (${chart.position.x}, ${chart.position.y})`);
+          dispatch({ type: "ADD_ITEM", payload: chart });
         });
 
         const message = isRegeneration 
-          ? `🔄 Regenerated ${charts.length} new AI-enhanced charts with fresh insights!`
-          : `Generated ${charts.length} AI-enhanced charts with intelligent business insights! 🤖✨`;
+          ? `🔄 Regenerated ${charts.length} new AI-enhanced charts with proper layout!`
+          : `Generated ${charts.length} AI-enhanced charts with organized grid layout! 🤖✨`;
 
         toast.success(
           <div className="flex items-center gap-2">
@@ -154,13 +129,11 @@ export const useChartGenerator = () => {
           ];
           
           const fallbackCharts = createAIChartsFromData(processedData, fallbackSuggestions);
-          fallbackCharts.forEach((chart, index) => {
-            const position = getNextPosition(index);
-            const chartWithPosition = { ...chart, position };
-            dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
+          fallbackCharts.forEach((chart) => {
+            dispatch({ type: "ADD_ITEM", payload: chart });
           });
           
-          toast.success("Generated fallback charts with your actual data! 📊");
+          toast.success("Generated fallback charts with proper layout! 📊");
           onComplete();
         } catch (fallbackError) {
           console.error("❌ Fallback generation failed:", fallbackError);

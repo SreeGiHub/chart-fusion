@@ -28,23 +28,32 @@ export function createAIChartsFromData(
   
   const charts: ChartItemType[] = [];
   
-  // Enhanced grid layout with better spacing and positioning
-  const gridLayout = calculateOptimizedLayout(suggestions);
+  // Fixed grid layout - 3 columns with proper spacing
+  const GRID_COLUMNS = 3;
+  const CHART_WIDTH = 400;
+  const CHART_HEIGHT = 300;
+  const HORIZONTAL_GAP = 50;
+  const VERTICAL_GAP = 50;
   
-  // Create charts based on AI suggestions with proper mapping
-  suggestions.slice(0, 8).forEach((suggestion, index) => {
-    console.log(`\n📈 Creating chart ${index + 1}/${suggestions.length}:`, {
+  // Create charts based on AI suggestions with proper grid positioning
+  suggestions.slice(0, 9).forEach((suggestion, index) => {
+    console.log(`\n📈 Creating chart ${index + 1}/${Math.min(suggestions.length, 9)}:`, {
       type: suggestion.type,
       title: suggestion.title,
       priority: suggestion.priority,
       columns: suggestion.columns
     });
     
-    const layout = gridLayout[index];
+    // Calculate grid position
+    const row = Math.floor(index / GRID_COLUMNS);
+    const col = index % GRID_COLUMNS;
+    
     const position = {
-      x: startPosition.x + layout.x,
-      y: startPosition.y + layout.y
+      x: startPosition.x + (col * (CHART_WIDTH + HORIZONTAL_GAP)),
+      y: startPosition.y + (row * (CHART_HEIGHT + VERTICAL_GAP))
     };
+    
+    console.log(`📍 Chart position: row=${row}, col=${col}, position=(${position.x}, ${position.y})`);
     
     try {
       console.log('🔄 Preparing chart data with actual user data...');
@@ -87,14 +96,16 @@ export function createAIChartsFromData(
         dataPreview: chartData.datasets?.[0]?.data?.slice(0, 3)
       });
       
-      // Create chart item with proper type mapping
+      // Create chart item with proper sizing
       const chart = createNewChartItem(suggestion.type, position);
-      chart.size = layout.size;
+      
+      // Set consistent size for all charts
+      chart.size = { width: CHART_WIDTH, height: CHART_HEIGHT };
       chart.title = suggestion.title;
       chart.data = chartData;
       chart.id = uuidv4();
       
-      // Enhanced chart options for better label visibility
+      // Enhanced chart options for better visibility
       chart.options = {
         ...chart.options,
         responsive: true,
@@ -109,7 +120,7 @@ export function createAIChartsFromData(
                 size: 12,
                 weight: 'normal'
               },
-              padding: 15,
+              padding: 10,
               usePointStyle: true,
               boxWidth: 12
             }
@@ -123,7 +134,7 @@ export function createAIChartsFromData(
             },
             padding: {
               top: 10,
-              bottom: 20
+              bottom: 15
             }
           }
         },
@@ -136,7 +147,7 @@ export function createAIChartsFromData(
             },
             ticks: {
               font: {
-                size: 11
+                size: 10
               },
               maxRotation: 45,
               minRotation: 0
@@ -150,29 +161,20 @@ export function createAIChartsFromData(
             },
             ticks: {
               font: {
-                size: 11
+                size: 10
               }
             }
           }
         } : undefined
       };
       
-      // Add business context to chart options if available
-      if (suggestion.businessInsight || suggestion.reasoning) {
-        chart.options = {
-          ...chart.options,
-          businessInsight: suggestion.businessInsight,
-          reasoning: suggestion.reasoning,
-          visualizationGoal: suggestion.visualizationGoal
-        };
-      }
-      
       console.log(`✅ Successfully created chart: ${chart.title}`, {
         type: chart.type,
         priority: suggestion.priority,
+        position: chart.position,
+        size: chart.size,
         dataLength: chart.data.datasets?.[0]?.data?.length,
-        actualColumns: validColumns,
-        hasRealData: chart.data.datasets?.[0]?.data?.length > 0
+        actualColumns: validColumns
       });
       charts.push(chart);
     } catch (error) {
@@ -181,7 +183,7 @@ export function createAIChartsFromData(
       try {
         const fallbackChart = createNewChartItem('bar', position);
         fallbackChart.title = suggestion.title || 'Data Overview';
-        fallbackChart.size = layout.size;
+        fallbackChart.size = { width: CHART_WIDTH, height: CHART_HEIGHT };
         fallbackChart.id = uuidv4();
         
         // Create simple fallback data using actual column names
@@ -205,82 +207,12 @@ export function createAIChartsFromData(
     }
   });
   
-  console.log(`\n🎉 Created ${charts.length} charts total with real user data`);
+  console.log(`\n🎉 Created ${charts.length} charts total with proper grid layout`);
+  console.log('📋 Chart positions:', charts.map(chart => ({
+    title: chart.title,
+    position: chart.position,
+    size: chart.size
+  })));
+  
   return charts;
-}
-
-function calculateOptimizedLayout(suggestions: AIChartSuggestion[]) {
-  const layouts = [];
-  const gap = 40; // Increased gap between charts
-  const baseWidth = 450; // Increased base width
-  const baseHeight = 350; // Increased base height
-  
-  // Sort suggestions by business priority for optimal placement
-  const prioritizedSuggestions = [...suggestions].sort((a, b) => b.priority - a.priority);
-  
-  for (let i = 0; i < Math.min(prioritizedSuggestions.length, 8); i++) {
-    const suggestion = prioritizedSuggestions[i];
-    const isExecutiveLevel = suggestion.priority >= 9;
-    const isStrategic = suggestion.priority >= 7;
-    const isKPI = suggestion.type === 'card' || suggestion.type === 'gauge' || suggestion.type === 'multi-row-card';
-    const isDetailedAnalysis = suggestion.type === 'table' || suggestion.type === 'scatter' || suggestion.type === 'bubble';
-    const isWideChart = suggestion.type === 'funnel' || suggestion.type === 'stacked-bar';
-    
-    let width = baseWidth;
-    let height = baseHeight;
-    
-    // Strategic sizing based on business importance and chart type
-    if (isKPI && isExecutiveLevel) {
-      width = 380;
-      height = 220;
-    } else if (suggestion.type === 'table') {
-      width = 600;
-      height = 400;
-    } else if (suggestion.type === 'multi-row-card') {
-      width = 420;
-      height = 280;
-    } else if (isWideChart) {
-      width = 500;
-      height = 380;
-    } else if (isExecutiveLevel) {
-      width = 480;
-      height = 360;
-    } else if (isStrategic) {
-      width = 450;
-      height = 340;
-    } else if (isDetailedAnalysis) {
-      width = 500;
-      height = 380;
-    } else if (isKPI) {
-      width = 350;
-      height = 200;
-    }
-    
-    // Calculate position in optimized grid with proper spacing
-    let col, row;
-    
-    // Arrange in a 3-column grid with better spacing
-    if (i < 3) {
-      col = i;
-      row = 0;
-    } else if (i < 6) {
-      col = i - 3;
-      row = 1;
-    } else {
-      col = i - 6;
-      row = 2;
-    }
-    
-    // Calculate actual positions with dynamic spacing based on chart sizes
-    const xSpacing = Math.max(baseWidth, width) + gap;
-    const ySpacing = Math.max(baseHeight, height) + gap + 30; // Extra space for titles
-    
-    layouts.push({
-      x: col * xSpacing,
-      y: row * ySpacing,
-      size: { width, height }
-    });
-  }
-  
-  return layouts;
 }
