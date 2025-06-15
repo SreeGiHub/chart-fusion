@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -582,21 +581,7 @@ const LandingPage = () => {
                 
                 <div className="text-center">
                   <h3 className="font-semibold text-gray-900 mb-2">Srikanth Reddy</h3>
-                  <p className="text-gray-600 mb-4">Product Manager</p>
-                  
-                  <a 
-                    href="https://www.linkedin.com/in/srikanth-reddy-dubba1ab561203/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    <img 
-                      src="/lovable-uploads/d0ea3717-362a-46e9-9ff7-45e6a7dd52eb.png" 
-                      alt="LinkedIn" 
-                      className="h-5 w-5"
-                    />
-                    <span className="text-sm font-medium">Connect on LinkedIn</span>
-                  </a>
+                  <p className="text-gray-600">Product Manager</p>
                 </div>
               </div>
             </div>
