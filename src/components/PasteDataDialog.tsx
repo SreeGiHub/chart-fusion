@@ -1,12 +1,12 @@
 
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { PasteDataTabs } from "./paste-data/PasteDataTabs";
-import { PasteDataDialogHeader } from "./paste-data/PasteDataDialogHeader";
-import { EnterDataStep } from "./paste-data/EnterDataStep";
-import { ConfigureColumnsStep } from "./paste-data/ConfigureColumnsStep";
-import { PreviewDataStep } from "./paste-data/PreviewDataStep";
-import { processData, ProcessedData } from "@/utils/dataProcessor";
+import PasteDataTabs from "./paste-data/PasteDataTabs";
+import PasteDataDialogHeader from "./paste-data/PasteDataDialogHeader";
+import EnterDataStep from "./paste-data/EnterDataStep";
+import ConfigureColumnsStep from "./paste-data/ConfigureColumnsStep";
+import PreviewDataStep from "./paste-data/PreviewDataStep";
+import { processData, ProcessedData, DataValidationResult, validateData } from "@/utils/dataProcessor";
 import { useNavigate } from "react-router-dom";
 
 interface PasteDataDialogProps {
@@ -21,13 +21,32 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
   const [activeTab, setActiveTab] = useState("enter");
   const [rawData, setRawData] = useState("");
   const [processedData, setProcessedData] = useState<ProcessedData | null>(null);
+  const [validation, setValidation] = useState<DataValidationResult | null>(null);
   const [geminiApiKey, setGeminiApiKey] = useState("");
   const navigate = useNavigate();
+
+  const handleColumnUpdate = (columnIndex: number, updates: Partial<any>) => {
+    if (!processedData) return;
+    
+    const newColumns = [...processedData.columns];
+    if (columnIndex >= newColumns.length) {
+      // Adding new column
+      newColumns.push(updates as any);
+    } else {
+      // Updating existing column
+      newColumns[columnIndex] = { ...newColumns[columnIndex], ...updates };
+    }
+    
+    const updatedData = { ...processedData, columns: newColumns };
+    setProcessedData(updatedData);
+    setValidation(validateData(updatedData));
+  };
 
   const handleNext = () => {
     if (activeTab === "enter") {
       const processed = processData(rawData);
       setProcessedData(processed);
+      setValidation(validateData(processed));
       setActiveTab("configure");
     } else if (activeTab === "configure") {
       setActiveTab("preview");
@@ -59,6 +78,7 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
     setActiveTab("enter");
     setRawData("");
     setProcessedData(null);
+    setValidation(null);
     setGeminiApiKey("");
   };
 
@@ -67,6 +87,7 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
     setActiveTab("enter");
     setRawData("");
     setProcessedData(null);
+    setValidation(null);
     setGeminiApiKey("");
   };
 
@@ -92,9 +113,9 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
             {activeTab === "configure" && processedData && (
               <ConfigureColumnsStep
                 processedData={processedData}
-                setProcessedData={setProcessedData}
+                validation={validation}
+                onColumnUpdate={handleColumnUpdate}
                 onNext={handleNext}
-                onBack={handleBack}
               />
             )}
             
