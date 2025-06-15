@@ -23,39 +23,6 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Data Summary */}
-      <div className="bg-muted/50 rounded-lg p-4">
-        <h3 className="font-medium mb-3">Data Summary</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="text-sm text-muted-foreground">Rows</div>
-            <div className="text-lg font-medium">{processedData.rows.length}</div>
-          </div>
-          <div>
-            <div className="text-sm text-muted-foreground">Columns</div>
-            <div className="text-lg font-medium">{processedData.columns.length}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Column Overview */}
-      <div>
-        <h3 className="font-medium mb-3">Column Types</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {processedData.columns.map((column) => (
-            <div
-              key={column.name}
-              className="flex items-center justify-between p-2 bg-muted/30 rounded"
-            >
-              <span className="text-sm font-medium">{column.name}</span>
-              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                {column.type}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Validation Warnings */}
       {validation && !validation.isValid && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -107,7 +74,7 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
         </div>
       </div>
 
-      {/* Generate Dashboard Section */}
+      {/* Continue to Preview Data Section */}
       <div className="bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
