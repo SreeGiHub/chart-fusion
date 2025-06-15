@@ -18,189 +18,180 @@ export function createNewChartItem(
   let size = DEFAULT_CHART_SIZE;
   let title = getDefaultTitle(type);
 
-  // Special handling for specific chart types
-  if (type === "text") {
+  // Enhanced sample data for different chart types
+  if (type === "stacked-bar" || type === "stacked-column") {
+    title = "Sales Performance by Region";
     chartData = {
-      labels: [],
-      datasets: [{
-        label: "Click to edit text",
-        data: [],
-      }],
-    };
-  } else if (type === "table") {
-    title = "Data Table";
-    chartData = {
-      labels: [],
-      datasets: [],
-      tableColumns: [
-        { id: 'col1', header: 'Column 1', accessor: 'col1', align: 'left' },
-        { id: 'col2', header: 'Column 2', accessor: 'col2', align: 'left' },
-        { id: 'col3', header: 'Column 3', accessor: 'col3', align: 'left' },
-        { id: 'col4', header: 'Column 4', accessor: 'col4', align: 'left' }
-      ],
-      tableRows: Array(5).fill(null).map((_, rowIndex) => ({
-        col1: `Row ${rowIndex + 1} Col 1`,
-        col2: `Row ${rowIndex + 1} Col 2`,
-        col3: `Row ${rowIndex + 1} Col 3`,
-        col4: `Row ${rowIndex + 1} Col 4`
-      }))
-    };
-    size = { width: 600, height: 400 };
-  } else if (type === "pie" || type === "donut") {
-    // For pie and donut charts, create different colors for each label
-    const labels = ["Jan", "Feb", "Mar", "Apr", "May"];
-    const data = [65, 59, 80, 81, 56];
-    const colors = ["#8B5CF6", "#EC4899", "#F97316", "#0EA5E9", "#10B981"];
-    
-    chartData = {
-      labels,
-      datasets: [{
-        label: "Dataset 1",
-        data,
-        backgroundColor: colors,
-        borderColor: colors,
-        borderWidth: 2,
-        // Add label colors for customization
-        labelColors: colors,
-      }],
+      labels: ["North", "South", "East", "West"],
+      datasets: [
+        {
+          label: "Q1 Sales",
+          data: [45000, 52000, 48000, 41000],
+          backgroundColor: "#4F46E5",
+        },
+        {
+          label: "Q2 Sales", 
+          data: [48000, 58000, 52000, 44000],
+          backgroundColor: "#8B5CF6",
+        },
+        {
+          label: "Q3 Sales",
+          data: [52000, 61000, 55000, 47000],
+          backgroundColor: "#EC4899",
+        }
+      ]
     };
   } else if (type === "funnel") {
-    // For funnel charts, create different colors for each stage
-    const labels = ["Awareness", "Interest", "Consideration", "Purchase", "Retention"];
-    const data = [1000, 800, 600, 400, 300];
-    const colors = ["#8B5CF6", "#A855F7", "#C084FC", "#D8B4FE", "#E9D5FF"];
+    title = "Sales Conversion Funnel";
+    const labels = ["Leads", "Qualified", "Proposal", "Negotiation", "Closed"];
+    const data = [1000, 750, 500, 300, 180];
+    const colors = ["#4F46E5", "#6366F1", "#8B5CF6", "#A855F7", "#C084FC"];
     
     chartData = {
       labels,
       datasets: [{
-        label: "Funnel",
+        label: "Conversion Funnel",
         data,
         backgroundColor: colors,
         borderColor: colors,
         borderWidth: 1,
-        // Add label colors for customization
         labelColors: colors,
       }],
     };
-  } else if (type === "gauge") {
-    // For gauge charts, use a single color but allow customization
-    chartData = {
-      labels: ["Performance"],
-      datasets: [{
-        label: "Gauge",
-        data: [75],
-        backgroundColor: "#8B5CF6",
-        // Add label colors for customization
-        labelColors: ["#8B5CF6"],
-      }],
-    };
-  } else if (type === "stacked-bar" || type === "stacked-column") {
-    // Add multiple datasets for stacked charts
-    chartData.datasets = [
-      {
-        label: "Region 1",
-        data: [30, 40, 35, 50],
-        backgroundColor: DEFAULT_COLORS[0],
-      },
-      {
-        label: "Region 2", 
-        data: [25, 35, 30, 40],
-        backgroundColor: DEFAULT_COLORS[1],
-      },
-      {
-        label: "Region 3",
-        data: [20, 25, 28, 35],
-        backgroundColor: DEFAULT_COLORS[2],
-      }
-    ];
-  } else if (type === "stacked-area") {
-    chartData.datasets = [
-      {
-        label: "Desktop",
-        data: [30, 40, 45, 50, 55],
-        borderColor: DEFAULT_COLORS[0],
-        backgroundColor: `${DEFAULT_COLORS[0]}33`,
-        borderWidth: 2,
-        fill: true,
-      },
-      {
-        label: "Mobile",
-        data: [20, 25, 30, 35, 40],
-        borderColor: DEFAULT_COLORS[1],
-        backgroundColor: `${DEFAULT_COLORS[1]}33`,
-        borderWidth: 2,
-        fill: true,
-      },
-      {
-        label: "Tablet",
-        data: [10, 15, 18, 20, 25],
-        borderColor: DEFAULT_COLORS[2],
-        backgroundColor: `${DEFAULT_COLORS[2]}33`,
-        borderWidth: 2,
-        fill: true,
-      }
-    ];
-  } else if (type === "combo") {
-    chartData.datasets = [
-      {
-        label: "Sales",
-        data: [65, 80, 95, 110],
-        backgroundColor: DEFAULT_COLORS[0],
-      },
-      {
-        label: "Trend",
-        data: [70, 85, 90, 105],
-        borderColor: DEFAULT_COLORS[1],
-        backgroundColor: `${DEFAULT_COLORS[1]}33`,
-        borderWidth: 3,
-        fill: false,
-      }
-    ];
+    size = { width: 400, height: 350 };
   } else if (type === "multi-row-card") {
+    title = "Business KPIs Dashboard";
     chartData = {
-      labels: ["Sales", "Users", "Revenue", "Growth"],
+      labels: ["Revenue", "Customers", "Conversion Rate", "Growth"],
       datasets: [
         {
-          label: "Values",
-          data: [125000, 8542, 95000, 15.2],
-          backgroundColor: DEFAULT_COLORS[0],
+          label: "Current Values",
+          data: [1250000, 8542, 12.5, 15.8],
+          backgroundColor: "#4F46E5",
         },
         {
-          label: "Changes",
-          data: [12.5, -2.1, 8.7, 3.2],
-          backgroundColor: DEFAULT_COLORS[1],
+          label: "Change %",
+          data: [8.7, -2.1, 3.2, 5.4],
+          backgroundColor: "#10B981",
         }
       ],
     };
-  } else if (type === "kpi") {
+    size = { width: 350, height: 250 };
+  } else if (type === "gauge") {
+    title = "Performance Score";
     chartData = {
       labels: ["Performance"],
       datasets: [{
-        label: "KPI",
-        data: [85, 100], // [current, target]
-        backgroundColor: DEFAULT_COLORS[0],
+        label: "Score",
+        data: [78, 22], // 78% performance, 22% remaining
+        backgroundColor: ["#4F46E5", "#E5E7EB"],
+        borderWidth: 0
       }],
     };
-  } else if (type === "waterfall") {
+    size = { width: 300, height: 250 };
+  } else if (type === "table") {
+    title = "Sales Data Table";
     chartData = {
-      labels: ["Starting", "Increase", "Decrease", "Ending"],
-      datasets: [{
-        label: "Value",
-        data: [100, 20, -15, 105],
-        backgroundColor: [DEFAULT_COLORS[0], DEFAULT_COLORS[1], DEFAULT_COLORS[3], DEFAULT_COLORS[0]],
-      }],
+      labels: [],
+      datasets: [],
+      tableColumns: [
+        { id: "product", header: "Product", accessor: "product", align: "left" },
+        { id: "region", header: "Region", accessor: "region", align: "left" },
+        { id: "sales", header: "Sales", accessor: "sales", align: "right" },
+        { id: "growth", header: "Growth %", accessor: "growth", align: "right" }
+      ],
+      tableRows: [
+        { product: "iPhone 15", region: "North", sales: "$125,000", growth: "+8.5%" },
+        { product: "MacBook Pro", region: "South", sales: "$89,000", growth: "+12.3%" },
+        { product: "iPad Air", region: "East", sales: "$67,000", growth: "+5.7%" },
+        { product: "Apple Watch", region: "West", sales: "$45,000", growth: "+15.2%" },
+        { product: "AirPods Pro", region: "North", sales: "$38,000", growth: "+9.8%" }
+      ]
     };
-  } else if (type === "map") {
-    title = "India Map";
+    size = { width: 600, height: 350 };
+  } else if (type === "card") {
+    title = "Total Revenue";
     chartData = {
-      labels: ["Delhi", "Mumbai", "Bangalore", "Chennai"],
+      labels: ["Revenue"],
       datasets: [{
-        label: "Cities",
-        data: [25, 35, 30, 28],
-        backgroundColor: DEFAULT_COLORS,
+        label: "Total Revenue",
+        data: [1297280],
+        backgroundColor: "#4F46E5"
+      }]
+    };
+    size = { width: 300, height: 200 };
+  } else if (type === "pie" || type === "donut") {
+    title = "Market Share by Region";
+    const labels = ["North", "South", "East", "West"];
+    const data = [35, 28, 22, 15];
+    const colors = ["#4F46E5", "#8B5CF6", "#EC4899", "#F97316"];
+    
+    chartData = {
+      labels,
+      datasets: [{
+        label: "Market Share",
+        data,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 2,
+        labelColors: colors,
       }],
     };
-    size = { width: 500, height: 400 };
+  } else if (type === "bar" || type === "column") {
+    title = "Revenue by Product Category";
+    chartData = {
+      labels: ["Electronics", "Clothing", "Books", "Home & Garden", "Sports"],
+      datasets: [{
+        label: "Revenue ($K)",
+        data: [285, 259, 180, 210, 156],
+        backgroundColor: "#4F46E5",
+        borderColor: "#4F46E5",
+        borderWidth: 1,
+      }],
+    };
+  } else if (type === "line") {
+    title = "Monthly Sales Trend";
+    chartData = {
+      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      datasets: [{
+        label: "Sales ($K)",
+        data: [65, 75, 80, 85, 92, 98],
+        borderColor: "#4F46E5",
+        backgroundColor: "rgba(79, 70, 229, 0.1)",
+        borderWidth: 2,
+        fill: false,
+      }],
+    };
+  } else if (type === "area") {
+    title = "Website Traffic Growth";
+    chartData = {
+      labels: ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"],
+      datasets: [{
+        label: "Visitors",
+        data: [1200, 1890, 2300, 2800, 3200],
+        borderColor: "#4F46E5",
+        backgroundColor: "rgba(79, 70, 229, 0.2)",
+        borderWidth: 2,
+        fill: true,
+      }],
+    };
+  } else if (type === "scatter") {
+    title = "Sales vs Customer Rating";
+    chartData = {
+      labels: [],
+      datasets: [{
+        label: "Performance Data",
+        data: [
+          { x: 85, y: 120000 },
+          { x: 78, y: 98000 },
+          { x: 92, y: 145000 },
+          { x: 88, y: 132000 },
+          { x: 75, y: 89000 },
+          { x: 95, y: 167000 }
+        ],
+        backgroundColor: "#4F46E5"
+      }]
+    };
   }
 
   return {
