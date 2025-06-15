@@ -131,9 +131,7 @@ function prepareEnhancedScatterData(data: ProcessedData, columns: string[]): Cha
     datasets: [{
       label: `${xCol} vs ${yCol}`,
       data: scatterData,
-      backgroundColor: '#4F46E5',
-      pointRadius: 4,
-      pointHoverRadius: 6
+      backgroundColor: '#4F46E5'
     }]
   };
 }
@@ -182,10 +180,7 @@ function prepareEnhancedTimeSeriesData(data: ProcessedData, columns: string[], c
       data: values,
       borderColor: '#4F46E5',
       backgroundColor: chartType === 'area' ? 'rgba(79, 70, 229, 0.1)' : undefined,
-      fill: chartType === 'area',
-      tension: 0.3,
-      pointRadius: 3,
-      pointHoverRadius: 5
+      fill: chartType === 'area'
     }]
   };
 }

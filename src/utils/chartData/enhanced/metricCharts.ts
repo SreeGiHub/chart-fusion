@@ -135,8 +135,7 @@ export function prepareCardChartData(data: ProcessedData, suggestion: ChartSugge
     datasets: [{
       label: metricLabel,
       data: [metricValue],
-      backgroundColor: '#4F46E5',
-      formattedValue: formattedValue // Add formatted display value
+      backgroundColor: '#4F46E5'
     }]
   };
 }
@@ -229,8 +228,7 @@ export function prepareGaugeChartData(data: ProcessedData, suggestion: ChartSugg
       label: valueCol || 'Performance',
       data: [currentValue, maxValue - currentValue],
       backgroundColor: ['#4F46E5', '#E5E7EB'],
-      borderWidth: 0,
-      displayValue: displayValue
+      borderWidth: 0
     }]
   };
 }
