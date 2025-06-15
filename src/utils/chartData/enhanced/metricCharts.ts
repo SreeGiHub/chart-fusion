@@ -7,10 +7,17 @@ export function prepareCardChartData(data: ProcessedData, suggestion: ChartSugge
   const relevantColumns = suggestion.columns;
   const valueCol = relevantColumns[0];
   
-  console.log('\n=== PREPARING CARD CHART DATA ===');
-  console.log('💳 Card chart column:', valueCol);
-  console.log('📊 Available columns:', data.columns.map(col => col.name));
-  console.log('📈 Sample data rows:', data.rows.slice(0, 3));
+  console.log('\n=== ENHANCED CARD CHART PREPARATION ===');
+  console.log('💳 Target column:', valueCol);
+  console.log('📊 Available data:', {
+    totalRows: data.rows.length,
+    columnExists: data.columns.some(col => col.name === valueCol),
+    columnType: data.columns.find(col => col.name === valueCol)?.type,
+    sampleValues: data.rows.slice(0, 5).map(row => ({
+      [valueCol]: row[valueCol],
+      type: typeof row[valueCol]
+    }))
+  });
   
   // Find the actual column in data
   const actualColumn = data.columns.find(col => col.name === valueCol);
@@ -22,82 +29,114 @@ export function prepareCardChartData(data: ProcessedData, suggestion: ChartSugge
     }
   }
   
-  // Extract and process values from the actual data
-  const values = data.rows
+  // Extract and intelligently process values
+  const processedValues = data.rows
     .map(row => {
-      const value = row[valueCol];
-      if (typeof value === 'number') return value;
-      if (typeof value === 'string' && !isNaN(parseFloat(value))) return parseFloat(value);
+      const rawValue = row[valueCol];
+      
+      // Handle different data types intelligently
+      if (typeof rawValue === 'number') {
+        return rawValue;
+      } else if (typeof rawValue === 'string') {
+        // Try to parse as number
+        const parsed = parseFloat(rawValue.replace(/[,$%]/g, ''));
+        return isNaN(parsed) ? null : parsed;
+      }
       return null;
     })
-    .filter(val => val !== null && !isNaN(val));
+    .filter(val => val !== null && !isNaN(val) && isFinite(val));
   
-  console.log('📈 Card values processed:', {
-    valuesCount: values.length,
-    sampleValues: values.slice(0, 5),
-    columnType: actualColumn?.type,
-    allDataSample: data.rows.slice(0, 3).map(row => ({ [valueCol]: row[valueCol] }))
+  console.log('📈 Processed values:', {
+    originalCount: data.rows.length,
+    validCount: processedValues.length,
+    sampleProcessed: processedValues.slice(0, 10),
+    hasValidData: processedValues.length > 0
   });
   
   let metricValue = 0;
   let metricLabel = valueCol || 'Metric';
+  let formattedValue = '0';
   
-  if (values.length > 0) {
-    // Calculate meaningful metrics based on column name and context
-    const sum = values.reduce((a, b) => a + b, 0);
-    const avg = sum / values.length;
-    const max = Math.max(...values);
-    const count = values.length;
+  if (processedValues.length > 0) {
+    // Calculate meaningful metrics based on column characteristics
+    const sum = processedValues.reduce((a, b) => a + b, 0);
+    const avg = sum / processedValues.length;
+    const max = Math.max(...processedValues);
+    const min = Math.min(...processedValues);
+    const count = processedValues.length;
     
-    // Smart metric selection based on column name
+    // Intelligent metric selection based on column name and data patterns
     const colLower = valueCol?.toLowerCase() || '';
     
     if (colLower.includes('total') || colLower.includes('sum') || colLower.includes('revenue') || colLower.includes('sales') || colLower.includes('amount')) {
-      metricValue = Math.round(sum * 100) / 100;
+      metricValue = sum;
       metricLabel = `Total ${valueCol}`;
-    } else if (colLower.includes('average') || colLower.includes('avg') || colLower.includes('mean') || colLower.includes('rate')) {
-      metricValue = Math.round(avg * 100) / 100;
+      formattedValue = formatBusinessNumber(sum);
+    } else if (colLower.includes('average') || colLower.includes('avg') || colLower.includes('mean')) {
+      metricValue = avg;
       metricLabel = `Average ${valueCol}`;
+      formattedValue = formatBusinessNumber(avg);
     } else if (colLower.includes('max') || colLower.includes('peak') || colLower.includes('highest')) {
       metricValue = max;
       metricLabel = `Maximum ${valueCol}`;
+      formattedValue = formatBusinessNumber(max);
+    } else if (colLower.includes('min') || colLower.includes('lowest')) {
+      metricValue = min;
+      metricLabel = `Minimum ${valueCol}`;
+      formattedValue = formatBusinessNumber(min);
     } else if (colLower.includes('count') || colLower.includes('number') || colLower.includes('qty') || colLower.includes('quantity')) {
       metricValue = count;
       metricLabel = `Count of ${valueCol}`;
+      formattedValue = count.toLocaleString();
+    } else if (colLower.includes('rate') || colLower.includes('percent') || colLower.includes('%')) {
+      metricValue = avg;
+      metricLabel = `Average ${valueCol}`;
+      formattedValue = `${avg.toFixed(1)}%`;
     } else if (actualColumn?.type === 'number') {
-      // For numeric columns, default to sum
-      metricValue = Math.round(sum * 100) / 100;
-      metricLabel = `Total ${valueCol}`;
+      // For numeric columns, intelligently choose based on data characteristics
+      const range = max - min;
+      if (range > 1000 || sum > 10000) {
+        // Large numbers likely represent totals
+        metricValue = sum;
+        metricLabel = `Total ${valueCol}`;
+        formattedValue = formatBusinessNumber(sum);
+      } else {
+        // Smaller numbers likely represent averages or rates
+        metricValue = avg;
+        metricLabel = `Average ${valueCol}`;
+        formattedValue = formatBusinessNumber(avg);
+      }
     } else {
-      // For other types, use count
       metricValue = count;
       metricLabel = `Count of ${valueCol}`;
+      formattedValue = count.toLocaleString();
     }
   } else {
-    // If no numeric values, count all non-empty entries
+    // Count non-empty entries as fallback
     const nonEmptyCount = data.rows.filter(row => {
       const value = row[valueCol];
       return value !== undefined && value !== null && value !== '';
     }).length;
     
-    if (nonEmptyCount > 0) {
-      metricValue = nonEmptyCount;
-      metricLabel = `Count of ${valueCol}`;
-    } else {
-      console.log('⚠️ No valid data for card');
-      metricValue = 0;
-      metricLabel = `No ${valueCol} Data`;
-    }
+    metricValue = nonEmptyCount;
+    metricLabel = `Count of ${valueCol}`;
+    formattedValue = nonEmptyCount.toLocaleString();
   }
   
-  console.log('✅ Card chart result:', { metricValue, metricLabel });
+  console.log('✅ Card metric calculated:', { 
+    metricValue, 
+    metricLabel, 
+    formattedValue,
+    dataQuality: `${processedValues.length}/${data.rows.length} valid values`
+  });
   
   return {
     labels: [metricLabel],
     datasets: [{
       label: metricLabel,
       data: [metricValue],
-      backgroundColor: '#4F46E5'
+      backgroundColor: '#4F46E5',
+      formattedValue: formattedValue // Add formatted display value
     }]
   };
 }
@@ -106,73 +145,83 @@ export function prepareGaugeChartData(data: ProcessedData, suggestion: ChartSugg
   const relevantColumns = suggestion.columns;
   const valueCol = relevantColumns[0];
   
-  console.log('\n=== PREPARING GAUGE CHART DATA ===');
-  console.log('🎯 Gauge chart column:', valueCol);
-  console.log('📊 Sample data:', data.rows.slice(0, 3));
+  console.log('\n=== ENHANCED GAUGE CHART PREPARATION ===');
+  console.log('🎯 Target column:', valueCol);
   
-  const values = data.rows
+  const processedValues = data.rows
     .map(row => {
-      const value = row[valueCol];
-      if (typeof value === 'number') return value;
-      if (typeof value === 'string' && !isNaN(parseFloat(value))) return parseFloat(value);
+      const rawValue = row[valueCol];
+      if (typeof rawValue === 'number') return rawValue;
+      if (typeof rawValue === 'string') {
+        const parsed = parseFloat(rawValue.replace(/[,$%]/g, ''));
+        return isNaN(parsed) ? null : parsed;
+      }
       return null;
     })
-    .filter(val => val !== null && !isNaN(val));
+    .filter(val => val !== null && !isNaN(val) && isFinite(val));
   
-  console.log('📊 Gauge values processed:', {
-    valuesCount: values.length,
-    sampleValues: values.slice(0, 5)
+  console.log('🎯 Gauge values processed:', {
+    validCount: processedValues.length,
+    range: processedValues.length > 0 ? {
+      min: Math.min(...processedValues),
+      max: Math.max(...processedValues),
+      avg: processedValues.reduce((a, b) => a + b, 0) / processedValues.length
+    } : null
   });
   
   let currentValue = 0;
   let maxValue = 100;
+  let displayValue = '0';
   
-  if (values.length > 0) {
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const max = Math.max(...values);
-    const min = Math.min(...values);
+  if (processedValues.length > 0) {
+    const avg = processedValues.reduce((a, b) => a + b, 0) / processedValues.length;
+    const max = Math.max(...processedValues);
+    const min = Math.min(...processedValues);
     
-    // Use average as current value
-    currentValue = Math.round(avg);
+    // Smart gauge configuration based on data characteristics
+    const colLower = valueCol?.toLowerCase() || '';
     
-    // Set max value intelligently based on data range
-    const range = max - min;
-    if (max <= 100 && min >= 0) {
-      // Looks like percentage data
+    if (colLower.includes('percent') || colLower.includes('%') || colLower.includes('rate')) {
+      // Percentage data
+      currentValue = Math.min(Math.max(avg, 0), 100);
       maxValue = 100;
-      currentValue = Math.min(currentValue, 100);
-    } else if (range > 0) {
-      // Use a reasonable max based on the data range
-      maxValue = Math.round(max * 1.2); // 20% buffer above max
+      displayValue = `${currentValue.toFixed(1)}%`;
+    } else if (colLower.includes('rating') || colLower.includes('score')) {
+      // Rating data (assume 0-5 or 0-10 scale)
+      const scale = max <= 5 ? 5 : 10;
+      currentValue = (avg / scale) * 100;
+      maxValue = 100;
+      displayValue = `${avg.toFixed(1)}/${scale}`;
+    } else if (max <= 100 && min >= 0) {
+      // Looks like percentage or score data
+      currentValue = Math.min(avg, 100);
+      maxValue = 100;
+      displayValue = currentValue.toFixed(1);
     } else {
-      // Single value case
-      maxValue = Math.max(100, currentValue * 2);
-    }
-    
-    // For percentage-like data, ensure it's between 0-100
-    if (valueCol?.toLowerCase().includes('percent') || valueCol?.toLowerCase().includes('%')) {
-      currentValue = Math.min(Math.max(currentValue, 0), 100);
+      // Regular numeric data - convert to percentage of max
+      currentValue = (avg / max) * 100;
       maxValue = 100;
+      displayValue = formatBusinessNumber(avg);
     }
   } else {
-    // If no numeric values, try to count non-empty entries as a percentage
+    // Fallback: calculate completion percentage
     const totalRows = data.rows.length;
     const nonEmptyCount = data.rows.filter(row => {
       const value = row[valueCol];
       return value !== undefined && value !== null && value !== '';
     }).length;
     
-    if (totalRows > 0) {
-      currentValue = Math.round((nonEmptyCount / totalRows) * 100);
-      maxValue = 100;
-    } else {
-      console.log('⚠️ No valid data for gauge');
-      currentValue = 0;
-      maxValue = 100;
-    }
+    currentValue = totalRows > 0 ? (nonEmptyCount / totalRows) * 100 : 0;
+    maxValue = 100;
+    displayValue = `${currentValue.toFixed(1)}%`;
   }
   
-  console.log('✅ Gauge chart result:', { currentValue, maxValue });
+  console.log('✅ Gauge configured:', { 
+    currentValue, 
+    maxValue, 
+    displayValue,
+    percentage: (currentValue / maxValue * 100).toFixed(1) + '%'
+  });
   
   return {
     labels: [valueCol || 'Performance'],
@@ -180,7 +229,21 @@ export function prepareGaugeChartData(data: ProcessedData, suggestion: ChartSugg
       label: valueCol || 'Performance',
       data: [currentValue, maxValue - currentValue],
       backgroundColor: ['#4F46E5', '#E5E7EB'],
-      borderWidth: 0
+      borderWidth: 0,
+      displayValue: displayValue
     }]
   };
+}
+
+// Helper function to format business numbers
+function formatBusinessNumber(value: number): string {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`;
+  } else if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)}K`;
+  } else if (value % 1 === 0) {
+    return value.toLocaleString();
+  } else {
+    return value.toFixed(2);
+  }
 }
