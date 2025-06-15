@@ -11,8 +11,19 @@ export function createAIChartsFromData(
   suggestions: AIChartSuggestion[], 
   startPosition: Position = { x: 20, y: 20 }
 ): ChartItemType[] {
-  console.log('=== CREATING STRATEGIC DASHBOARD FROM AI BUSINESS ANALYSIS ===');
-  console.log('AI suggestions received:', suggestions.map(s => ({ type: s.type, title: s.title, priority: s.priority })));
+  console.log('=== CREATING CHARTS FROM AI SUGGESTIONS ===');
+  console.log('📊 Input data overview:', {
+    rows: data.rows.length,
+    columns: data.columns.map(col => `${col.name} (${col.type})`),
+    suggestionsCount: suggestions.length
+  });
+  
+  console.log('🤖 AI suggestions received:', suggestions.map(s => ({ 
+    type: s.type, 
+    title: s.title, 
+    priority: s.priority,
+    columns: s.columns 
+  })));
   
   const charts: ChartItemType[] = [];
   
@@ -21,7 +32,7 @@ export function createAIChartsFromData(
   
   // Create charts based on AI suggestions with proper mapping
   suggestions.slice(0, 8).forEach((suggestion, index) => {
-    console.log(`Creating strategic chart ${index + 1}:`, {
+    console.log(`\n📈 Creating chart ${index + 1}/${suggestions.length}:`, {
       type: suggestion.type,
       title: suggestion.title,
       priority: suggestion.priority,
@@ -35,6 +46,8 @@ export function createAIChartsFromData(
     };
     
     try {
+      console.log('🔄 Preparing chart data...');
+      
       // Prepare chart data using the enhanced data preparation
       const chartData = prepareChartData(data, {
         type: suggestion.type,
@@ -44,7 +57,12 @@ export function createAIChartsFromData(
         priority: suggestion.priority
       });
       
-      console.log('Chart data prepared for', suggestion.type, ':', chartData);
+      console.log('✅ Chart data prepared:', {
+        labels: chartData.labels?.slice(0, 3),
+        datasetCount: chartData.datasets?.length,
+        firstDatasetLength: chartData.datasets?.[0]?.data?.length,
+        dataPreview: chartData.datasets?.[0]?.data?.slice(0, 3)
+      });
       
       // Create chart item with proper type mapping
       const chart = createNewChartItem(suggestion.type, position);
@@ -63,14 +81,15 @@ export function createAIChartsFromData(
         };
       }
       
-      console.log(`Successfully created strategic chart: ${chart.title}`, {
+      console.log(`✅ Successfully created chart: ${chart.title}`, {
         type: chart.type,
         priority: suggestion.priority,
-        dataLength: chart.data.datasets?.[0]?.data?.length
+        dataLength: chart.data.datasets?.[0]?.data?.length,
+        hasRealData: chart.data.datasets?.[0]?.data?.length > 0
       });
       charts.push(chart);
     } catch (error) {
-      console.error(`Error creating strategic chart ${suggestion.type}:`, error);
+      console.error(`❌ Error creating chart ${suggestion.type}:`, error);
       // Create fallback chart instead of failing completely
       try {
         const fallbackChart = createNewChartItem('bar', position);
@@ -78,14 +97,14 @@ export function createAIChartsFromData(
         fallbackChart.size = layout.size;
         fallbackChart.id = uuidv4();
         charts.push(fallbackChart);
-        console.log('Created fallback chart for failed suggestion');
+        console.log('⚠️ Created fallback chart for failed suggestion');
       } catch (fallbackError) {
-        console.error('Failed to create fallback chart:', fallbackError);
+        console.error('❌ Failed to create fallback chart:', fallbackError);
       }
     }
   });
   
-  console.log(`Created ${charts.length} strategic business intelligence charts`);
+  console.log(`\n🎉 Created ${charts.length} charts total`);
   return charts;
 }
 

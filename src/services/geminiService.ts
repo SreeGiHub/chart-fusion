@@ -1,4 +1,3 @@
-
 interface GeminiAnalysisRequest {
   data: any[];
   columns: Array<{
@@ -44,6 +43,20 @@ export class GeminiService {
   async analyzeDataForCharts(request: GeminiAnalysisRequest): Promise<GeminiAnalysisResponse> {
     const sampleData = request.data.slice(0, 10); // More focused sample
     
+    console.log('=== GEMINI SERVICE DEBUG ===');
+    console.log('📊 Data being sent to AI:', {
+      totalRows: request.datasetSize,
+      columnsCount: request.columns.length,
+      sampleDataRows: sampleData.length,
+      columns: request.columns.map(col => ({
+        name: col.name,
+        type: col.type,
+        description: col.description || 'No description'
+      })),
+      sampleDataPreview: sampleData.slice(0, 3),
+      availableChartTypes: request.availableChartTypes
+    });
+    
     const prompt = this.buildEnhancedPromptWithExamples(request.columns, sampleData, request.availableChartTypes, request.datasetSize);
     
     try {
@@ -81,9 +94,24 @@ export class GeminiService {
         throw new Error('No content received from Gemini API');
       }
 
-      return this.parseAndValidateGeminiResponse(content, request.columns);
+      console.log('🤖 Raw AI Response:', content);
+      
+      const parsedResponse = this.parseAndValidateGeminiResponse(content, request.columns);
+      
+      console.log('✅ Parsed AI Suggestions:', {
+        suggestionsCount: parsedResponse.chartSuggestions.length,
+        suggestions: parsedResponse.chartSuggestions.map(s => ({
+          type: s.chartType,
+          title: s.title,
+          xAxis: s.xAxis,
+          yAxis: s.yAxis,
+          priority: s.priority
+        }))
+      });
+      
+      return parsedResponse;
     } catch (error) {
-      console.error('Gemini API error:', error);
+      console.error('❌ Gemini API error:', error);
       throw error;
     }
   }
@@ -236,7 +264,7 @@ RETURN ONLY THE JSON OBJECT:`;
         .replace(/^\s*[\w\s]*\s*/, '')
         .trim();
       
-      console.log('Extracted JSON:', cleanJson);
+      console.log('🔧 Extracted JSON from AI:', cleanJson);
       
       const parsed = JSON.parse(cleanJson);
       
@@ -254,7 +282,7 @@ RETURN ONLY THE JSON OBJECT:`;
         layoutRecommendations: parsed.layoutRecommendations || 'Standard dashboard layout'
       };
     } catch (error) {
-      console.error('Error parsing Gemini response:', error);
+      console.error('❌ Error parsing Gemini response:', error);
       console.error('Raw response:', content);
       
       // Enhanced fallback with error context
@@ -284,32 +312,35 @@ RETURN ONLY THE JSON OBJECT:`;
     const supportedTypes = ['bar', 'column', 'line', 'area', 'pie', 'donut', 'scatter', 'bubble', 'card', 'gauge', 'treemap', 'funnel', 'radar', 'combo', 'table'];
     const columnNames = columns.map(col => col.name);
     
+    console.log('🔍 Validating chart suggestions against columns:', columnNames);
+    
     const validSuggestions = suggestions
       .filter(suggestion => {
         // Validate chart type
         if (!supportedTypes.includes(suggestion.chartType?.toLowerCase())) {
-          console.warn(`Unsupported chart type: ${suggestion.chartType}`);
+          console.warn(`❌ Unsupported chart type: ${suggestion.chartType}`);
           return false;
         }
         
         // Validate required fields
         if (!suggestion.title || !suggestion.chartType) {
-          console.warn('Missing required fields in suggestion:', suggestion);
+          console.warn('❌ Missing required fields in suggestion:', suggestion);
           return false;
         }
         
         // Validate column references
         if (suggestion.xAxis && !columnNames.includes(suggestion.xAxis)) {
-          console.warn(`Invalid xAxis column: ${suggestion.xAxis}`);
+          console.warn(`⚠️ Invalid xAxis column: ${suggestion.xAxis}, available: ${columnNames.join(', ')}`);
           // Don't reject, just clear the invalid column
           suggestion.xAxis = '';
         }
         
         if (suggestion.yAxis && !columnNames.includes(suggestion.yAxis)) {
-          console.warn(`Invalid yAxis column: ${suggestion.yAxis}`);
+          console.warn(`⚠️ Invalid yAxis column: ${suggestion.yAxis}, available: ${columnNames.join(', ')}`);
           suggestion.yAxis = '';
         }
         
+        console.log(`✅ Valid suggestion: ${suggestion.chartType} - ${suggestion.title}`);
         return true;
       })
       .map(suggestion => ({
@@ -324,7 +355,7 @@ RETURN ONLY THE JSON OBJECT:`;
         businessInsight: suggestion.businessInsight || 'Business insight'
       }));
     
-    console.log(`Validated ${validSuggestions.length} out of ${suggestions.length} chart suggestions`);
+    console.log(`✅ Validated ${validSuggestions.length} out of ${suggestions.length} chart suggestions`);
     
     if (validSuggestions.length === 0) {
       throw new Error('No valid chart suggestions after validation');

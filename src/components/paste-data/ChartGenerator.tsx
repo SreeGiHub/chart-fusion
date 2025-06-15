@@ -37,33 +37,40 @@ export const useChartGenerator = () => {
     isRegeneration: boolean = false
   ) => {
     if (!processedData) {
-      console.error('No processed data available');
+      console.error('❌ No processed data available');
       return;
     }
 
-    console.log('Starting AI-powered chart generation:', { isRegeneration, hasApiKey: !!geminiApiKey });
+    console.log('\n=== STARTING CHART GENERATION ===');
+    console.log('🚀 Generation type:', isRegeneration ? 'REGENERATION' : 'INITIAL');
+    console.log('🔑 Has API key:', !!geminiApiKey);
+    console.log('📊 Data overview:', {
+      rows: processedData.rows.length,
+      columns: processedData.columns.length,
+      columnTypes: processedData.columns.map(col => `${col.name} (${col.type})`)
+    });
     
     const validation = validateData(processedData);
     if (!validation.isValid) {
-      console.error('Validation failed:', validation);
+      console.error('❌ Validation failed:', validation);
       toast.error("Please fix data errors before generating charts");
       return;
     }
 
     try {
-      console.log('Generating AI chart suggestions with enhanced validation...');
+      console.log('🤖 Generating AI chart suggestions...');
       
       // Clear existing charts if regenerating
       if (isRegeneration) {
-        console.log('Clearing existing charts for regeneration');
+        console.log('🧹 Clearing existing charts for regeneration');
         dispatch({ type: "CLEAR_ALL_ITEMS" });
       }
       
       const suggestions = await generateAIChartSuggestions(processedData, geminiApiKey);
-      console.log('AI suggestions received:', suggestions.length);
+      console.log('✅ AI suggestions received:', suggestions.length);
       
       if (suggestions.length === 0) {
-        console.log('No AI suggestions, using enhanced fallback');
+        console.log('⚠️ No AI suggestions, using enhanced fallback');
         const defaultSuggestions = [
           {
             type: 'bar' as const,
@@ -84,14 +91,15 @@ export const useChartGenerator = () => {
         
         toast.success("Generated 1 fallback chart from your data! 🎉");
       } else {
-        console.log('Creating charts from validated AI suggestions...');
+        console.log('🏗️ Creating charts from AI suggestions...');
         const charts = createAIChartsFromData(processedData, suggestions);
-        console.log('Successfully created charts:', charts.length);
+        console.log('✅ Successfully created charts:', charts.length);
         
         // Add charts to dashboard with proper positioning
         charts.forEach((chart, index) => {
           const position = getNextPosition(index);
           const chartWithPosition = { ...chart, position };
+          console.log(`📍 Adding chart ${index + 1} at position:`, position);
           dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
         });
 
@@ -109,7 +117,7 @@ export const useChartGenerator = () => {
       
       onComplete();
     } catch (error) {
-      console.error("Chart generation error:", error);
+      console.error("❌ Chart generation error:", error);
       
       // Enhanced error handling with specific messages
       if (error.message.includes('Failed to parse AI response')) {
@@ -142,7 +150,7 @@ export const useChartGenerator = () => {
           toast.success("Generated fallback charts successfully! 📊");
           onComplete();
         } catch (fallbackError) {
-          console.error("Fallback generation failed:", fallbackError);
+          console.error("❌ Fallback generation failed:", fallbackError);
           toast.error("Chart generation failed completely. Please try again.");
         }
       } else {
