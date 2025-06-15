@@ -5,7 +5,7 @@ import { AIChartSuggestion, CHART_TYPE_MAP } from "./types";
 import { generateFallbackSuggestions } from "./fallbackSuggestions";
 import { ChartType } from "@/types";
 
-// Available chart types that our system supports
+// Available chart types that our system supports (expanded list)
 const AVAILABLE_CHART_TYPES = [
   'bar', 'column', 'line', 'area', 'pie', 'donut', 'scatter', 'bubble',
   'card', 'gauge', 'treemap', 'funnel', 'radar', 'combo', 'table'
@@ -18,8 +18,8 @@ export async function generateAIChartSuggestions(
   console.log('=== ADVANCED BUSINESS INTELLIGENCE CHART GENERATION ===');
   
   if (!geminiApiKey) {
-    console.log('No Gemini API key provided, using business rule-based suggestions');
-    return generateFallbackSuggestions(data);
+    console.log('No Gemini API key provided, using enhanced business rule-based suggestions');
+    return generateEnhancedFallbackSuggestions(data);
   }
 
   try {
@@ -27,7 +27,7 @@ export async function generateAIChartSuggestions(
     
     // Prepare comprehensive business analysis request
     const analysisRequest = {
-      data: data.rows,
+      data: data.rows.slice(0, 20), // Send more sample data
       columns: data.columns.map(col => ({
         name: col.name,
         type: col.type,
@@ -38,15 +38,9 @@ export async function generateAIChartSuggestions(
     };
 
     console.log('Sending comprehensive business context to AI for strategic dashboard analysis...');
-    console.log('Dataset context:', {
-      size: data.rows.length,
-      columns: data.columns.length,
-      richDescriptions: data.columns.filter(c => c.description).length
-    });
     
     const aiAnalysis = await geminiService.analyzeDataForCharts(analysisRequest);
-    console.log('Strategic AI analysis received with business insights:', {
-      insights: aiAnalysis.dataInsights.substring(0, 100) + '...',
+    console.log('Strategic AI analysis received:', {
       chartCount: aiAnalysis.chartSuggestions.length,
       kpiCount: aiAnalysis.kpis?.length || 0
     });
@@ -64,32 +58,125 @@ export async function generateAIChartSuggestions(
         visualizationGoal: suggestion.visualizationGoal,
         businessInsight: suggestion.businessInsight
       }))
-      .sort((a, b) => b.priority - a.priority) // Sort by business priority
-      .slice(0, 8); // Focus on top 8 most valuable insights
+      .sort((a, b) => b.priority - a.priority)
+      .slice(0, 8);
 
     console.log('Generated strategic chart recommendations:', aiSuggestions.map(s => ({
       type: s.type,
       title: s.title,
-      priority: s.priority,
-      goal: s.visualizationGoal,
-      insight: s.businessInsight?.substring(0, 50) + '...'
+      columns: s.columns,
+      priority: s.priority
     })));
-    
-    // Log business intelligence summary
-    console.log('Business Intelligence Summary:');
-    console.log('- Executive Summary:', aiAnalysis.executiveSummary.substring(0, 100) + '...');
-    console.log('- Key Insights:', aiAnalysis.dataInsights.substring(0, 100) + '...');
-    console.log('- Layout Strategy:', aiAnalysis.layoutRecommendations.substring(0, 100) + '...');
-    if (aiAnalysis.kpis?.length > 0) {
-      console.log('- KPIs identified:', aiAnalysis.kpis.length);
-    }
 
     return aiSuggestions;
 
   } catch (error) {
-    console.error('Advanced business intelligence analysis failed, using fallback:', error);
-    return generateFallbackSuggestions(data);
+    console.error('Advanced business intelligence analysis failed, using enhanced fallback:', error);
+    return generateEnhancedFallbackSuggestions(data);
   }
+}
+
+function generateEnhancedFallbackSuggestions(data: ProcessedData): AIChartSuggestion[] {
+  console.log('Generating enhanced fallback suggestions with full chart type support');
+  
+  const suggestions: AIChartSuggestion[] = [];
+  const numCols = data.columns.filter(col => col.type === 'number');
+  const textCols = data.columns.filter(col => col.type === 'text');
+  const dateCols = data.columns.filter(col => col.type === 'date');
+
+  // KPI Cards for key metrics
+  if (numCols.length > 0) {
+    suggestions.push({
+      type: 'card',
+      title: `Total ${numCols[0].name}`,
+      description: `Key performance indicator showing total ${numCols[0].name}`,
+      columns: [numCols[0].name],
+      priority: 9,
+      visualizationGoal: 'kpi_tracking',
+      businessInsight: `Monitor key business metric: ${numCols[0].name}`
+    });
+  }
+
+  // Bubble chart for multi-dimensional analysis
+  if (numCols.length >= 3) {
+    suggestions.push({
+      type: 'bubble',
+      title: `${numCols[0].name} vs ${numCols[1].name} Analysis`,
+      description: `Multi-dimensional analysis showing relationship between ${numCols[0].name}, ${numCols[1].name}, and ${numCols[2].name}`,
+      columns: [numCols[0].name, numCols[1].name, numCols[2].name],
+      priority: 8,
+      visualizationGoal: 'correlation_analysis',
+      businessInsight: `Identify patterns and correlations in your key business metrics`
+    });
+  }
+
+  // Scatter plot for correlation analysis
+  if (numCols.length >= 2) {
+    suggestions.push({
+      type: 'scatter',
+      title: `${numCols[0].name} vs ${numCols[1].name} Correlation`,
+      description: `Correlation analysis between ${numCols[0].name} and ${numCols[1].name}`,
+      columns: [numCols[0].name, numCols[1].name],
+      priority: 7,
+      visualizationGoal: 'performance_optimization',
+      businessInsight: `Understand the relationship between these critical business factors`
+    });
+  }
+
+  // Pie chart for composition analysis
+  if (textCols.length > 0 && numCols.length > 0) {
+    suggestions.push({
+      type: 'pie',
+      title: `${textCols[0].name} Distribution`,
+      description: `Market share and composition analysis by ${textCols[0].name}`,
+      columns: [textCols[0].name, numCols[0].name],
+      priority: 7,
+      visualizationGoal: 'market_analysis',
+      businessInsight: `Understand market composition and identify opportunities`
+    });
+  }
+
+  // Line chart for trend analysis
+  if (dateCols.length > 0 && numCols.length > 0) {
+    suggestions.push({
+      type: 'line',
+      title: `${numCols[0].name} Trends Over Time`,
+      description: `Time series analysis showing ${numCols[0].name} performance trends`,
+      columns: [dateCols[0].name, numCols[0].name],
+      priority: 8,
+      visualizationGoal: 'trend_identification',
+      businessInsight: `Track performance trends and identify growth patterns`
+    });
+  }
+
+  // Bar chart for comparisons
+  if (textCols.length > 0 && numCols.length > 0) {
+    suggestions.push({
+      type: 'bar',
+      title: `${numCols[0].name} by ${textCols[0].name}`,
+      description: `Comparative analysis of ${numCols[0].name} across different ${textCols[0].name}`,
+      columns: [textCols[0].name, numCols[0].name],
+      priority: 6,
+      visualizationGoal: 'competitive_analysis',
+      businessInsight: `Compare performance across categories to identify leaders`
+    });
+  }
+
+  // Gauge for performance tracking
+  if (numCols.length > 0) {
+    suggestions.push({
+      type: 'gauge',
+      title: `${numCols[0].name} Performance`,
+      description: `Performance gauge showing current ${numCols[0].name} metrics`,
+      columns: [numCols[0].name],
+      priority: 7,
+      visualizationGoal: 'goal_tracking',
+      businessInsight: `Track progress towards your business goals`
+    });
+  }
+
+  console.log('Enhanced fallback suggestions generated:', suggestions.length);
+  return suggestions.slice(0, 8);
 }
 
 function isValidChartType(chartType: string): boolean {
@@ -116,7 +203,6 @@ function getRelevantColumns(suggestion: any, columns: any[]): string[] {
   
   // Smart fallback: if no valid columns found, use best available columns
   if (relevantColumns.length === 0) {
-    // Prefer columns with good business context
     const businessColumns = columns.filter(col => 
       col.description && (col.type === 'number' || col.type === 'text')
     );
@@ -124,11 +210,9 @@ function getRelevantColumns(suggestion: any, columns: any[]): string[] {
     if (businessColumns.length >= 2) {
       relevantColumns.push(businessColumns[0].name, businessColumns[1].name);
     } else if (columns.length >= 2) {
-      // Fall back to first available columns
       relevantColumns.push(columns[0].name, columns[1].name);
     }
   } else if (relevantColumns.length === 1 && columns.length >= 2) {
-    // Find a complementary column
     const complementaryColumn = columns.find(col => 
       col.name !== relevantColumns[0] && 
       (col.type === 'number' || col.type === 'text') &&
@@ -137,7 +221,6 @@ function getRelevantColumns(suggestion: any, columns: any[]): string[] {
     if (complementaryColumn) {
       relevantColumns.push(complementaryColumn.name);
     } else {
-      // Generic fallback
       const fallbackColumn = columns.find(col => col.name !== relevantColumns[0]);
       if (fallbackColumn) {
         relevantColumns.push(fallbackColumn.name);

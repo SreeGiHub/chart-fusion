@@ -2,7 +2,7 @@
 import { ChartItemType, Position } from "@/types";
 import { createNewChartItem } from "@/utils/chartUtils";
 import { ProcessedData } from "@/utils/dataProcessor";
-import { prepareChartData } from "@/utils/chartDataPreparation";
+import { prepareChartData } from "@/utils/chartData";
 import { v4 as uuidv4 } from "uuid";
 import { AIChartSuggestion } from "./types";
 
@@ -11,22 +11,21 @@ export function createAIChartsFromData(
   suggestions: AIChartSuggestion[], 
   startPosition: Position = { x: 20, y: 20 }
 ): ChartItemType[] {
-  console.log('=== STRATEGIC DASHBOARD CREATION WITH BUSINESS INTELLIGENCE ===');
-  console.log('Creating intelligent dashboard from AI business analysis...');
+  console.log('=== CREATING STRATEGIC DASHBOARD FROM AI BUSINESS ANALYSIS ===');
+  console.log('AI suggestions received:', suggestions.map(s => ({ type: s.type, title: s.title, priority: s.priority })));
   
   const charts: ChartItemType[] = [];
   
   // Strategic grid layout optimized for business decision-making
   const gridLayout = calculateBusinessIntelligentLayout(suggestions);
   
-  // Create up to 8 high-value charts based on business priority
+  // Create charts based on AI suggestions with proper mapping
   suggestions.slice(0, 8).forEach((suggestion, index) => {
     console.log(`Creating strategic chart ${index + 1}:`, {
       type: suggestion.type,
       title: suggestion.title,
       priority: suggestion.priority,
-      businessGoal: suggestion.visualizationGoal,
-      insight: suggestion.businessInsight?.substring(0, 50) + '...'
+      columns: suggestion.columns
     });
     
     const layout = gridLayout[index];
@@ -36,6 +35,7 @@ export function createAIChartsFromData(
     };
     
     try {
+      // Prepare chart data using the enhanced data preparation
       const chartData = prepareChartData(data, {
         type: suggestion.type,
         title: suggestion.title,
@@ -44,6 +44,9 @@ export function createAIChartsFromData(
         priority: suggestion.priority
       });
       
+      console.log('Chart data prepared for', suggestion.type, ':', chartData);
+      
+      // Create chart item with proper type mapping
       const chart = createNewChartItem(suggestion.type, position);
       chart.size = layout.size;
       chart.title = suggestion.title;
@@ -61,17 +64,28 @@ export function createAIChartsFromData(
       }
       
       console.log(`Successfully created strategic chart: ${chart.title}`, {
+        type: chart.type,
         priority: suggestion.priority,
-        goal: suggestion.visualizationGoal,
-        size: chart.size
+        dataLength: chart.data.datasets?.[0]?.data?.length
       });
       charts.push(chart);
     } catch (error) {
       console.error(`Error creating strategic chart ${suggestion.type}:`, error);
+      // Create fallback chart instead of failing completely
+      try {
+        const fallbackChart = createNewChartItem('bar', position);
+        fallbackChart.title = suggestion.title || 'Data Overview';
+        fallbackChart.size = layout.size;
+        fallbackChart.id = uuidv4();
+        charts.push(fallbackChart);
+        console.log('Created fallback chart for failed suggestion');
+      } catch (fallbackError) {
+        console.error('Failed to create fallback chart:', fallbackError);
+      }
     }
   });
   
-  console.log(`Created ${charts.length} strategic business intelligence charts with optimized layout`);
+  console.log(`Created ${charts.length} strategic business intelligence charts`);
   return charts;
 }
 
@@ -86,58 +100,49 @@ function calculateBusinessIntelligentLayout(suggestions: AIChartSuggestion[]) {
   
   for (let i = 0; i < Math.min(prioritizedSuggestions.length, 8); i++) {
     const suggestion = prioritizedSuggestions[i];
-    const isExecutiveLevel = suggestion.priority >= 9; // Executive-level insights
-    const isStrategic = suggestion.priority >= 7; // Strategic insights
+    const isExecutiveLevel = suggestion.priority >= 9;
+    const isStrategic = suggestion.priority >= 7;
     const isKPI = suggestion.type === 'card' || suggestion.type === 'gauge';
-    const isDetailedAnalysis = suggestion.type === 'table' || suggestion.type === 'scatter';
+    const isDetailedAnalysis = suggestion.type === 'table' || suggestion.type === 'scatter' || suggestion.type === 'bubble';
     
     let width = baseWidth;
     let height = baseHeight;
     
     // Strategic sizing based on business importance and chart type
     if (isKPI && isExecutiveLevel) {
-      // Executive KPI cards - prominent but compact
       width = 320;
       height = 200;
     } else if (isExecutiveLevel) {
-      // Executive-level charts - larger for impact
       width = 500;
       height = 350;
     } else if (isStrategic) {
-      // Strategic charts - enhanced size
       width = 450;
       height = 320;
     } else if (isDetailedAnalysis) {
-      // Detailed analysis - wider for data exploration
       width = 480;
       height = 320;
     } else if (isKPI) {
-      // Standard KPI cards
       width = 300;
       height = 180;
     }
     
     // Calculate position in business-optimized grid
-    // Place highest priority items in prime real estate (top-left)
     let col, row;
     
     if (i < 3) {
-      // Top row for most critical insights
       col = i;
       row = 0;
     } else if (i < 6) {
-      // Second row for supporting insights
       col = i - 3;
       row = 1;
     } else {
-      // Third row for detailed analysis
       col = i - 6;
       row = 2;
     }
     
     layouts.push({
       x: col * (baseWidth + gap),
-      y: row * (baseHeight + gap + 20), // Extra spacing for business context
+      y: row * (baseHeight + gap + 20),
       size: { width, height }
     });
   }
