@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +22,8 @@ interface PasteDataDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const GEMINI_API_KEY_STORAGE_KEY = "gemini_api_key";
+
 const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
   open,
   onOpenChange,
@@ -37,6 +38,24 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
 
   const { generateCharts } = useChartGenerator();
   const { loadSampleData } = useSampleData();
+
+  // Load API key from localStorage on component mount
+  useEffect(() => {
+    const savedApiKey = localStorage.getItem(GEMINI_API_KEY_STORAGE_KEY);
+    if (savedApiKey) {
+      setGeminiApiKey(savedApiKey);
+    }
+  }, []);
+
+  // Save API key to localStorage whenever it changes
+  const handleApiKeyChange = (key: string) => {
+    setGeminiApiKey(key);
+    if (key.trim()) {
+      localStorage.setItem(GEMINI_API_KEY_STORAGE_KEY, key);
+    } else {
+      localStorage.removeItem(GEMINI_API_KEY_STORAGE_KEY);
+    }
+  };
 
   const handleTrySampleData = () => {
     const success = loadSampleData(setPastedData, setProcessedData);
@@ -126,6 +145,7 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
     setPastedData("");
     setProcessedData(null);
     setActiveTab("enter");
+    // Note: We don't reset the API key anymore - it persists in localStorage
   };
 
   const validation = processedData ? validateData(processedData) : null;
@@ -158,7 +178,7 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
               
               <GeminiApiKeyInput
                 apiKey={geminiApiKey}
-                setApiKey={setGeminiApiKey}
+                setApiKey={handleApiKeyChange}
                 showKey={showApiKey}
                 setShowKey={setShowApiKey}
               />
