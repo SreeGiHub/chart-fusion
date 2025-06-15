@@ -115,6 +115,7 @@ export type DashboardAction =
   | { type: "ADD_ITEM"; payload: ChartItemType }
   | { type: "UPDATE_ITEM"; payload: { id: string; updates: Partial<ChartItemType> } }
   | { type: "REMOVE_ITEM"; payload: string }
+  | { type: "CLEAR_ALL_ITEMS" }
   | { type: "SELECT_ITEM"; payload: string | null }
   | { type: "MOVE_ITEM"; payload: { id: string; position: Position } }
   | { type: "RESIZE_ITEM"; payload: { id: string; size: Size } }

@@ -39,14 +39,6 @@ function saveToHistory(state: DashboardState): DashboardState {
   };
 }
 
-type DashboardAction =
-  | { type: "ADD_ITEM"; payload: ChartItemType }
-  | { type: "UPDATE_ITEM"; payload: ChartItemType }
-  | { type: "DELETE_ITEM"; payload: string }
-  | { type: "CLEAR_ALL_ITEMS" }
-  | { type: "SET_TITLE"; payload: string }
-  | { type: "SET_CANVAS_COLOR"; payload: string };
-
 function dashboardReducer(state: DashboardState, action: DashboardAction): DashboardState {
   switch (action.type) {
     case "SET_TITLE":
@@ -72,7 +64,7 @@ function dashboardReducer(state: DashboardState, action: DashboardAction): Dashb
         ),
       });
 
-    case "DELETE_ITEM":
+    case "REMOVE_ITEM":
       return saveToHistory({
         ...state,
         items: state.items.filter((item) => item.id !== action.payload),
@@ -80,10 +72,11 @@ function dashboardReducer(state: DashboardState, action: DashboardAction): Dashb
       });
 
     case "CLEAR_ALL_ITEMS":
-      return {
+      return saveToHistory({
         ...state,
-        items: []
-      };
+        items: [],
+        selectedItemId: null,
+      });
 
     case "SELECT_ITEM":
       return {
