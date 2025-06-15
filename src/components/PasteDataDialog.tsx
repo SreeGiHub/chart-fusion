@@ -141,6 +141,20 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
     }
   };
 
+  const handleRegenerateCharts = async () => {
+    if (!processedData) return;
+
+    setIsGenerating(true);
+    try {
+      await generateCharts(processedData, geminiApiKey, () => {
+        onOpenChange(false);
+        resetDialog();
+      }, true); // Pass true for regeneration
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const resetDialog = () => {
     setPastedData("");
     setProcessedData(null);
@@ -202,6 +216,7 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
                   validation={validation}
                   isGenerating={isGenerating}
                   onGenerateCharts={handleGenerateCharts}
+                  onRegenerateCharts={handleRegenerateCharts}
                 />
               )}
             </TabsContent>

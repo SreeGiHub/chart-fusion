@@ -42,9 +42,9 @@ export class GeminiService {
   }
 
   async analyzeDataForCharts(request: GeminiAnalysisRequest): Promise<GeminiAnalysisResponse> {
-    const sampleData = request.data.slice(0, 15); // Send more sample data for better analysis
+    const sampleData = request.data.slice(0, 10); // More focused sample
     
-    const prompt = this.buildAdvancedBusinessAnalysisPrompt(request.columns, sampleData, request.availableChartTypes, request.datasetSize);
+    const prompt = this.buildEnhancedPromptWithExamples(request.columns, sampleData, request.availableChartTypes, request.datasetSize);
     
     try {
       const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
@@ -63,9 +63,9 @@ export class GeminiService {
             }
           ],
           generationConfig: {
-            temperature: 0.2,
-            topP: 0.9,
-            maxOutputTokens: 4000,
+            temperature: 0.1, // Lower temperature for more consistent output
+            topP: 0.8,
+            maxOutputTokens: 3000,
           }
         }),
       });
@@ -81,166 +81,256 @@ export class GeminiService {
         throw new Error('No content received from Gemini API');
       }
 
-      return this.parseAdvancedGeminiResponse(content);
+      return this.parseAndValidateGeminiResponse(content, request.columns);
     } catch (error) {
       console.error('Gemini API error:', error);
       throw error;
     }
   }
 
-  private buildAdvancedBusinessAnalysisPrompt(columns: any[], sampleData: any[], availableChartTypes: string[], datasetSize: number): string {
+  private buildEnhancedPromptWithExamples(columns: any[], sampleData: any[], availableChartTypes: string[], datasetSize: number): string {
     return `
-You are an expert business intelligence consultant and data visualization specialist. Your task is to analyze business data and create a sophisticated dashboard that tells a compelling data story with actionable insights.
+You are a business intelligence expert. Create exactly 8 diverse chart recommendations from this data.
 
-=== BUSINESS DATA CONTEXT ===
-Total Records: ${datasetSize}
-Data Structure & Business Context:
-${columns.map(col => `• ${col.name} (${col.type}): ${col.description || 'Business metric - analyze for patterns and insights'}`).join('\n')}
+=== SUPPORTED CHART TYPES ===
+${availableChartTypes.join(', ')}
 
-Representative Sample Data (showing actual business patterns):
-${JSON.stringify(sampleData, null, 2)}
+=== EXAMPLE INPUT & OUTPUT ===
 
-=== AVAILABLE VISUALIZATION TYPES ===
-Chart types available in our system:
-${availableChartTypes.map(type => `• ${type}`).join('\n')}
+Example Columns:
+- Date (date): Transaction date
+- Revenue (number): Sales revenue in USD
+- Region (text): Sales region
+- Customer_Count (number): Number of customers
 
-Chart Type Selection Guidelines:
-- **bar/column**: Comparisons, rankings, performance by category
-- **line**: Time trends, performance over time, growth patterns  
-- **area**: Cumulative trends, volume emphasis, stacked performance
-- **pie/donut**: Market share, composition, percentage breakdowns (max 8 segments)
-- **scatter**: Correlations, relationship analysis, performance matrices
-- **bubble**: Multi-dimensional analysis (3+ variables simultaneously)
-- **card**: KPIs, key metrics, executive summary numbers
-- **gauge**: Goal tracking, performance indicators, progress metrics
-- **treemap**: Hierarchical data, nested comparisons with size relationships
-- **funnel**: Process flows, conversion analysis, sequential steps
-- **radar**: Multi-criteria evaluation, skill assessments, balanced scorecards
-- **table**: Detailed breakdowns, when precision and specifics are needed
-
-=== ANALYSIS REQUIREMENTS ===
-
-You must analyze this data like a senior business analyst and provide strategic dashboard recommendations in this EXACT JSON format:
-
+Example Output (EXACT FORMAT REQUIRED):
 {
-  "dataInsights": "Deep business analysis: What this data represents, key patterns discovered, trends, correlations, anomalies, and strategic implications for the business",
-  "executiveSummary": "Executive-level summary of the most critical business insights and recommended strategic actions based on the data analysis",
+  "dataInsights": "Sales data shows seasonal patterns with Q4 peaks and regional variations",
+  "executiveSummary": "Revenue trends indicate strong Q4 performance with North region leading",
   "kpis": [
-    {
-      "metric": "descriptive_name_of_key_metric",
-      "value": "calculated_value_with_units"
-    }
+    {"metric": "Total Revenue", "value": "$2.4M"},
+    {"metric": "Average Transaction", "value": "$156"}
   ],
   "chartSuggestions": [
     {
-      "chartType": "exact_chart_type_from_available_list",
-      "title": "Strategic business-focused title that highlights the key insight",
-      "description": "What critical business question this chart answers and what strategic decisions it enables",
-      "xAxis": "exact_column_name_for_x_axis",
-      "yAxis": "exact_column_name_for_y_axis_or_metric",
-      "reasoning": "Detailed business rationale for why this specific chart type and data combination provides maximum strategic value",
-      "priority": 1-10,
-      "visualizationGoal": "specific_business_objective (e.g., 'performance_optimization', 'trend_identification', 'competitive_analysis', 'efficiency_measurement', 'risk_assessment')",
-      "businessInsight": "The key business insight or strategic finding this chart reveals that drives decision-making"
+      "chartType": "card",
+      "title": "Total Revenue",
+      "description": "Key revenue metric for executive dashboard",
+      "xAxis": "Revenue",
+      "yAxis": "",
+      "reasoning": "Essential KPI for quick performance overview",
+      "priority": 10,
+      "visualizationGoal": "kpi_tracking",
+      "businessInsight": "Critical financial metric for decision making"
+    },
+    {
+      "chartType": "line",
+      "title": "Revenue Trends Over Time",
+      "description": "Time series showing revenue patterns",
+      "xAxis": "Date",
+      "yAxis": "Revenue",
+      "reasoning": "Shows temporal patterns and growth trends",
+      "priority": 9,
+      "visualizationGoal": "trend_analysis",
+      "businessInsight": "Identifies seasonal patterns and growth trajectory"
+    },
+    {
+      "chartType": "bar",
+      "title": "Revenue by Region",
+      "description": "Regional performance comparison",
+      "xAxis": "Region",
+      "yAxis": "Revenue",
+      "reasoning": "Compares regional performance for resource allocation",
+      "priority": 8,
+      "visualizationGoal": "comparative_analysis",
+      "businessInsight": "Identifies top-performing regions and opportunities"
+    },
+    {
+      "chartType": "scatter",
+      "title": "Revenue vs Customer Count",
+      "description": "Correlation between customers and revenue",
+      "xAxis": "Customer_Count",
+      "yAxis": "Revenue",
+      "reasoning": "Shows relationship between customer base and revenue",
+      "priority": 7,
+      "visualizationGoal": "correlation_analysis",
+      "businessInsight": "Validates customer acquisition impact on revenue"
+    },
+    {
+      "chartType": "pie",
+      "title": "Revenue Distribution by Region",
+      "description": "Market share visualization",
+      "xAxis": "Region",
+      "yAxis": "Revenue",
+      "reasoning": "Shows market composition and regional dominance",
+      "priority": 6,
+      "visualizationGoal": "composition_analysis",
+      "businessInsight": "Reveals market share and concentration risks"
+    },
+    {
+      "chartType": "gauge",
+      "title": "Customer Growth Rate",
+      "description": "Performance gauge for customer metrics",
+      "xAxis": "Customer_Count",
+      "yAxis": "",
+      "reasoning": "Tracks progress toward customer acquisition goals",
+      "priority": 6,
+      "visualizationGoal": "goal_tracking",
+      "businessInsight": "Monitors customer growth performance"
+    },
+    {
+      "chartType": "area",
+      "title": "Cumulative Revenue Growth",
+      "description": "Cumulative revenue visualization",
+      "xAxis": "Date",
+      "yAxis": "Revenue",
+      "reasoning": "Shows cumulative business growth over time",
+      "priority": 5,
+      "visualizationGoal": "growth_tracking",
+      "businessInsight": "Visualizes total business growth trajectory"
+    },
+    {
+      "chartType": "table",
+      "title": "Detailed Performance Metrics",
+      "description": "Comprehensive data breakdown",
+      "xAxis": "Region",
+      "yAxis": "Revenue",
+      "reasoning": "Provides detailed data for deep analysis",
+      "priority": 4,
+      "visualizationGoal": "detailed_analysis",
+      "businessInsight": "Enables drill-down analysis and data verification"
     }
   ],
-  "layoutRecommendations": "Strategic dashboard organization: executive summary placement, chart hierarchy for maximum business impact, suggested grid layout that guides decision-makers through the data story"
+  "layoutRecommendations": "Place KPI cards at top, trends in center, detailed analysis at bottom"
 }
 
-=== STRATEGIC DASHBOARD DESIGN PRINCIPLES ===
+=== YOUR DATA ===
+Total Records: ${datasetSize}
+Columns:
+${columns.map(col => `- ${col.name} (${col.type}): ${col.description || 'Business metric for analysis'}`).join('\n')}
 
-**📊 PRIORITY FRAMEWORK (1-10):**
-- 10: Mission-critical KPIs, executive decision drivers, business-critical metrics
-- 8-9: Strategic performance indicators, key trend analysis, competitive insights
-- 6-7: Operational metrics, departmental performance, efficiency measures  
-- 4-5: Supporting analysis, detailed breakdowns, drill-down capabilities
-- 1-3: Exploratory views, nice-to-have insights, supplementary data
+Sample Data:
+${JSON.stringify(sampleData, null, 2)}
 
-**🎯 BUSINESS-FIRST CHART STRATEGY:**
-1. **Lead with Impact**: Start with 2-3 most business-critical metrics as cards/gauges
-2. **Show Performance**: Use trend charts for performance over time
-3. **Enable Comparisons**: Use bar/column charts for competitive analysis
-4. **Reveal Relationships**: Use scatter/bubble for correlation insights
-5. **Display Market Position**: Use pie/treemap for market share/composition
-6. **Track Processes**: Use funnel for conversion/process analysis
-7. **Support Decisions**: Ensure every chart answers "So what?" and "What action should we take?"
+=== REQUIREMENTS ===
+1. Return ONLY valid JSON (no markdown, no extra text)
+2. Create exactly 8 diverse charts using different chart types
+3. Use only chart types from the supported list above
+4. Ensure xAxis and yAxis use exact column names from the data
+5. Prioritize charts 1-10 (10 = most important)
+6. Make titles business-focused and actionable
 
-**📈 BUSINESS STORYTELLING REQUIREMENTS:**
-- Each chart must reveal a specific business insight that drives action
-- Prioritize insights that impact revenue, efficiency, customer satisfaction, or competitive position
-- Consider the business context: Is this sales data? Operations? Marketing? Financial?
-- Think about the decision-maker hierarchy: What does a CEO need vs. a manager vs. an analyst?
-- Identify trends, outliers, correlations, and strategic opportunities
-- Recommend charts that build a coherent narrative together
-
-**🔍 DATA-DRIVEN BUSINESS INTELLIGENCE:**
-- Analyze actual data patterns, not just column names
-- Look for business drivers: What drives performance? What predicts success?
-- Identify optimization opportunities: Where can the business improve?
-- Spot risks and opportunities: What should leadership pay attention to?
-- Consider seasonality, trends, and business cycles in your analysis
-- Make recommendations for deeper analysis or data collection
-
-**CRITICAL**: Every chart recommendation must be justified by actual business value and strategic importance. Focus on insights that drive decisions, optimize performance, or reveal competitive advantages.
-
-Return ONLY valid JSON without markdown formatting or code blocks.
-`;
+RETURN ONLY THE JSON OBJECT:`;
   }
 
-  private parseAdvancedGeminiResponse(content: string): GeminiAnalysisResponse {
+  private parseAndValidateGeminiResponse(content: string, columns: any[]): GeminiAnalysisResponse {
     try {
-      // Clean the response - remove markdown formatting if present
-      const cleanContent = content.replace(/```json\s*|\s*```/g, '').trim();
-      
-      const parsed = JSON.parse(cleanContent);
-      
-      // Validate the response structure
-      if (!parsed.dataInsights || !parsed.chartSuggestions || !Array.isArray(parsed.chartSuggestions)) {
-        throw new Error('Invalid response structure from Gemini');
+      // Strict JSON extraction using regex
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No valid JSON found in response');
       }
 
+      const cleanJson = jsonMatch[0]
+        .replace(/```json\s*|\s*```/g, '')
+        .replace(/^\s*[\w\s]*\s*/, '')
+        .trim();
+      
+      console.log('Extracted JSON:', cleanJson);
+      
+      const parsed = JSON.parse(cleanJson);
+      
+      // Schema validation
+      this.validateResponseStructure(parsed);
+      
+      // Validate chart suggestions
+      const validChartSuggestions = this.validateChartSuggestions(parsed.chartSuggestions, columns);
+      
       return {
-        dataInsights: parsed.dataInsights,
-        executiveSummary: parsed.executiveSummary || 'Executive summary not provided',
-        kpis: parsed.kpis || [],
-        chartSuggestions: parsed.chartSuggestions.map((suggestion: any) => ({
-          chartType: suggestion.chartType || 'bar',
-          title: suggestion.title || 'Chart',
-          description: suggestion.description || '',
-          xAxis: suggestion.xAxis || '',
-          yAxis: suggestion.yAxis || '',
-          reasoning: suggestion.reasoning || '',
-          priority: suggestion.priority || 5,
-          visualizationGoal: suggestion.visualizationGoal || 'analysis',
-          businessInsight: suggestion.businessInsight || 'Business insight not provided'
-        })),
-        layoutRecommendations: parsed.layoutRecommendations || 'Standard grid layout'
+        dataInsights: parsed.dataInsights || 'Data analysis completed',
+        executiveSummary: parsed.executiveSummary || 'Executive summary generated',
+        kpis: Array.isArray(parsed.kpis) ? parsed.kpis : [],
+        chartSuggestions: validChartSuggestions,
+        layoutRecommendations: parsed.layoutRecommendations || 'Standard dashboard layout'
       };
     } catch (error) {
       console.error('Error parsing Gemini response:', error);
-      console.error('Raw content:', content);
+      console.error('Raw response:', content);
       
-      // Fallback response
-      return {
-        dataInsights: 'Unable to analyze data automatically. Using default analysis.',
-        executiveSummary: 'Manual review required',
-        kpis: [],
-        chartSuggestions: [
-          {
-            chartType: 'bar',
-            title: 'Data Overview',
-            description: 'Basic visualization of your data',
-            xAxis: '',
-            yAxis: '',
-            reasoning: 'Default visualization',
-            priority: 5,
-            visualizationGoal: 'overview',
-            businessInsight: 'Basic data overview'
-          }
-        ],
-        layoutRecommendations: 'Standard grid layout'
-      };
+      // Enhanced fallback with error context
+      throw new Error(`Failed to parse AI response: ${error.message}. Raw response logged for debugging.`);
     }
+  }
+
+  private validateResponseStructure(parsed: any): void {
+    const requiredFields = ['dataInsights', 'chartSuggestions'];
+    
+    for (const field of requiredFields) {
+      if (!parsed[field]) {
+        throw new Error(`Missing required field: ${field}`);
+      }
+    }
+    
+    if (!Array.isArray(parsed.chartSuggestions)) {
+      throw new Error('chartSuggestions must be an array');
+    }
+    
+    if (parsed.chartSuggestions.length === 0) {
+      throw new Error('No chart suggestions provided');
+    }
+  }
+
+  private validateChartSuggestions(suggestions: any[], columns: any[]): GeminiChartSuggestion[] {
+    const supportedTypes = ['bar', 'column', 'line', 'area', 'pie', 'donut', 'scatter', 'bubble', 'card', 'gauge', 'treemap', 'funnel', 'radar', 'combo', 'table'];
+    const columnNames = columns.map(col => col.name);
+    
+    const validSuggestions = suggestions
+      .filter(suggestion => {
+        // Validate chart type
+        if (!supportedTypes.includes(suggestion.chartType?.toLowerCase())) {
+          console.warn(`Unsupported chart type: ${suggestion.chartType}`);
+          return false;
+        }
+        
+        // Validate required fields
+        if (!suggestion.title || !suggestion.chartType) {
+          console.warn('Missing required fields in suggestion:', suggestion);
+          return false;
+        }
+        
+        // Validate column references
+        if (suggestion.xAxis && !columnNames.includes(suggestion.xAxis)) {
+          console.warn(`Invalid xAxis column: ${suggestion.xAxis}`);
+          // Don't reject, just clear the invalid column
+          suggestion.xAxis = '';
+        }
+        
+        if (suggestion.yAxis && !columnNames.includes(suggestion.yAxis)) {
+          console.warn(`Invalid yAxis column: ${suggestion.yAxis}`);
+          suggestion.yAxis = '';
+        }
+        
+        return true;
+      })
+      .map(suggestion => ({
+        chartType: suggestion.chartType.toLowerCase(),
+        title: suggestion.title,
+        description: suggestion.description || '',
+        xAxis: suggestion.xAxis || '',
+        yAxis: suggestion.yAxis || '',
+        reasoning: suggestion.reasoning || '',
+        priority: typeof suggestion.priority === 'number' ? suggestion.priority : 5,
+        visualizationGoal: suggestion.visualizationGoal || 'analysis',
+        businessInsight: suggestion.businessInsight || 'Business insight'
+      }));
+    
+    console.log(`Validated ${validSuggestions.length} out of ${suggestions.length} chart suggestions`);
+    
+    if (validSuggestions.length === 0) {
+      throw new Error('No valid chart suggestions after validation');
+    }
+    
+    return validSuggestions;
   }
 }
 

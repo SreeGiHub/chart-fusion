@@ -1,7 +1,7 @@
 
 import React from "react";
 import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
+import { Sparkles, RefreshCw } from "lucide-react";
 import { ProcessedData, validateData } from "@/utils/dataProcessor";
 import { generateAIChartSuggestions, createAIChartsFromData } from "@/utils/aiChartGenerator";
 import { useDashboard } from "@/context/DashboardContext";
@@ -30,13 +30,18 @@ export const useChartGenerator = () => {
     };
   };
 
-  const generateCharts = async (processedData: ProcessedData, geminiApiKey: string, onComplete: () => void) => {
+  const generateCharts = async (
+    processedData: ProcessedData, 
+    geminiApiKey: string, 
+    onComplete: () => void,
+    isRegeneration: boolean = false
+  ) => {
     if (!processedData) {
       console.error('No processed data available');
       return;
     }
 
-    console.log('Starting AI-powered chart generation with enhanced data context:', processedData);
+    console.log('Starting AI-powered chart generation:', { isRegeneration, hasApiKey: !!geminiApiKey });
     
     const validation = validateData(processedData);
     if (!validation.isValid) {
@@ -46,12 +51,19 @@ export const useChartGenerator = () => {
     }
 
     try {
-      console.log('Generating AI chart suggestions with rich column descriptions...');
+      console.log('Generating AI chart suggestions with enhanced validation...');
+      
+      // Clear existing charts if regenerating
+      if (isRegeneration) {
+        console.log('Clearing existing charts for regeneration');
+        dispatch({ type: "CLEAR_ALL_ITEMS" });
+      }
+      
       const suggestions = await generateAIChartSuggestions(processedData, geminiApiKey);
-      console.log('Generated suggestions:', suggestions);
+      console.log('AI suggestions received:', suggestions.length);
       
       if (suggestions.length === 0) {
-        console.log('No suggestions found, creating default charts');
+        console.log('No AI suggestions, using enhanced fallback');
         const defaultSuggestions = [
           {
             type: 'bar' as const,
@@ -63,37 +75,34 @@ export const useChartGenerator = () => {
         ];
         
         const charts = createAIChartsFromData(processedData, defaultSuggestions);
-        console.log('Created default charts:', charts);
         
         charts.forEach((chart, index) => {
           const position = getNextPosition(index);
           const chartWithPosition = { ...chart, position };
-          console.log('Adding chart to dashboard:', chartWithPosition);
           dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
         });
         
-        toast.success("Generated 1 chart from your data! 🎉");
+        toast.success("Generated 1 fallback chart from your data! 🎉");
       } else {
-        console.log('Creating charts from AI suggestions with enhanced context...');
+        console.log('Creating charts from validated AI suggestions...');
         const charts = createAIChartsFromData(processedData, suggestions);
-        console.log('Created charts:', charts);
+        console.log('Successfully created charts:', charts.length);
         
         // Add charts to dashboard with proper positioning
         charts.forEach((chart, index) => {
           const position = getNextPosition(index);
           const chartWithPosition = { ...chart, position };
-          console.log('Adding chart to dashboard:', chartWithPosition);
           dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
         });
 
-        const aiMessage = geminiApiKey ? 
-          `Generated ${charts.length} AI-enhanced charts with intelligent insights from your rich data context! 🤖✨` :
-          `Generated ${charts.length} charts from your data! 🎉`;
+        const message = isRegeneration 
+          ? `🔄 Regenerated ${charts.length} new AI-enhanced charts with fresh insights!`
+          : `Generated ${charts.length} AI-enhanced charts with intelligent business insights! 🤖✨`;
 
         toast.success(
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-blue-500" />
-            <span>{aiMessage}</span>
+            <span>{message}</span>
           </div>
         );
       }
@@ -101,7 +110,49 @@ export const useChartGenerator = () => {
       onComplete();
     } catch (error) {
       console.error("Chart generation error:", error);
-      toast.error("Failed to generate charts. Please try again.");
+      
+      // Enhanced error handling with specific messages
+      if (error.message.includes('Failed to parse AI response')) {
+        toast.error(
+          <div>
+            <div className="font-medium">AI Response Error</div>
+            <div className="text-sm text-muted-foreground">The AI returned invalid data. Using fallback charts instead.</div>
+          </div>
+        );
+        
+        // Generate fallback charts on AI failure
+        try {
+          const fallbackSuggestions = [
+            {
+              type: 'bar' as const,
+              columns: processedData.columns.slice(0, 2).map(col => col.name),
+              title: 'Data Overview',
+              description: 'Fallback visualization of your data',
+              priority: 5
+            }
+          ];
+          
+          const fallbackCharts = createAIChartsFromData(processedData, fallbackSuggestions);
+          fallbackCharts.forEach((chart, index) => {
+            const position = getNextPosition(index);
+            const chartWithPosition = { ...chart, position };
+            dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
+          });
+          
+          toast.success("Generated fallback charts successfully! 📊");
+          onComplete();
+        } catch (fallbackError) {
+          console.error("Fallback generation failed:", fallbackError);
+          toast.error("Chart generation failed completely. Please try again.");
+        }
+      } else {
+        toast.error(
+          <div>
+            <div className="font-medium">Generation Failed</div>
+            <div className="text-sm text-muted-foreground">Please check your API key and try again.</div>
+          </div>
+        );
+      }
     }
   };
 
