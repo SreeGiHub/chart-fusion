@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, RefreshCw, AlertTriangle } from "lucide-react";
+import { Sparkles, RefreshCw, AlertTriangle, ArrowRight } from "lucide-react";
 import { ProcessedData, DataValidationResult } from "@/utils/dataProcessor";
 
 interface PreviewDataStepProps {
@@ -56,6 +56,21 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
         </div>
       </div>
 
+      {/* Validation Warnings */}
+      {validation && !validation.isValid && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-yellow-800 mb-2">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="font-medium">Data Validation Issues</span>
+          </div>
+          <ul className="text-sm text-yellow-700 space-y-1">
+            {validation.warnings.map((warning, index) => (
+              <li key={index}>• {warning}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Data Preview Table */}
       <div>
         <h3 className="font-medium mb-3">Data Preview</h3>
@@ -92,52 +107,45 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
         </div>
       </div>
 
-      {/* Validation Warnings */}
-      {validation && !validation.isValid && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-yellow-800 mb-2">
-            <AlertTriangle className="h-4 w-4" />
-            <span className="font-medium">Data Validation Issues</span>
+      {/* Generate Dashboard Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 rounded-lg p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Continue to Preview Data
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {hasValidData 
+                ? "Your data is ready! Generate an AI-powered dashboard with intelligent visualizations." 
+                : "Please fix validation issues before proceeding to dashboard generation."
+              }
+            </p>
           </div>
-          <ul className="text-sm text-yellow-700 space-y-1">
-            {validation.warnings.map((warning, index) => (
-              <li key={index}>• {warning}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Generation Controls - Fixed to always show */}
-      <div className="flex items-center justify-between pt-6 border-t bg-background sticky bottom-0">
-        <div className="text-sm text-muted-foreground">
-          {hasValidData 
-            ? "Ready to generate your AI-powered dashboard!" 
-            : "Please fix validation issues before proceeding"
-          }
-        </div>
-        
-        <div className="flex items-center gap-3">
-          {onRegenerateCharts && (
-            <Button
-              variant="outline"
-              onClick={onRegenerateCharts}
-              disabled={!hasValidData || isGenerating}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-              Regenerate Charts
-            </Button>
-          )}
           
-          <Button
-            onClick={onGenerateCharts}
-            disabled={!hasValidData || isGenerating}
-            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"
-            size="lg"
-          >
-            <Sparkles className="h-4 w-4" />
-            {isGenerating ? "Generating Dashboard..." : "Generate Dashboard"}
-          </Button>
+          <div className="flex items-center gap-3">
+            {onRegenerateCharts && (
+              <Button
+                variant="outline"
+                onClick={onRegenerateCharts}
+                disabled={!hasValidData || isGenerating}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                Regenerate Charts
+              </Button>
+            )}
+            
+            <Button
+              onClick={onGenerateCharts}
+              disabled={!hasValidData || isGenerating}
+              className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white px-6 py-3"
+              size="lg"
+            >
+              <Sparkles className="h-4 w-4" />
+              {isGenerating ? "Generating Dashboard..." : "Generate Dashboard"}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
