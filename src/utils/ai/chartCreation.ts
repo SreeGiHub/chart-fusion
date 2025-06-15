@@ -1,4 +1,3 @@
-
 import { ChartItemType, Position } from "@/types";
 import { createNewChartItem } from "@/utils/chartUtils";
 import { ProcessedData } from "@/utils/dataProcessor";
@@ -11,11 +10,12 @@ export function createAIChartsFromData(
   suggestions: AIChartSuggestion[], 
   startPosition: Position = { x: 20, y: 20 }
 ): ChartItemType[] {
-  console.log('=== CREATING CHARTS FROM AI SUGGESTIONS ===');
+  console.log('\n=== CREATING CHARTS FROM AI SUGGESTIONS ===');
   console.log('📊 Input data overview:', {
     rows: data.rows.length,
     columns: data.columns.map(col => `${col.name} (${col.type})`),
-    suggestionsCount: suggestions.length
+    suggestionsCount: suggestions.length,
+    sampleData: data.rows.slice(0, 2)
   });
   
   console.log('🤖 AI suggestions received:', suggestions.map(s => ({ 
@@ -46,14 +46,36 @@ export function createAIChartsFromData(
     };
     
     try {
-      console.log('🔄 Preparing chart data...');
+      console.log('🔄 Preparing chart data with actual user data...');
       
-      // Prepare chart data using the enhanced data preparation
+      // Validate that columns exist in the data
+      const validColumns = suggestion.columns.filter(colName => 
+        data.columns.some(col => col.name === colName)
+      );
+      
+      if (validColumns.length === 0) {
+        console.warn('⚠️ No valid columns found, using first available columns');
+        const firstTextCol = data.columns.find(col => col.type === 'text');
+        const firstNumCol = data.columns.find(col => col.type === 'number');
+        
+        if (firstTextCol && firstNumCol) {
+          validColumns.push(firstTextCol.name, firstNumCol.name);
+        } else if (data.columns.length >= 1) {
+          validColumns.push(data.columns[0].name);
+          if (data.columns.length >= 2) {
+            validColumns.push(data.columns[1].name);
+          }
+        }
+      }
+      
+      console.log('✅ Using columns for chart:', validColumns);
+      
+      // Prepare chart data using the enhanced data preparation with validated columns
       const chartData = prepareChartData(data, {
         type: suggestion.type,
         title: suggestion.title,
         description: suggestion.description,
-        columns: suggestion.columns,
+        columns: validColumns, // Use validated columns
         priority: suggestion.priority
       });
       
@@ -85,6 +107,7 @@ export function createAIChartsFromData(
         type: chart.type,
         priority: suggestion.priority,
         dataLength: chart.data.datasets?.[0]?.data?.length,
+        actualColumns: validColumns,
         hasRealData: chart.data.datasets?.[0]?.data?.length > 0
       });
       charts.push(chart);
@@ -96,6 +119,20 @@ export function createAIChartsFromData(
         fallbackChart.title = suggestion.title || 'Data Overview';
         fallbackChart.size = layout.size;
         fallbackChart.id = uuidv4();
+        
+        // Create simple fallback data using actual column names
+        const firstCol = data.columns[0]?.name || 'Category';
+        const secondCol = data.columns[1]?.name || 'Value';
+        
+        fallbackChart.data = {
+          labels: [firstCol],
+          datasets: [{
+            label: secondCol,
+            data: [data.rows.length],
+            backgroundColor: '#4F46E5'
+          }]
+        };
+        
         charts.push(fallbackChart);
         console.log('⚠️ Created fallback chart for failed suggestion');
       } catch (fallbackError) {
@@ -104,7 +141,7 @@ export function createAIChartsFromData(
     }
   });
   
-  console.log(`\n🎉 Created ${charts.length} charts total`);
+  console.log(`\n🎉 Created ${charts.length} charts total with real user data`);
   return charts;
 }
 

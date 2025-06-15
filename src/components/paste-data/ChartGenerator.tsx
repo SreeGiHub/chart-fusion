@@ -47,7 +47,8 @@ export const useChartGenerator = () => {
     console.log('📊 Data overview:', {
       rows: processedData.rows.length,
       columns: processedData.columns.length,
-      columnTypes: processedData.columns.map(col => `${col.name} (${col.type})`)
+      columnTypes: processedData.columns.map(col => `${col.name} (${col.type})`),
+      sampleData: processedData.rows.slice(0, 3)
     });
     
     const validation = validateData(processedData);
@@ -68,6 +69,12 @@ export const useChartGenerator = () => {
       
       const suggestions = await generateAIChartSuggestions(processedData, geminiApiKey);
       console.log('✅ AI suggestions received:', suggestions.length);
+      console.log('📋 AI suggestions details:', suggestions.map(s => ({
+        type: s.type,
+        title: s.title,
+        columns: s.columns,
+        priority: s.priority
+      })));
       
       if (suggestions.length === 0) {
         console.log('⚠️ No AI suggestions, using enhanced fallback');
@@ -94,6 +101,12 @@ export const useChartGenerator = () => {
         console.log('🏗️ Creating charts from AI suggestions...');
         const charts = createAIChartsFromData(processedData, suggestions);
         console.log('✅ Successfully created charts:', charts.length);
+        console.log('📊 Charts created with data:', charts.map(chart => ({
+          title: chart.title,
+          type: chart.type,
+          dataLabels: chart.data.labels?.slice(0, 3),
+          dataPoints: chart.data.datasets?.[0]?.data?.slice(0, 3)
+        })));
         
         // Add charts to dashboard with proper positioning
         charts.forEach((chart, index) => {
@@ -134,7 +147,7 @@ export const useChartGenerator = () => {
             {
               type: 'bar' as const,
               columns: processedData.columns.slice(0, 2).map(col => col.name),
-              title: 'Data Overview',
+              title: `${processedData.columns[1]?.name || 'Values'} by ${processedData.columns[0]?.name || 'Category'}`,
               description: 'Fallback visualization of your data',
               priority: 5
             }
@@ -147,7 +160,7 @@ export const useChartGenerator = () => {
             dispatch({ type: "ADD_ITEM", payload: chartWithPosition });
           });
           
-          toast.success("Generated fallback charts successfully! 📊");
+          toast.success("Generated fallback charts with your actual data! 📊");
           onComplete();
         } catch (fallbackError) {
           console.error("❌ Fallback generation failed:", fallbackError);
