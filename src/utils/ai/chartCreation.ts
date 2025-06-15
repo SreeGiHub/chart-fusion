@@ -1,3 +1,4 @@
+
 import { ChartItemType, Position } from "@/types";
 import { createNewChartItem } from "@/utils/chartUtils";
 import { ProcessedData } from "@/utils/dataProcessor";
@@ -8,7 +9,7 @@ import { AIChartSuggestion } from "./types";
 export function createAIChartsFromData(
   data: ProcessedData, 
   suggestions: AIChartSuggestion[], 
-  startPosition: Position = { x: 20, y: 20 }
+  startPosition: Position = { x: 50, y: 50 }
 ): ChartItemType[] {
   console.log('\n=== CREATING CHARTS FROM AI SUGGESTIONS ===');
   console.log('📊 Input data overview:', {
@@ -27,8 +28,8 @@ export function createAIChartsFromData(
   
   const charts: ChartItemType[] = [];
   
-  // Strategic grid layout optimized for business decision-making
-  const gridLayout = calculateBusinessIntelligentLayout(suggestions);
+  // Enhanced grid layout with better spacing and positioning
+  const gridLayout = calculateOptimizedLayout(suggestions);
   
   // Create charts based on AI suggestions with proper mapping
   suggestions.slice(0, 8).forEach((suggestion, index) => {
@@ -75,7 +76,7 @@ export function createAIChartsFromData(
         type: suggestion.type,
         title: suggestion.title,
         description: suggestion.description,
-        columns: validColumns, // Use validated columns
+        columns: validColumns,
         priority: suggestion.priority
       });
       
@@ -92,6 +93,69 @@ export function createAIChartsFromData(
       chart.title = suggestion.title;
       chart.data = chartData;
       chart.id = uuidv4();
+      
+      // Enhanced chart options for better label visibility
+      chart.options = {
+        ...chart.options,
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          ...chart.options?.plugins,
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              font: {
+                size: 12,
+                weight: 'normal'
+              },
+              padding: 15,
+              usePointStyle: true,
+              boxWidth: 12
+            }
+          },
+          title: {
+            display: true,
+            text: chart.title,
+            font: {
+              size: 14,
+              weight: 'bold'
+            },
+            padding: {
+              top: 10,
+              bottom: 20
+            }
+          }
+        },
+        scales: suggestion.type !== 'pie' && suggestion.type !== 'donut' && suggestion.type !== 'funnel' ? {
+          x: {
+            display: true,
+            grid: {
+              display: true,
+              color: 'rgba(0, 0, 0, 0.1)'
+            },
+            ticks: {
+              font: {
+                size: 11
+              },
+              maxRotation: 45,
+              minRotation: 0
+            }
+          },
+          y: {
+            display: true,
+            grid: {
+              display: true,
+              color: 'rgba(0, 0, 0, 0.1)'
+            },
+            ticks: {
+              font: {
+                size: 11
+              }
+            }
+          }
+        } : undefined
+      };
       
       // Add business context to chart options if available
       if (suggestion.businessInsight || suggestion.reasoning) {
@@ -145,11 +209,11 @@ export function createAIChartsFromData(
   return charts;
 }
 
-function calculateBusinessIntelligentLayout(suggestions: AIChartSuggestion[]) {
+function calculateOptimizedLayout(suggestions: AIChartSuggestion[]) {
   const layouts = [];
-  const baseWidth = 400;
-  const baseHeight = 300;
-  const gap = 30;
+  const gap = 40; // Increased gap between charts
+  const baseWidth = 450; // Increased base width
+  const baseHeight = 350; // Increased base height
   
   // Sort suggestions by business priority for optimal placement
   const prioritizedSuggestions = [...suggestions].sort((a, b) => b.priority - a.priority);
@@ -158,33 +222,44 @@ function calculateBusinessIntelligentLayout(suggestions: AIChartSuggestion[]) {
     const suggestion = prioritizedSuggestions[i];
     const isExecutiveLevel = suggestion.priority >= 9;
     const isStrategic = suggestion.priority >= 7;
-    const isKPI = suggestion.type === 'card' || suggestion.type === 'gauge';
+    const isKPI = suggestion.type === 'card' || suggestion.type === 'gauge' || suggestion.type === 'multi-row-card';
     const isDetailedAnalysis = suggestion.type === 'table' || suggestion.type === 'scatter' || suggestion.type === 'bubble';
+    const isWideChart = suggestion.type === 'funnel' || suggestion.type === 'stacked-bar';
     
     let width = baseWidth;
     let height = baseHeight;
     
     // Strategic sizing based on business importance and chart type
     if (isKPI && isExecutiveLevel) {
-      width = 320;
-      height = 200;
-    } else if (isExecutiveLevel) {
+      width = 380;
+      height = 220;
+    } else if (suggestion.type === 'table') {
+      width = 600;
+      height = 400;
+    } else if (suggestion.type === 'multi-row-card') {
+      width = 420;
+      height = 280;
+    } else if (isWideChart) {
       width = 500;
-      height = 350;
+      height = 380;
+    } else if (isExecutiveLevel) {
+      width = 480;
+      height = 360;
     } else if (isStrategic) {
       width = 450;
-      height = 320;
+      height = 340;
     } else if (isDetailedAnalysis) {
-      width = 480;
-      height = 320;
+      width = 500;
+      height = 380;
     } else if (isKPI) {
-      width = 300;
-      height = 180;
+      width = 350;
+      height = 200;
     }
     
-    // Calculate position in business-optimized grid
+    // Calculate position in optimized grid with proper spacing
     let col, row;
     
+    // Arrange in a 3-column grid with better spacing
     if (i < 3) {
       col = i;
       row = 0;
@@ -196,9 +271,13 @@ function calculateBusinessIntelligentLayout(suggestions: AIChartSuggestion[]) {
       row = 2;
     }
     
+    // Calculate actual positions with dynamic spacing based on chart sizes
+    const xSpacing = Math.max(baseWidth, width) + gap;
+    const ySpacing = Math.max(baseHeight, height) + gap + 30; // Extra space for titles
+    
     layouts.push({
-      x: col * (baseWidth + gap),
-      y: row * (baseHeight + gap + 20),
+      x: col * xSpacing,
+      y: row * ySpacing,
       size: { width, height }
     });
   }

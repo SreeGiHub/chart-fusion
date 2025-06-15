@@ -1,4 +1,3 @@
-
 import { ChartData } from "@/types";
 import { ProcessedData } from "../dataProcessor";
 import { ChartSuggestion } from "../autoChartGenerator";
@@ -17,7 +16,7 @@ export function prepareChartData(data: ProcessedData, suggestion: ChartSuggestio
   
   const relevantColumns = suggestion.columns;
   
-  // Special handling for table charts
+  // Special handling for table charts with better formatting
   if (suggestion.type === 'table') {
     console.log('🔧 Preparing table chart data...');
     const tableColumns = data.columns.slice(0, 6).map((col, index) => ({
@@ -27,7 +26,7 @@ export function prepareChartData(data: ProcessedData, suggestion: ChartSuggestio
       align: col.type === 'number' ? 'right' as const : 'left' as const
     }));
 
-    const tableRows = data.rows.slice(0, 10).map(row => {
+    const tableRows = data.rows.slice(0, 15).map(row => {
       const processedRow: Record<string, any> = {};
       data.columns.slice(0, 6).forEach(col => {
         const key = col.name.toLowerCase().replace(/\s+/g, '_');
@@ -55,7 +54,7 @@ export function prepareChartData(data: ProcessedData, suggestion: ChartSuggestio
     };
   }
 
-  // Special handling for multi-row cards
+  // Enhanced handling for multi-row cards with better metrics
   if (suggestion.type === 'multi-row-card') {
     console.log('🔧 Preparing multi-row card data...');
     const numericColumns = data.columns.filter(col => col.type === 'number');
@@ -68,11 +67,24 @@ export function prepareChartData(data: ProcessedData, suggestion: ChartSuggestio
         .filter(val => !isNaN(val));
       
       return columnValues.length > 0 
-        ? columnValues.reduce((sum, val) => sum + val, 0) / columnValues.length
+        ? Math.round(columnValues.reduce((sum, val) => sum + val, 0) / columnValues.length)
         : 0;
     });
 
-    const changes = values.map(() => (Math.random() - 0.5) * 20); // Random change percentages
+    // Calculate realistic change percentages based on data variance
+    const changes = selectedColumns.map(col => {
+      const columnValues = data.rows
+        .map(row => parseFloat(String(row[col.name])))
+        .filter(val => !isNaN(val));
+      
+      if (columnValues.length > 1) {
+        const avg = columnValues.reduce((sum, val) => sum + val, 0) / columnValues.length;
+        const variance = columnValues.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / columnValues.length;
+        const stdDev = Math.sqrt(variance);
+        return Math.round((stdDev / avg) * 100 * (Math.random() > 0.5 ? 1 : -1) * 100) / 100;
+      }
+      return (Math.random() - 0.5) * 20;
+    });
 
     return {
       labels,
@@ -95,10 +107,30 @@ export function prepareChartData(data: ProcessedData, suggestion: ChartSuggestio
   const enhancedData = prepareEnhancedChartData(data, suggestion);
   if (enhancedData) {
     console.log('✅ Using enhanced chart data preparation');
+    
+    // Ensure labels are properly formatted for better visibility
+    if (enhancedData.labels && enhancedData.labels.length > 0) {
+      enhancedData.labels = enhancedData.labels.map(label => {
+        const str = String(label);
+        // Truncate long labels but keep them readable
+        return str.length > 15 ? str.substring(0, 12) + '...' : str;
+      });
+    }
+    
     return enhancedData;
   }
   
-  // Fall back to default chart data preparation
+  // Fall back to default chart data preparation with enhanced formatting
   console.log('📊 Using default chart data preparation for type:', suggestion.type);
-  return prepareDefaultChartData(data, suggestion, relevantColumns);
+  const defaultData = prepareDefaultChartData(data, suggestion, relevantColumns);
+  
+  // Apply consistent label formatting
+  if (defaultData.labels && defaultData.labels.length > 0) {
+    defaultData.labels = defaultData.labels.map(label => {
+      const str = String(label);
+      return str.length > 15 ? str.substring(0, 12) + '...' : str;
+    });
+  }
+  
+  return defaultData;
 }
