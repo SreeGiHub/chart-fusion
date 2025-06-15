@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { ChartData, TableColumnConfig, TableRowData } from '@/types';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Trash2, Edit2 } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 
 interface TableChartProps {
   data: ChartData;
@@ -46,16 +45,6 @@ const TableChart: React.FC<TableChartProps> = ({ data, onDataUpdate }) => {
     setEditingHeader(null);
   };
 
-  const deleteRow = (rowIndex: number) => {
-    if (!onDataUpdate) return;
-
-    const newRows = rows.filter((_, index) => index !== rowIndex);
-    onDataUpdate({
-      ...data,
-      tableRows: newRows
-    });
-  };
-
   return (
     <div className="w-full h-full overflow-auto p-4">
       <div className="border rounded-lg overflow-hidden">
@@ -87,7 +76,6 @@ const TableChart: React.FC<TableChartProps> = ({ data, onDataUpdate }) => {
                   )}
                 </th>
               ))}
-              <th className="w-10 p-3"></th>
             </tr>
           </thead>
           <tbody>
@@ -117,16 +105,6 @@ const TableChart: React.FC<TableChartProps> = ({ data, onDataUpdate }) => {
                     )}
                   </td>
                 ))}
-                <td className="p-3 border-b">
-                  <Button
-                    onClick={() => deleteRow(rowIndex)}
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </td>
               </tr>
             ))}
           </tbody>
