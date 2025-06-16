@@ -8,6 +8,7 @@ import ConfigureColumnsStep from "./paste-data/ConfigureColumnsStep";
 import PreviewDataStep from "./paste-data/PreviewDataStep";
 import { processData, ProcessedData, DataValidationResult, validateData } from "@/utils/dataProcessor";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface PasteDataDialogProps {
   open: boolean;
@@ -45,19 +46,33 @@ const PasteDataDialog: React.FC<PasteDataDialogProps> = ({
   };
 
   const handleProcessData = () => {
+    if (!rawData.trim()) {
+      toast.error("Please enter some data first");
+      return;
+    }
+
     setIsProcessing(true);
-    const processed = processData(rawData);
-    setProcessedData(processed);
-    setValidation(validateData(processed));
-    setActiveTab("configure");
-    setIsProcessing(false);
+    try {
+      const processed = processData(rawData);
+      setProcessedData(processed);
+      setValidation(validateData(processed));
+      setActiveTab("configure");
+      toast.success("Data processed successfully!");
+    } catch (error) {
+      console.error("Error processing data:", error);
+      toast.error("Failed to process data. Please check your data format.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleTrySampleData = () => {
     const sampleData = `Name	Age	Sales	Region
 John	25	1500	North
 Sarah	30	2000	South
-Mike	28	1800	East`;
+Mike	28	1800	East
+Lisa	32	2200	West
+Tom	27	1600	North`;
     setRawData(sampleData);
   };
 
@@ -78,6 +93,17 @@ Mike	28	1800	East`;
   };
 
   const handleGenerateCharts = () => {
+    if (!processedData) {
+      toast.error("No data available for chart generation");
+      return;
+    }
+
+    const validation = validateData(processedData);
+    if (!validation.isValid) {
+      toast.error("Please fix validation issues before generating charts");
+      return;
+    }
+
     console.log('🚀 Starting chart generation with data:', {
       processedData: !!processedData,
       geminiApiKey: !!geminiApiKey,
@@ -86,6 +112,10 @@ Mike	28	1800	East`;
     });
     
     setIsGenerating(true);
+    
+    // Show loading message
+    toast.loading("Preparing dashboard generation...");
+    
     // Close dialog first
     onOpenChange(false);
     
@@ -99,12 +129,14 @@ Mike	28	1800	East`;
     });
     
     // Reset state
-    setActiveTab("enter");
-    setRawData("");
-    setProcessedData(null);
-    setValidation(null);
-    setGeminiApiKey("");
-    setIsGenerating(false);
+    setTimeout(() => {
+      setActiveTab("enter");
+      setRawData("");
+      setProcessedData(null);
+      setValidation(null);
+      setGeminiApiKey("");
+      setIsGenerating(false);
+    }, 1000);
   };
 
   const handleComplete = () => {
@@ -118,6 +150,7 @@ Mike	28	1800	East`;
     setProcessedData(null);
     setValidation(null);
     setGeminiApiKey("");
+    setIsGenerating(false);
   };
 
   return (

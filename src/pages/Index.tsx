@@ -31,11 +31,13 @@ const IndexContent = () => {
     }
   }, [isMobile]);
 
-  // Handle chart generation from landing page navigation
+  // Handle chart generation from paste data dialog
   useEffect(() => {
     const state = location.state as any;
-    if (state?.shouldGenerateCharts && state?.processedData && state?.geminiApiKey) {
-      console.log('🚀 Generating charts from landing page navigation');
+    console.log('🔍 Navigation state received:', state);
+    
+    if (state?.shouldGenerateCharts && state?.processedData) {
+      console.log('🚀 Triggering chart generation from navigation state');
       
       // Clear the navigation state to prevent re-generation on refresh
       navigate("/dashboard", { replace: true });
@@ -43,9 +45,10 @@ const IndexContent = () => {
       // Generate charts with the provided data
       generateCharts(
         state.processedData,
-        state.geminiApiKey,
+        state.geminiApiKey || '',
         () => {
-          console.log('✅ Charts generated successfully from landing page');
+          console.log('✅ Charts generated successfully from paste data');
+          toast.success("Dashboard generated successfully! 🎉");
         },
         false // not a regeneration
       );
