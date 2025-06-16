@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -127,17 +128,23 @@ const LandingPage = () => {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             {/* Visualize Button with Sample Data */}
             <div className="flex flex-col items-center gap-3">
-              <Button 
-                size="lg" 
-                className="px-12 py-6 text-lg rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                onClick={handleVisualizeClick}
-              >
-                <Sparkles className="h-5 w-5" />
-                Visualize
-              </Button>
+              <div className="relative">
+                <Button 
+                  size="lg" 
+                  className="px-12 py-6 text-lg rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  onClick={handleVisualizeClick}
+                >
+                  <Sparkles className="h-5 w-5" />
+                  Visualize
+                </Button>
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  BETA
+                </span>
+              </div>
               <div className="text-center max-w-xs">
                 <p className="text-sm font-medium text-gray-700 mb-1">Paste your data & visualize</p>
                 <p className="text-xs text-gray-500">Upload your data and instantly create beautiful charts</p>
+                <p className="text-xs text-orange-600 font-medium mt-1">Beta - AI-powered feature</p>
               </div>
             </div>
 

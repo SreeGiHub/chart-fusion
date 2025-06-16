@@ -1,12 +1,9 @@
 
-import PasteDataDialog from "./PasteDataDialog";
 import ChartCategoriesDropdown from "./toolbar/ChartCategoriesDropdown";
 import ExportDropdown from "./toolbar/ExportDropdown";
 import ToolbarActions from "./toolbar/ToolbarActions";
 import DashboardTitle from "./toolbar/DashboardTitle";
-import PasteDataButton from "./toolbar/PasteDataButton";
 import SettingsDialog from "./toolbar/SettingsDialog";
-import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -18,7 +15,6 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
-  const [isPasteDataOpen, setIsPasteDataOpen] = useState(false);
   const { state, dispatch } = useDashboard();
 
   const handleClearCanvas = () => {
@@ -34,7 +30,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
   return (
     <div className="bg-background border-b p-2 flex items-center justify-between">
       <div className="left-section flex items-center gap-3">
-        <PasteDataButton onPasteDataOpen={() => setIsPasteDataOpen(true)} />
         <ChartCategoriesDropdown onTextToChartOpen={() => {}} />
         <ToolbarActions onTextToChartOpen={() => {}} />
         
@@ -62,11 +57,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ canvasRef }) => {
       <div className="right-section flex items-center gap-2">
         <ExportDropdown canvasRef={canvasRef} />
         <SettingsDialog />
-        
-        <PasteDataDialog 
-          open={isPasteDataOpen} 
-          onOpenChange={setIsPasteDataOpen} 
-        />
       </div>
     </div>
   );
