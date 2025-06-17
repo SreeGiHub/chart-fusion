@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PasteDataTabs from "./paste-data/PasteDataTabs";
@@ -91,6 +90,49 @@ Tom	27	1600	North`;
     } else if (activeTab === "preview") {
       setActiveTab("configure");
     }
+  };
+
+  const handlePickCharts = (templates: ChartTemplate[]) => {
+    if (!processedData) {
+      toast.error("No data available for chart generation");
+      return;
+    }
+
+    const validation = validateData(processedData);
+    if (!validation.isValid) {
+      toast.error("Please fix validation issues before generating charts");
+      return;
+    }
+
+    console.log('🚀 Starting chart generation with selected templates:', {
+      templates: templates.length,
+      processedData: !!processedData,
+      dataRows: processedData?.rows.length,
+      dataColumns: processedData?.columns.length
+    });
+    
+    // Close dialog first
+    onOpenChange(false);
+    
+    // Navigate to dashboard and pass the data through navigation state
+    navigate("/dashboard", { 
+      state: { 
+        shouldGenerateCharts: true,
+        processedData,
+        selectedTemplates: templates,
+        isManualSelection: true
+      } 
+    });
+    
+    // Reset state
+    setTimeout(() => {
+      setActiveTab("enter");
+      setRawData("");
+      setProcessedData(null);
+      setValidation(null);
+      setGeminiApiKey("");
+      setIsGenerating(false);
+    }, 1000);
   };
 
   const handleGenerateCharts = () => {
@@ -195,7 +237,7 @@ Tom	27	1600	North`;
                 geminiApiKey={geminiApiKey}
                 setGeminiApiKey={setGeminiApiKey}
                 onGenerateCharts={handleGenerateCharts}
-                onRegenerateCharts={handleGenerateCharts}
+                onPickCharts={handlePickCharts}
               />
             )}
           </div>
