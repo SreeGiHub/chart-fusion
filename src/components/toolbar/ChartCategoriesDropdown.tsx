@@ -3,6 +3,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useDashboard } from "@/context/DashboardContext";
 import { 
@@ -18,10 +19,12 @@ import {
   FileText,
   Activity,
   Layers,
-  TrendingUp
+  TrendingUp,
+  Grid3X3
 } from "lucide-react";
 import { ChartData } from "@/types";
 import { useState } from "react";
+import MultiSelectChartDialog from "./MultiSelectChartDialog";
 
 interface ChartCategoriesDropdownProps {
   onTextToChartOpen: () => void;
@@ -30,6 +33,7 @@ interface ChartCategoriesDropdownProps {
 const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTextToChartOpen }) => {
   const { state, dispatch } = useDashboard();
   const [isOpen, setIsOpen] = useState(false);
+  const [isMultiSelectOpen, setIsMultiSelectOpen] = useState(false);
 
   const getNextPosition = () => {
     const existingItems = state.items;
@@ -100,6 +104,11 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
     setTimeout(() => setIsOpen(false), 200);
   };
 
+  const handleMultiSelectOpen = () => {
+    setIsMultiSelectOpen(true);
+    setIsOpen(false);
+  };
+
   const chartCategories = [
     {
       name: "Column & Bar",
@@ -159,41 +168,65 @@ const ChartCategoriesDropdown: React.FC<ChartCategoriesDropdownProps> = ({ onTex
   ];
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2 hover:bg-gray-50 transition-colors">
-          <Plus className="h-4 w-4" />
-          Add Chart
-          <ChevronDown className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[700px] p-6" align="start">
-        <div className="grid grid-cols-2 gap-4">
-          {chartCategories.map((category) => (
-            <div
-              key={category.name}
-              className={`rounded-xl border-2 p-5 ${category.color} hover:shadow-md transition-shadow`}
+    <>
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="flex items-center gap-2 hover:bg-gray-50 transition-colors">
+            <Plus className="h-4 w-4" />
+            Add Chart
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-[700px] p-6" align="start">
+          {/* Multi-select option */}
+          <div className="mb-4">
+            <button
+              onClick={handleMultiSelectOpen}
+              className="w-full text-left text-sm px-4 py-3 rounded-lg bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-200 hover:bg-gradient-to-r hover:from-emerald-100 hover:to-cyan-100 transition-all duration-150 text-gray-700 hover:text-gray-900 flex items-center gap-3 hover:shadow-sm"
             >
-              <h3 className={`font-semibold text-lg mb-4 ${category.textColor}`}>
-                {category.name}
-              </h3>
-              <div className="space-y-2">
-                {category.charts.map((chart) => (
-                  <button
-                    key={chart.type}
-                    onClick={() => addChart(chart.type)}
-                    className="w-full text-left text-sm px-4 py-3 rounded-lg hover:bg-white/70 active:bg-white/90 transition-all duration-150 text-gray-700 hover:text-gray-900 flex items-center gap-3 hover:shadow-sm"
-                  >
-                    <chart.icon className="h-4 w-4 flex-shrink-0" />
-                    <span className="font-medium">{chart.label}</span>
-                  </button>
-                ))}
+              <Grid3X3 className="h-4 w-4 flex-shrink-0 text-emerald-600" />
+              <div>
+                <span className="font-medium">Add Multiple Charts</span>
+                <p className="text-xs text-emerald-700 mt-1">Select and add multiple charts at once</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            </button>
+          </div>
+          
+          <DropdownMenuSeparator className="my-4" />
+          
+          {/* Individual chart categories */}
+          <div className="grid grid-cols-2 gap-4">
+            {chartCategories.map((category) => (
+              <div
+                key={category.name}
+                className={`rounded-xl border-2 p-5 ${category.color} hover:shadow-md transition-shadow`}
+              >
+                <h3 className={`font-semibold text-lg mb-4 ${category.textColor}`}>
+                  {category.name}
+                </h3>
+                <div className="space-y-2">
+                  {category.charts.map((chart) => (
+                    <button
+                      key={chart.type}
+                      onClick={() => addChart(chart.type)}
+                      className="w-full text-left text-sm px-4 py-3 rounded-lg hover:bg-white/70 active:bg-white/90 transition-all duration-150 text-gray-700 hover:text-gray-900 flex items-center gap-3 hover:shadow-sm"
+                    >
+                      <chart.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="font-medium">{chart.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <MultiSelectChartDialog
+        open={isMultiSelectOpen}
+        onOpenChange={setIsMultiSelectOpen}
+      />
+    </>
   );
 };
 

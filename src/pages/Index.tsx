@@ -1,3 +1,4 @@
+
 import { useRef, useEffect } from "react";
 import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import Toolbar from "@/components/Toolbar";
@@ -8,6 +9,7 @@ import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AlertCircle } from "lucide-react";
 import { useChartGenerator } from "@/components/paste-data/ChartGenerator";
+import { convertTemplateToChart } from "@/utils/templateToChart";
 
 const IndexContent = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -42,18 +44,37 @@ const IndexContent = () => {
       // Clear the navigation state to prevent re-generation on refresh
       navigate("/dashboard", { replace: true });
       
-      // Generate charts with the provided data
-      generateCharts(
-        state.processedData,
-        state.geminiApiKey || '',
-        () => {
-          console.log('✅ Charts generated successfully from paste data');
-          toast.success("Dashboard generated successfully! 🎉");
-        },
-        false // not a regeneration
-      );
+      if (state?.isManualSelection && state?.selectedTemplates) {
+        // Handle manual template selection
+        console.log('📊 Creating charts from selected templates:', state.selectedTemplates);
+        
+        let currentY = 50;
+        const chartSpacing = 350;
+        
+        state.selectedTemplates.forEach((template: any, index: number) => {
+          const chartItem = convertTemplateToChart(template, state.processedData, {
+            x: 50 + (index % 3) * 450, // 3 charts per row
+            y: currentY + Math.floor(index / 3) * chartSpacing
+          });
+          
+          dispatch({ type: "ADD_ITEM", payload: chartItem });
+        });
+        
+        toast.success(`Created ${state.selectedTemplates.length} charts successfully! 🎉`);
+      } else {
+        // Handle AI generation
+        generateCharts(
+          state.processedData,
+          state.geminiApiKey || '',
+          () => {
+            console.log('✅ Charts generated successfully from paste data');
+            toast.success("Dashboard generated successfully! 🎉");
+          },
+          false // not a regeneration
+        );
+      }
     }
-  }, [location.state, generateCharts, navigate]);
+  }, [location.state, generateCharts, navigate, dispatch]);
 
   return (
     <div className="flex flex-col h-screen">
