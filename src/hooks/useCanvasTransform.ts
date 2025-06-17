@@ -14,18 +14,10 @@ export const useCanvasTransform = () => {
 
   const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
     if (isPanning) {
-      const deltaX = e.clientX - lastPanPoint.x;
-      const deltaY = e.clientY - lastPanPoint.y;
-      
-      setTransform(prev => ({
-        ...prev,
-        x: prev.x + deltaX,
-        y: prev.y + deltaY
-      }));
-      
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
+      // Since we're using ScrollArea, we don't need to manually handle panning
+      // The scroll will be handled by the ScrollArea component
     }
-  }, [isPanning, lastPanPoint]);
+  }, [isPanning]);
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false);
@@ -33,6 +25,12 @@ export const useCanvasTransform = () => {
 
   const resetView = () => {
     setTransform({ x: 0, y: 0, scale: 1 });
+    // Reset scroll position
+    const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
+    if (scrollArea) {
+      scrollArea.scrollTop = 0;
+      scrollArea.scrollLeft = 0;
+    }
   };
 
   // Add global event listeners

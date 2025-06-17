@@ -57,15 +57,11 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) =>
     if (canvas) {
       const currentTransform = canvas.style.transform;
       const scaleMatch = currentTransform.match(/scale\(([^)]+)\)/);
-      const translateMatch = currentTransform.match(/translate\(([^,]+),\s*([^)]+)\)/);
       
       const currentScale = scaleMatch ? parseFloat(scaleMatch[1]) : 1;
-      const currentX = translateMatch ? parseFloat(translateMatch[1].replace('px', '')) : 0;
-      const currentY = translateMatch ? parseFloat(translateMatch[2].replace('px', '')) : 0;
-      
       const newScale = Math.min(Math.max(currentScale * scaleFactor, 0.1), 5);
       
-      canvas.style.transform = `translate(${currentX}px, ${currentY}px) scale(${newScale})`;
+      canvas.style.transform = `scale(${newScale})`;
     }
   };
 
@@ -80,12 +76,18 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({ onTextToChartOpen }) =>
   const handleResetZoom = () => {
     const canvas = document.getElementById('dashboard-canvas');
     if (canvas) {
-      canvas.style.transform = 'translate(0px, 0px) scale(1)';
+      canvas.style.transform = 'scale(1)';
+    }
+    // Reset scroll position
+    const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
+    if (scrollArea) {
+      scrollArea.scrollTop = 0;
+      scrollArea.scrollLeft = 0;
     }
   };
 
   const handleNavigationInfo = () => {
-    toast.info("Cmd/Ctrl + Click & Drag to pan • Cmd/Ctrl + Scroll to zoom • Cmd/Ctrl + 0 to reset view", {
+    toast.info("Use scrollbars to navigate • Cmd/Ctrl + Scroll to zoom • Cmd/Ctrl + 0 to reset view", {
       duration: 4000,
     });
   };
