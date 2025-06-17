@@ -1,9 +1,11 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, RefreshCw, AlertTriangle, ArrowRight } from "lucide-react";
+import { Sparkles, AlertTriangle, ArrowRight, Grid3X3 } from "lucide-react";
 import { ProcessedData, DataValidationResult } from "@/utils/dataProcessor";
 import GeminiApiKeyInput from "./GeminiApiKeyInput";
+import PickAChartDialog from "./PickAChartDialog";
+import { ChartTemplate } from "@/utils/chartTemplates";
 
 interface PreviewDataStepProps {
   processedData: ProcessedData;
@@ -12,7 +14,7 @@ interface PreviewDataStepProps {
   geminiApiKey: string;
   setGeminiApiKey: (key: string) => void;
   onGenerateCharts: () => void;
-  onRegenerateCharts?: () => void;
+  onPickCharts: (templates: ChartTemplate[]) => void;
 }
 
 const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
@@ -22,10 +24,15 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
   geminiApiKey,
   setGeminiApiKey,
   onGenerateCharts,
-  onRegenerateCharts,
+  onPickCharts,
 }) => {
   const [showKey, setShowKey] = useState(false);
+  const [isPickChartOpen, setIsPickChartOpen] = useState(false);
   const hasValidData = validation?.isValid !== false;
+
+  const handlePickCharts = (templates: ChartTemplate[]) => {
+    onPickCharts(templates);
+  };
 
   return (
     <div className="space-y-6">
@@ -43,14 +50,6 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
           </ul>
         </div>
       )}
-
-      {/* Gemini API Key Input */}
-      <GeminiApiKeyInput
-        apiKey={geminiApiKey}
-        setApiKey={setGeminiApiKey}
-        showKey={showKey}
-        setShowKey={setShowKey}
-      />
 
       {/* Data Preview Table */}
       <div>
@@ -88,47 +87,89 @@ const PreviewDataStep: React.FC<PreviewDataStepProps> = ({
         </div>
       </div>
 
-      {/* Continue to Preview Data Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Continue to Preview Data
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {hasValidData 
-                ? "Your data is ready! Generate an AI-powered dashboard with intelligent visualizations." 
-                : "Please fix validation issues before proceeding to dashboard generation."
-              }
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {onRegenerateCharts && (
-              <Button
-                variant="outline"
-                onClick={onRegenerateCharts}
-                disabled={!hasValidData || isGenerating}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-                Regenerate Charts
-              </Button>
-            )}
+      {/* Chart Creation Options */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-gray-900">Create Your Charts</h3>
+        <p className="text-sm text-muted-foreground">
+          Choose how you want to visualize your data - pick specific charts or let AI create a complete dashboard.
+        </p>
+
+        {/* Pick a Chart Option */}
+        <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-200 rounded-lg p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h4 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Grid3X3 className="h-5 w-5 text-emerald-600" />
+                Pick a Chart
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Browse all available chart types and manually select the ones you want to create with your data.
+              </p>
+              <p className="text-xs text-emerald-700 font-medium">
+                Manual selection • Instant creation • Full control
+              </p>
+            </div>
             
             <Button
-              onClick={onGenerateCharts}
-              disabled={!hasValidData || isGenerating}
-              className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white px-6 py-3"
+              onClick={() => setIsPickChartOpen(true)}
+              disabled={!hasValidData}
+              variant="outline"
+              className="flex items-center gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
               size="lg"
             >
-              <Sparkles className="h-4 w-4" />
-              {isGenerating ? "Generating Dashboard..." : "Generate Dashboard"}
+              <Grid3X3 className="h-4 w-4" />
+              Browse Charts
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
+
+        {/* AI Generate Dashboard Option */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <h4 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-blue-600" />
+                  Generate Dashboard with AI
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Let AI analyze your data and create an intelligent dashboard with multiple relevant charts and insights.
+                </p>
+                <p className="text-xs text-blue-700 font-medium">
+                  AI-powered • Multiple charts • Business insights
+                </p>
+              </div>
+              
+              <Button
+                onClick={onGenerateCharts}
+                disabled={!hasValidData || isGenerating}
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                size="lg"
+              >
+                <Sparkles className="h-4 w-4" />
+                {isGenerating ? "Generating..." : "Generate Dashboard"}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Gemini API Key Input for AI option */}
+            <GeminiApiKeyInput
+              apiKey={geminiApiKey}
+              setApiKey={setGeminiApiKey}
+              showKey={showKey}
+              setShowKey={setShowKey}
+            />
+          </div>
+        </div>
       </div>
+
+      {/* Pick a Chart Dialog */}
+      <PickAChartDialog
+        open={isPickChartOpen}
+        onOpenChange={setIsPickChartOpen}
+        onChartsSelected={handlePickCharts}
+      />
     </div>
   );
 };

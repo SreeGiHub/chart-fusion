@@ -1,6 +1,5 @@
-
 import { useRef, useEffect } from "react";
-import { DashboardProvider } from "@/context/DashboardContext";
+import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import Toolbar from "@/components/Toolbar";
 import Canvas from "@/components/Canvas";
 import Sidebar from "@/components/Sidebar";
@@ -18,6 +17,7 @@ const IndexContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { generateCharts } = useChartGenerator();
+  const { dispatch } = useDashboard();
 
   useEffect(() => {
     if (isMobile) {

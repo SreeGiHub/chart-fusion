@@ -7,6 +7,7 @@ import EnterDataStep from "./paste-data/EnterDataStep";
 import ConfigureColumnsStep from "./paste-data/ConfigureColumnsStep";
 import PreviewDataStep from "./paste-data/PreviewDataStep";
 import { processData, ProcessedData, DataValidationResult, validateData } from "@/utils/dataProcessor";
+import { ChartTemplate } from "@/utils/chartTemplates";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
