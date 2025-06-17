@@ -1,4 +1,3 @@
-
 import { ChartTemplate } from "./chartTemplates";
 import { ProcessedData } from "./dataProcessor";
 import { ChartItemType, ChartData, Position } from "@/types";
@@ -62,7 +61,7 @@ const createTableData = (processedData: ProcessedData): ChartData => {
     labels: [],
     datasets: [],
     tableColumns,
-    tableRows: processedData.rows.slice(0, 100) // Limit to 100 rows as requested
+    tableRows: processedData.rows.slice(0, 100)
   };
 };
 
@@ -72,9 +71,7 @@ const createCardData = (template: ChartTemplate, processedData: ProcessedData): 
   if (!valueColumn) {
     return {
       labels: [],
-      datasets: [],
-      value: 0,
-      label: 'No Data'
+      datasets: []
     };
   }
   
@@ -104,15 +101,19 @@ const createCardData = (template: ChartTemplate, processedData: ProcessedData): 
   }
   
   return {
-    labels: [],
-    datasets: [],
-    value: calculatedValue,
-    label: valueColumn.name
+    labels: [valueColumn.name],
+    datasets: [{
+      label: valueColumn.name,
+      data: [calculatedValue],
+      backgroundColor: '#8884d8',
+      borderColor: '#8884d8',
+      borderWidth: 2
+    }]
   };
 };
 
 const createPieData = (template: ChartTemplate, processedData: ProcessedData): ChartData => {
-  const labelColumn = findColumn(template.dataMapping.labelColumn, processedData, 'string');
+  const labelColumn = findColumn(template.dataMapping.labelColumn, processedData, 'text');
   const valueColumn = findColumn(template.dataMapping.valueColumn, processedData, 'number');
   
   if (!labelColumn || !valueColumn) {
@@ -163,7 +164,7 @@ const createPieData = (template: ChartTemplate, processedData: ProcessedData): C
 const createStandardChartData = (template: ChartTemplate, processedData: ProcessedData): ChartData => {
   const xColumn = findColumn(template.dataMapping.xAxis, processedData);
   const yColumn = findColumn(template.dataMapping.yAxis, processedData, 'number');
-  const groupColumn = findColumn(template.dataMapping.groupBy, processedData, 'string');
+  const groupColumn = findColumn(template.dataMapping.groupBy, processedData, 'text');
   
   if (!xColumn || !yColumn) {
     return {
@@ -293,8 +294,8 @@ const findColumn = (columnName: string | undefined, processedData: ProcessedData
   // Auto-detect column based on type
   if (preferredType === 'number') {
     return processedData.columns.find(col => col.type === 'number');
-  } else if (preferredType === 'string') {
-    return processedData.columns.find(col => col.type === 'string');
+  } else if (preferredType === 'text') {
+    return processedData.columns.find(col => col.type === 'text');
   }
   
   // Return first available column
